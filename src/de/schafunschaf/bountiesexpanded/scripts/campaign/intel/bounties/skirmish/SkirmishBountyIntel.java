@@ -56,8 +56,8 @@ public class SkirmishBountyIntel extends BaseBountyIntel {
             destroyedShips.put(HullSize.CAPITAL_SHIP, Arrays.copyOf(destroyedData, 3));
         }
 
-        float maxRepGain = 25f;
-        float neutralRepGain = 10f;
+        float maxRepGain = 15f;
+        float neutralRepGain = 5f;
         float maxRewardDeduction = 50f;
         float maxRewardIncrease = 15f;
 
