@@ -12,19 +12,26 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import de.schafunschaf.bountiesexpanded.Settings;
+import lombok.extern.log4j.Log4j;
 
 import java.util.Map;
 
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.*;
 
+@Log4j
 public class RemoteWorldPicker {
     public static SectorEntityToken pickRandomHideout(boolean useVanillaMethod) {
-        StarSystemAPI system = pickSystem(null, useVanillaMethod);
+        StarSystemAPI system = pickSystem(null, useVanillaMethod, 10000);
         return pickPlanet(system);
     }
 
     public static SectorEntityToken pickRandomHideout(Map<String, Integer> requiredTags, boolean useVanillaMethod) {
-        StarSystemAPI system = pickSystem(requiredTags, useVanillaMethod);
+        StarSystemAPI system = pickSystem(requiredTags, useVanillaMethod, 10000);
+        return pickPlanet(system);
+    }
+
+    public static SectorEntityToken pickRandomHideout(Map<String, Integer> requiredTags, boolean useVanillaMethod, int rangeLY) {
+        StarSystemAPI system = pickSystem(requiredTags, useVanillaMethod, rangeLY);
         return pickPlanet(system);
     }
 
@@ -44,7 +51,7 @@ public class RemoteWorldPicker {
         }
     }
 
-    private static StarSystemAPI pickSystem(Map<String, Integer> requiredTags, boolean useVanillaMethod) {
+    private static StarSystemAPI pickSystem(Map<String, Integer> requiredTags, boolean useVanillaMethod, int rangeLY) {
         WeightedRandomPicker<StarSystemAPI> systemPicker = new WeightedRandomPicker<>();
         int mult = isNull(requiredTags) ? 1 : 0;
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
@@ -74,6 +81,10 @@ public class RemoteWorldPicker {
             float distToPlayer = Misc.getDistanceToPlayerLY(system.getLocation());
             final float noSpawnRange = Global.getSettings().getFloat("personBountyNoSpawnRangeAroundPlayerLY");
             if (distToPlayer < noSpawnRange)
+                continue;
+
+            float distToAskonia = Misc.getDistanceLY(Global.getSector().getStarSystem("Askonia").getLocation(), system.getLocation());
+            if (distToAskonia > rangeLY)
                 continue;
 
             if (useVanillaMethod) {

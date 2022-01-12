@@ -59,7 +59,7 @@ public class EntityProvider {
         Difficulty difficulty = Difficulty.randomDifficulty();
         int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
         float fractionToKill = (50 - new Random().nextInt(26)) / 100f;
-        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), 100f);
+        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), 23f);
         int bountyCredits = CreditCalculator.getRewardByFP(fp, difficulty.getModifier());
         int bountyLevel = BountyEventData.getSharedData().getLevel();
         fp += level / 100 + 1;
@@ -240,7 +240,7 @@ public class EntityProvider {
         MissionHandler missionHandler = createNewMissionGoal(MissionType.ASSASSINATION);
         Difficulty difficulty = Difficulty.randomDifficulty();
         int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
-        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), 30f);
+        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), 15f);
         float payoutMult = 4f;
         int bountyCredits = CreditCalculator.getRewardByFP(fp, difficulty.getModifier() * payoutMult);
         int rareFlagshipChance = difficulty.getFlatModifier();
@@ -258,7 +258,20 @@ public class EntityProvider {
             return null;
         }
 
-        SectorEntityToken spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false);
+        SectorEntityToken spawnLocation;
+        if (fp > 180) {
+            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false);
+        }
+        else if (fp > 120) {
+            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false, 24);
+        }
+        else if (fp > 60) {
+            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false, 18);
+        }
+        else {
+            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false, 13);
+        }
+
         if (isNull(spawnLocation)) {
             log.warn(NO_HIDEOUT);
             return null;
@@ -294,7 +307,7 @@ public class EntityProvider {
         MissionHandler missionHandler = createNewMissionGoal(MissionType.ASSASSINATION);
         Difficulty difficulty = Difficulty.randomDifficulty();
         int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
-        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), 40f);
+        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), 20f);
         float payoutMult = 5f;
         int bountyCredits = CreditCalculator.getRewardByFP(fp, difficulty.getModifier() * payoutMult);
         int rareFlagshipChance = difficulty.getFlatModifier();
@@ -310,7 +323,16 @@ public class EntityProvider {
             return null;
         }
 
-        SectorEntityToken travelDestination = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false);
+        SectorEntityToken travelDestination;
+        if (fp > 140) {
+            travelDestination = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false);
+        }
+        else if (fp > 80) {
+            travelDestination = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false, 20);
+        }
+        else {
+            travelDestination = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false, 16);
+        }
         if (isNull(travelDestination)) {
             log.warn(NO_DESTINATION);
             return null;
