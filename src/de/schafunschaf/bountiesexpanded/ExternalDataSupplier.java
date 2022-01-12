@@ -30,6 +30,7 @@ public class ExternalDataSupplier {
             Settings.skirmishMinDuration = settings.getInt("skirmishMinDuration");
             Settings.skirmishMaxDuration = settings.getInt("skirmishMaxDuration");
             Settings.skirmishBaseShipBounty = settings.getInt("skirmishBaseShipBounty");
+            Settings.skirmishMinFP = settings.getInt("skirmishMinFP");
 
             Settings.assassinationActive = settings.getBoolean("assassinationActive");
             Settings.assassinationSpawnChance = settings.getDouble("assassinationSpawnChance");
@@ -38,6 +39,7 @@ public class ExternalDataSupplier {
             Settings.assassinationMinTravelDistance = settings.getDouble("assassinationMinTravelDistance");
             Settings.assassinationBaseRewardMultiplier = settings.getInt("assassinationBaseRewardMultiplier");
             Settings.assassinationBonusRewardMultiplier = settings.getInt("assassinationBonusRewardMultiplier");
+            Settings.assassinationMinFP = settings.getInt("assassinationMinFP");
 
             Settings.warCriminalActive = settings.getBoolean("warCriminalActive");
             Settings.warCriminalSpawnChance = settings.getDouble("warCriminalSpawnChance");
@@ -45,6 +47,7 @@ public class ExternalDataSupplier {
             Settings.warCriminalMaxBounties = settings.getInt("warCriminalMaxBounties");
             Settings.warCriminalMinDuration = settings.getInt("warCriminalMinDuration");
             Settings.warCriminalMaxDuration = settings.getInt("warCriminalMaxDuration");
+            Settings.warCriminalMinFP = settings.getInt("warCriminalMinFP");
 
             Settings.pirateBountyActive = settings.getBoolean("pirateBountyActive");
             Settings.disableVanillaBounties = settings.getBoolean("disableVanillaBounties");
@@ -54,6 +57,7 @@ public class ExternalDataSupplier {
             Settings.pirateBountyMaxBounties = settings.getInt("pirateBountyMaxBounties");
             Settings.pirateBountyMinDuration = settings.getInt("pirateBountyMinDuration");
             Settings.pirateBountyMaxDuration = settings.getInt("pirateBountyMaxDuration");
+            Settings.pirateMinFP = settings.getInt("pirateMinFP");
 
             Settings.deserterBountyActive = settings.getBoolean("deserterBountyActive");
             Settings.deserterBountySpawnChance = settings.getDouble("deserterBountySpawnChance");
@@ -61,6 +65,7 @@ public class ExternalDataSupplier {
             Settings.deserterBountyMaxBounties = settings.getInt("deserterBountyMaxBounties");
             Settings.deserterBountyMinDuration = settings.getInt("deserterBountyMinDuration");
             Settings.deserterBountyMaxDuration = settings.getInt("deserterBountyMaxDuration");
+            Settings.deserterMinFP = settings.getInt("deserterMinFP");
 
             Settings.triggeredEventsActive = settings.getBoolean("triggeredEventsActive");
             Settings.retrievalEventActive = settings.getBoolean("retrievalEventActive");

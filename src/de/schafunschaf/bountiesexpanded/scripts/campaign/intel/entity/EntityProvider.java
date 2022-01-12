@@ -59,7 +59,7 @@ public class EntityProvider {
         Difficulty difficulty = Difficulty.randomDifficulty();
         int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
         float fractionToKill = (50 - new Random().nextInt(26)) / 100f;
-        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), 23f);
+        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), Settings.skirmishMinFP);
         int bountyCredits = CreditCalculator.getRewardByFP(fp, difficulty.getModifier());
         int bountyLevel = BountyEventData.getSharedData().getLevel();
         fp += level / 100 + 1;
@@ -107,7 +107,7 @@ public class EntityProvider {
         MissionHandler missionHandler = createNewMissionGoal(MissionType.ASSASSINATION);
         Difficulty difficulty = Difficulty.randomDifficulty();
         int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
-        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), 50f);
+        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), Settings.assassinationMinFP);
         int bountyCredits = CreditCalculator.getRewardByFP(fp, difficulty.getModifier());
         int rareFlagshipChance = difficulty.getFlatModifier();
 
@@ -163,7 +163,7 @@ public class EntityProvider {
         MissionHandler missionHandler = createNewMissionGoal();
         Difficulty difficulty = Difficulty.randomDifficulty();
         int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
-        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), 50f);
+        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), Settings.warCriminalMinFP);
         float payoutMult = 1f;
         switch (missionHandler.getMissionType()) {
             case ASSASSINATION:
@@ -240,7 +240,7 @@ public class EntityProvider {
         MissionHandler missionHandler = createNewMissionGoal(MissionType.ASSASSINATION);
         Difficulty difficulty = Difficulty.randomDifficulty();
         int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
-        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), 15f);
+        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), Settings.pirateMinFP);
         float payoutMult = 4f;
         int bountyCredits = CreditCalculator.getRewardByFP(fp, difficulty.getModifier() * payoutMult);
         int rareFlagshipChance = difficulty.getFlatModifier();
@@ -307,7 +307,7 @@ public class EntityProvider {
         MissionHandler missionHandler = createNewMissionGoal(MissionType.ASSASSINATION);
         Difficulty difficulty = Difficulty.randomDifficulty();
         int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
-        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), 20f);
+        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), Settings.deserterMinFP);
         float payoutMult = 5f;
         int bountyCredits = CreditCalculator.getRewardByFP(fp, difficulty.getModifier() * payoutMult);
         int rareFlagshipChance = difficulty.getFlatModifier();
