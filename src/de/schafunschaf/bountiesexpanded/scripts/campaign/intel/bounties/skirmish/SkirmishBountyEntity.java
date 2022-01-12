@@ -210,7 +210,7 @@ public class SkirmishBountyEntity implements BountyEntity {
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
-            DescriptionUtils.generateHideoutDescription(info, baseBountyIntel, highlightColor);
+            DescriptionUtils.generatePatrolDescription(info, baseBountyIntel, opad, true);
 
             if (shipsLeftToDestroy < shipsToDestroy)
                 info.addPara("To claim your bounty, %s demands the destruction of at least %s " + singularOrPlural(shipsToDestroy, "ship")

@@ -2,6 +2,7 @@ package de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.skirmis
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.Script;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -17,6 +18,7 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficu
 import lombok.extern.log4j.Log4j;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -78,15 +80,37 @@ public class SkirmishBountyManager extends BaseEventManager {
         if (hasActiveBounty(skirmishBountyEntity))
             return null;
 
-        CampaignFleetAPI fleet = skirmishBountyEntity.getFleet();
+        final CampaignFleetAPI fleet = skirmishBountyEntity.getFleet();
         SectorEntityToken spawnLocation = skirmishBountyEntity.getSpawnLocation();
         PersonAPI person = skirmishBountyEntity.getTargetedPerson();
         Difficulty difficulty = skirmishBountyEntity.getDifficulty();
 
         fleet.setName(FLEET_NAME);
         FleetGenerator.spawnFleet(fleet, spawnLocation);
-        fleet.getAI().clearAssignments();
-        fleet.getAI().addAssignment(FleetAssignment.PATROL_SYSTEM, spawnLocation.getStarSystem().getJumpPoints().get(0), 1000000f, null);
+
+        SkirmishBountyIntel skirmishBountyIntel = new SkirmishBountyIntel(skirmishBountyEntity, fleet, person, spawnLocation, null);
+
+        fleet.clearAssignments();
+
+        final List<SectorEntityToken> objectives = spawnLocation.getStarSystem().getEntitiesWithTag("objective");
+        //objectives.addAll(spawnLocation.getStarSystem().getJumpPoints());
+        objectives.add(spawnLocation.getStarSystem().getJumpPoints().get(0));
+
+        final Script assignment = new Script() {
+            @Override
+            public void run() {
+                if (fleet.isInCurrentLocation()) {
+                    fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, objectives.get(randomBase.nextInt(objectives.size())), 16f, this);
+                    fleet.getCurrentAssignment().setActionText(FLEET_ACTION_TEXT);
+                }
+                else {
+                    fleet.despawn();
+                }
+            }
+        };
+
+        fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, objectives.get(randomBase.nextInt(objectives.size())), 16f, assignment);
+
         MemoryAPI fleetMemory = fleet.getMemoryWithoutUpdate();
         fleet.getCurrentAssignment().setActionText(FLEET_ACTION_TEXT);
         fleet.setTransponderOn(true);
@@ -107,7 +131,7 @@ public class SkirmishBountyManager extends BaseEventManager {
 
         upgradeShips(fleet);
 
-        return new SkirmishBountyIntel(skirmishBountyEntity, fleet, person, spawnLocation, null);
+        return skirmishBountyIntel;
     }
 
     public void upgradeShips(CampaignFleetAPI bountyFleet) {

@@ -24,6 +24,7 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficu
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler;
 import lombok.extern.log4j.Log4j;
 
+import java.util.List;
 import java.util.Random;
 
 import static de.schafunschaf.bountiesexpanded.scripts.campaign.intel.missions.shipretrieval.RetrievalMissionEntity.RETRIEVAL_SHIP_KEY;
@@ -100,15 +101,25 @@ public class WarCriminalManager extends BaseEventManager implements BaseBountyMa
         fleetMemory.set(WAR_CRIMINAL_BOUNTY_FLEET_KEY, warCriminalEntity);
 
         fleet.clearAssignments();
-        fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, spawnLocation.getStarSystem().getStar(), warCriminalIntel.getDuration(), new Script() {
+
+        final List<SectorEntityToken> objectives = spawnLocation.getStarSystem().getEntitiesWithTag("objective");
+        //objectives.addAll(spawnLocation.getStarSystem().getJumpPoints());
+        objectives.add(spawnLocation.getStarSystem().getJumpPoints().get(0));
+
+        final Script assignment = new Script() {
             @Override
             public void run() {
-                if (fleet.isInCurrentLocation())
-                    fleet.addAssignment(FleetAssignment.DEFEND_LOCATION, LocationUtils.getNearestLocation(fleet), 30f);
-                else
+                if (fleet.isInCurrentLocation()) {
+                    fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, objectives.get(randomBase.nextInt(objectives.size())), 16f, this);
+                }
+                else {
                     fleet.despawn();
+                }
             }
-        });
+        };
+
+        fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, objectives.get(randomBase.nextInt(objectives.size())), 16f, assignment);
+
         fleet.setTransponderOn(true);
 
         FleetMemberAPI flagship = fleet.getFlagship();
