@@ -88,7 +88,7 @@ public class SkirmishBountyManager extends BaseEventManager {
         fleet.setName(FLEET_NAME);
         FleetGenerator.spawnFleet(fleet, spawnLocation);
 
-        SkirmishBountyIntel skirmishBountyIntel = new SkirmishBountyIntel(skirmishBountyEntity, fleet, person, spawnLocation, null);
+        final SkirmishBountyIntel skirmishBountyIntel = new SkirmishBountyIntel(skirmishBountyEntity, fleet, person, spawnLocation, null);
 
         fleet.clearAssignments();
 
@@ -99,9 +99,10 @@ public class SkirmishBountyManager extends BaseEventManager {
         final Script assignment = new Script() {
             @Override
             public void run() {
-                if (fleet.isInCurrentLocation()) {
+                if (fleet.isInCurrentLocation() || skirmishBountyIntel.getRemainingDuration() > 0) {
                     fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, objectives.get(randomBase.nextInt(objectives.size())), 16f, this);
                     fleet.getCurrentAssignment().setActionText(FLEET_ACTION_TEXT);
+                    fleet.setTransponderOn(true);
                 }
                 else {
                     fleet.despawn();

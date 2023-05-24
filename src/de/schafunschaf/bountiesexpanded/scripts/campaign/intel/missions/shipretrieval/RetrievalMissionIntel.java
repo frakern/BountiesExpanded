@@ -180,17 +180,13 @@ public class RetrievalMissionIntel extends BEBaseMissionIntel {
     @Override
     protected ReputationAdjustmentResult generateMissionFailureRepAdjustment() {
         Random random = new Random(contact.getId().hashCode());
-        if (missionEntity.getChanceForConsequences() <= random.nextFloat()) {
-            CoreReputationPlugin.CustomRepImpact customRepImpact = new CoreReputationPlugin.CustomRepImpact();
-            float delta = (float) (random.nextInt(20) + 11) / 100;
-            customRepImpact.delta = -delta;
+        CoreReputationPlugin.CustomRepImpact customRepImpact = new CoreReputationPlugin.CustomRepImpact();
+        float delta = (float) (random.nextInt(20) + 11) / 100;
+        customRepImpact.delta = -delta;
 
-            return Global.getSector().adjustPlayerReputation(
-                    new CoreReputationPlugin.RepActionEnvelope(CoreReputationPlugin.RepActions.CUSTOM, customRepImpact,
-                            null, null, true, false),
-                    contact.getFaction().getId());
-        }
-
-        return null;
+        return Global.getSector().adjustPlayerReputation(
+                new CoreReputationPlugin.RepActionEnvelope(CoreReputationPlugin.RepActions.CUSTOM, customRepImpact,
+                        null, null, true, false),
+                contact.getFaction().getId());
     }
 }

@@ -94,7 +94,7 @@ public class WarCriminalManager extends BaseEventManager implements BaseBountyMa
         fleet.setName(FLEET_NAME);
         FleetGenerator.spawnFleet(fleet, spawnLocation);
 
-        WarCriminalIntel warCriminalIntel = new WarCriminalIntel(warCriminalEntity, fleet, person, spawnLocation, warCriminalEntity.getDropOffLocation());
+        final WarCriminalIntel warCriminalIntel = new WarCriminalIntel(warCriminalEntity, fleet, person, spawnLocation, warCriminalEntity.getDropOffLocation());
 
         MemoryAPI fleetMemory = fleet.getMemoryWithoutUpdate();
         fleetMemory.set(EntityProvider.FLEET_IDENTIFIER_KEY, WAR_CRIMINAL_BOUNTY_FLEET_KEY);
@@ -109,8 +109,9 @@ public class WarCriminalManager extends BaseEventManager implements BaseBountyMa
         final Script assignment = new Script() {
             @Override
             public void run() {
-                if (fleet.isInCurrentLocation()) {
+                if (fleet.isInCurrentLocation() || warCriminalIntel.getRemainingDuration() > 0) {
                     fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, objectives.get(randomBase.nextInt(objectives.size())), 16f, this);
+                    fleet.setTransponderOn(true);
                 }
                 else {
                     fleet.despawn();

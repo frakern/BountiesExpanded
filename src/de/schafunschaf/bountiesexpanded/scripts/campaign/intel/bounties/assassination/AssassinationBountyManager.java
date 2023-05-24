@@ -75,7 +75,7 @@ public class AssassinationBountyManager extends BaseEventManager {
         }
         final CampaignFleetAPI bountyFleet = assassinationBountyEntity.getFleet();
         bountyFleet.setNoFactionInName(true);
-        bountyFleet.setName((String) CollectionUtils.getRandomEntry(NameStringCollection.suspiciousNames));
+        //bountyFleet.setName((String) CollectionUtils.getRandomEntry(NameStringCollection.suspiciousNames));
         FleetGenerator.spawnFleet(bountyFleet, assassinationBountyEntity.getSpawnLocation());
         bountyFleet.setTransponderOn(false);
         bountyFleet.getAI().clearAssignments();
