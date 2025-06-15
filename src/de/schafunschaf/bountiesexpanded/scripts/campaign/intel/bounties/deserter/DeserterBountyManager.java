@@ -93,7 +93,7 @@ public class DeserterBountyManager extends BaseEventManager {
         fleet.clearAssignments();
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, travelDestination, bountyIntel.getDuration(), fleetTravelingActionText, new Script() {
             public void run() {
-                fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, travelDestination.getStarSystem().getStar(), bountyIntel.getRemainingDuration(), new Script() {
+                fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, travelDestination, bountyIntel.getRemainingDuration(), new Script() {
                     @Override
                     public void run() {
                         if (fleet.isInCurrentLocation())

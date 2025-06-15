@@ -118,7 +118,7 @@ public class DeserterBountyEntity implements BountyEntity {
 
     @Override
     public void createSmallDescription(BaseBountyIntel baseBountyIntel, TooltipMakerAPI info, float width, float height) {
-        boolean isRetrievalMission = MissionHandler.MissionType.RETRIEVAL.equals(missionHandler.getMissionType());
+        boolean isRetrievalMission = false;
         String hisOrHer = getTargetedPerson().getHisOrHer();
         String briefingText = String.format("A large sum has been put on the head of %s, wanted dead for %s recent theft of military equipment and betrayal of %s.\n\n" +
                         "To claim this bounty, we need to end %s life by destroying the %s.",
@@ -139,7 +139,7 @@ public class DeserterBountyEntity implements BountyEntity {
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
             if (fleet.getContainingLocation() == travelDestination.getContainingLocation())
-                DescriptionUtils.generatePatrolDescription(info, baseBountyIntel, opad, false);
+                DescriptionUtils.generateFakeHideoutDescription2(info, baseBountyIntel, opad);
             else
                 DescriptionUtils.generateFakeTravelDescription(info, baseBountyIntel, opad);
 

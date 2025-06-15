@@ -262,6 +262,19 @@ public class DescriptionUtils {
         info.addPara(heOrShe + " is rumored to be " + loc + ".", padding);
     }
 
+    public static void generateFakeHideoutDescription2(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding) {
+        String heOrShe = FormattingTools.capitalizeFirst(baseBountyIntel.getPerson().getHeOrShe());
+        SectorEntityToken travelDestination = baseBountyIntel.getTravelDestination();
+        SectorEntityToken fakeLocation = travelDestination.getContainingLocation().createToken(0.0F, 0.0F);
+
+        fakeLocation.setOrbit(Global.getFactory().createCircularOrbit(travelDestination, 0.0F, 1000.0F, 100.0F));
+        String loc = BreadcrumbSpecial.getLocatedString(fakeLocation);
+        loc = loc.replaceAll("orbiting", "patrolling near");
+        loc = loc.replaceAll("located in", "hiding out in");
+
+        info.addPara(heOrShe + " is rumored to be " + loc + ".", padding);
+    }
+
     public static void generatePatrolDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding, boolean isRealLocation) {
         String heOrShe = FormattingTools.capitalizeFirst(baseBountyIntel.getPerson().getHeOrShe());
         CampaignFleetAPI fleet = baseBountyIntel.getFleet();

@@ -2,15 +2,10 @@ package de.schafunschaf.bountiesexpanded.helper;
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import com.fs.starfarer.api.impl.campaign.intel.PersonBountyIntel;
 import com.fs.starfarer.api.impl.campaign.intel.PersonBountyManager;
-import data.scripts.VayraModPlugin;
-import data.scripts.campaign.intel.VayraPersonBountyIntel;
-import data.scripts.campaign.intel.VayraPersonBountyManager;
 import de.schafunschaf.bountiesexpanded.Settings;
-import de.schafunschaf.bountiesexpanded.helper.intel.BountyEventData;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.BountiesExpandedCampaignManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.BountiesExpandedCampaignPlugin;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyIntel;
@@ -122,8 +117,6 @@ public class ModInitHelper {
         if (Settings.disableVanillaBounties)
             removeVanillaBountyManager();
 
-        if (Settings.disableVayraBounties && Global.getSettings().getModManager().isModEnabled("vayrasector"))
-            removeVayraBountyManager();
     }
 
     private static void addSkirmishManager() {
@@ -204,18 +197,4 @@ public class ModInitHelper {
         Global.getSector().removeScript(personBountyManager);
     }
 
-    private static void removeVayraBountyManager() {
-        VayraModPlugin.PIRATE_BOUNTY_MODE = VayraModPlugin.PirateMode.NEVER;
-        BountyEventData.getParticipatingFactions().remove(Factions.PIRATES);
-        VayraPersonBountyManager personBountyManager = VayraPersonBountyManager.getInstance();
-        if (ComparisonTools.isNull(personBountyManager))
-            return;
-
-        List<EveryFrameScript> activeBounties = personBountyManager.getActive();
-        for (EveryFrameScript bounty : activeBounties) {
-            ((VayraPersonBountyIntel) bounty).endImmediately();
-            Global.getSector().removeScript(bounty);
-        }
-        Global.getSector().removeScript(personBountyManager);
-    }
 }
