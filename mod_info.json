@@ -2,9 +2,9 @@
   "id": "bountiesexpanded",
   "name": "Bounties Expanded",
   "author": "Schaf-Unschaf",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Expands your daily bounty business.",
-  "gameVersion": "0.95.1a-RC5",
+  "gameVersion": "0.98a-RC7",
   "jars": [
     "jars/BountiesExpanded.jar"
   ],
