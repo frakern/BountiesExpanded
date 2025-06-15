@@ -47,7 +47,6 @@ public class Settings {
 
     public static boolean pirateBountyActive = true;
     public static boolean disableVanillaBounties = true;
-    public static boolean disableVayraBounties = true;
     public static double pirateBountySpawnChance = 0.7;
     public static int pirateBountyMinBounties = 1;
     public static int pirateBountyMaxBounties = 4;

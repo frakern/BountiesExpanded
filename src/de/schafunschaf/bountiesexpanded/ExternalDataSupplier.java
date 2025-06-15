@@ -51,7 +51,6 @@ public class ExternalDataSupplier {
 
             Settings.pirateBountyActive = settings.getBoolean("pirateBountyActive");
             Settings.disableVanillaBounties = settings.getBoolean("disableVanillaBounties");
-            Settings.disableVayraBounties = settings.getBoolean("disableVayraBounties");
             Settings.pirateBountySpawnChance = settings.getDouble("pirateBountySpawnChance");
             Settings.pirateBountyMinBounties = settings.getInt("pirateBountyMinBounties");
             Settings.pirateBountyMaxBounties = settings.getInt("pirateBountyMaxBounties");

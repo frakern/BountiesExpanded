@@ -58,7 +58,8 @@ public class MissionHandler {
 
     public static MissionHandler createNewMissionGoal(MissionType missionType) {
         if (isNull(missionType))
-            missionType = MissionType.getRandomMissionType();
+//            missionType = MissionType.getRandomMissionType();
+            missionType = MissionType.ASSASSINATION;
 
         float chanceForConsequences = 0f;
         if (MissionType.RETRIEVAL == missionType)
