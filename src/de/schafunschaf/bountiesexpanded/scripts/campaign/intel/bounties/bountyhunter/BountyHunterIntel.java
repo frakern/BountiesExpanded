@@ -45,7 +45,6 @@ public class BountyHunterIntel extends BaseBountyIntel {
     protected float daysToLaunch;
     protected final float daysToLaunchFixed;
     protected float daysLeft;
-    protected CampaignFleetAPI fleet;
     protected boolean foundPlayerYet = false;
     protected final IntervalUtil interval = new IntervalUtil(0.4f, 0.6f);
     protected final IntervalUtil interval2 = new IntervalUtil(1f, 2f);
@@ -61,6 +60,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
         bountyHunterEntity.setIntel(this);
         this.factionId = bountyHunterEntity.getOfferingFaction().getId();
         this.market = bountyHunterEntity.getSpawnLocation().getMarket();
+        this.setImportant(true);
 
         // TODO MODIFY DURATION BY FP
         this.duration = new Random().nextInt(Settings.bountyHunterMaxDuration - Settings.bountyHunterMinDuration) + Settings.bountyHunterMinDuration;
@@ -154,8 +154,6 @@ public class BountyHunterIntel extends BaseBountyIntel {
             }
         }
 
-        String targetName = "your fleet";
-
         // my understanding of tracking mode:
         // it activates when player [has been encountered at least once or is currently visible], and [is no longer in same system]
         // while tracking mode is active, fleet can travel to player without an actual sensor lock
@@ -221,12 +219,14 @@ public class BountyHunterIntel extends BaseBountyIntel {
                 }
             }
         } else {
+            // TODO need cleanup fleet here?
             result = new BountyResult(BountyResultType.END_PLAYER_NO_REWARD, 0, 0, 0);
             return;
         }
 
         if (!fleetVisible || !playerVisible) {
             if (daysLeft <= 0f) {
+                // TODO need cleanup fleet here?
                 result = new BountyResult(BountyResultType.END_TIME, 0, 0, 0);
             }
         }
@@ -234,6 +234,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
 
     @Override
     public void advanceImpl(float amount) {
+        // TODO Add debugging calls here.
         if (isEnded()) {
             return;
         }
@@ -259,15 +260,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
             daysToLaunch -= Global.getSector().getClock().convertToDays(amount);
             if (daysToLaunch < 0) {
                 assembling = false;
-                fleet = activateFleet();
-                if (fleet != null) {
-                    sendUpdateIfPlayerHasIntel(null, false);
-                }
-                else {
-                    result = new BountyResult(BountyResultType.END_OTHER, 0, 0, 0);
-                    cleanUp(false);
-                    return;
-                }
+                activateFleet();
             }
             return;
         }
@@ -278,14 +271,14 @@ public class BountyHunterIntel extends BaseBountyIntel {
         }
 
         if (!fleet.isAlive()) {
-            result = new BountyResult(BountyResultType.END_PLAYER_NO_BOUNTY, 0, 0, 0);
+            result = new BountyResult(BountyResultType.END_PLAYER_NO_REWARD, 0, 0, 0);
             cleanUp(false);
             return;
         }
 
         // fleet took too many losses, quit
         if (fleet.getMemoryWithoutUpdate().contains("$startingFP") && fleet.getFleetPoints() < 0.4 * fleet.getMemoryWithoutUpdate().getFloat("$startingFP")) {
-            result = new BountyResult(BountyResultType.END_PLAYER_NO_BOUNTY, 0, 0, 0);
+            result = new BountyResult(BountyResultType.END_PLAYER_NO_REWARD, 0, 0, 0);
             cleanUp(false);
             return;
         }
@@ -321,9 +314,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
         handleFleetAssignment(playerFleet);
     }
 
-    public CampaignFleetAPI activateFleet() {
-        fleet = bountyHunterEntity.getFleet();
-
+    public void activateFleet() {
         FleetGenerator.spawnFleet(fleet, market.getPrimaryEntity());
         fleet.getAI().clearAssignments();
 
@@ -348,8 +339,6 @@ public class BountyHunterIntel extends BaseBountyIntel {
             fleetMemory.set(MemFlags.MEMORY_KEY_NO_REP_IMPACT, true);
             fleetMemory.set(MemFlags.MEMORY_KEY_MAKE_HOSTILE, true);
         }
-
-        return fleet;
     }
 
     /**

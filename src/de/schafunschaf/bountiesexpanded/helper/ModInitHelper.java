@@ -11,6 +11,7 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.BountiesExpandedCampaig
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.RareFlagshipManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.assassination.AssassinationBountyManager;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.bountyhunter.BountyHunterManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.deserter.DeserterBountyManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.pirate.PirateBountyManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.skirmish.SkirmishBountyManager;
@@ -38,6 +39,8 @@ public class ModInitHelper {
         Global.getSector().getMemoryWithoutUpdate().unset(PirateBountyManager.KEY);
         uninstallManager(DeserterBountyManager.getInstance());
         Global.getSector().getMemoryWithoutUpdate().unset(DeserterBountyManager.KEY);
+        uninstallManager(BountyHunterManager.getInstance());
+        Global.getSector().getMemoryWithoutUpdate().unset(BountyHunterManager.KEY);
         uninstallManager(TriggeredMissionManager.getInstance());
         Global.getSector().getMemoryWithoutUpdate().unset(TriggeredMissionManager.KEY);
 
@@ -101,6 +104,12 @@ public class ModInitHelper {
             Global.getSector().getMemoryWithoutUpdate().unset(AssassinationBountyManager.KEY);
         }
 
+        if (Settings.bountyHunterActive) addBountyHunterManager();
+        else {
+            uninstallManager(BountyHunterManager.getInstance());
+            Global.getSector().getMemoryWithoutUpdate().unset(BountyHunterManager.KEY);
+        }
+
         if (Settings.triggeredEventsActive) addTriggeredMissionManager();
         else {
             uninstallManager(TriggeredMissionManager.getInstance());
@@ -161,6 +170,15 @@ public class ModInitHelper {
             log.info("BountiesExpanded: DeserterBountyManager added");
         } else {
             log.info("BountiesExpanded: Found existing DeserterBountyManager");
+        }
+    }
+
+    private static void addBountyHunterManager() {
+        if (!Global.getSector().hasScript(BountyHunterManager.class)) {
+            Global.getSector().addScript(new BountyHunterManager());
+            log.info("BountiesExpanded: BountyHunterManager added");
+        } else {
+            log.info("BountiesExpanded: Found existing BountyHunterManager");
         }
     }
 
