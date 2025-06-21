@@ -15,7 +15,6 @@ import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
-import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetGenerator;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BountyResult;
@@ -25,8 +24,8 @@ import lombok.Getter;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.util.Random;
 import java.util.Set;
+import java.lang.Math;
 
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
@@ -62,13 +61,38 @@ public class BountyHunterIntel extends BaseBountyIntel {
         this.market = bountyHunterEntity.getSpawnLocation().getMarket();
         this.setImportant(true);
 
-        // TODO MODIFY DURATION BY FP
-        this.duration = new Random().nextInt(Settings.bountyHunterMaxDuration - Settings.bountyHunterMinDuration) + Settings.bountyHunterMinDuration;
+        if (fleet.getFleetPoints() >= 0 && fleet.getFleetPoints() <= 50) {
+            daysToLaunch = 7f;
+        } else if (fleet.getFleetPoints() >= 51 && fleet.getFleetPoints() <= 80) {
+            daysToLaunch = 15f;
+        } else if (fleet.getFleetPoints() >= 81 && fleet.getFleetPoints() <= 120) {
+            daysToLaunch = 20f;
+        } else if (fleet.getFleetPoints() >= 121 && fleet.getFleetPoints() <= 180) {
+            daysToLaunch = 35f;
+        } else {
+            daysToLaunch = 50f;
+        }
 
-        // TODO Make more random or based on FP
-        daysToLaunch = Settings.bountyHunterMinDuration;
-        daysToLaunch = Math.round(daysToLaunch * MathUtils.getRandomNumberInRange(0.9f, 1.1f));
-        daysToLaunchFixed = daysToLaunch;
+        this.daysToLaunch = Math.round(daysToLaunch * MathUtils.getRandomNumberInRange(0.9f, 1.1f));
+        this.daysToLaunchFixed = daysToLaunch;
+
+        float distance = Misc.getDistanceToPlayerLY(spawnLocation);
+        float distBonus = 30 + distance*1.5f;	// don't crank it up too much, I don't think this is the important component
+
+        if (fleet.getFleetPoints() >= 0 && fleet.getFleetPoints() <= 80) {
+            duration = Math.max(60, Math.min(90,
+                            Math.round(distBonus * MathUtils.getRandomNumberInRange(0.75f, 1f))));
+
+        } else if (fleet.getFleetPoints() >= 81 && fleet.getFleetPoints() <= 180) {
+            duration = Math.max(90, Math.min(120,
+                    Math.round(distBonus * MathUtils.getRandomNumberInRange(1.25f, 1.75f))));
+
+        } else {
+            duration = Math.max(120, Math.min(150,
+                    Math.round(distBonus * MathUtils.getRandomNumberInRange(2f, 2.5f))));
+        }
+        // need to add days to launch to duration so bounty isn't over as soon as it launches.
+        this.duration += daysToLaunchFixed;
     }
 
     @Override
@@ -234,7 +258,6 @@ public class BountyHunterIntel extends BaseBountyIntel {
 
     @Override
     public void advanceImpl(float amount) {
-        // TODO Add debugging calls here.
         if (isEnded()) {
             return;
         }
