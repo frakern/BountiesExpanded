@@ -67,8 +67,7 @@ public class BountyHunterManager extends BaseEventManager {
             return null;
         }
         final CampaignFleetAPI bountyFleet = bountyHunterEntity.getFleet();
-        //bountyFleet.setName((String) CollectionUtils.getRandomEntry(NameStringCollection.suspiciousNames));
-        // TODO Don't spawn fleet yet?
+        // Don't spawn fleet yet.
         //FleetGenerator.spawnFleet(bountyFleet, bountyHunterEntity.getSpawnLocation());
 
         final MemoryAPI fleetMemory = bountyFleet.getMemoryWithoutUpdate();
@@ -96,16 +95,20 @@ public class BountyHunterManager extends BaseEventManager {
             return;
 
         Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
-        int modValue = ((BountyHunterEntity) bountyFleet.getMemoryWithoutUpdate().get(BountyHunterManager.BOUNTY_HUNTER_FLEET_KEY)).getDifficulty().getFlatModifier();
+        float modValue = ((BountyHunterEntity) bountyFleet.getMemoryWithoutUpdate().get(BountyHunterManager.BOUNTY_HUNTER_FLEET_KEY)).getDifficulty().getModifier();
+        int flatModValue = ((BountyHunterEntity) bountyFleet.getMemoryWithoutUpdate().get(BountyHunterManager.BOUNTY_HUNTER_FLEET_KEY)).getDifficulty().getFlatModifier();
         FleetMemberAPI flagship = bountyFleet.getFlagship();
         if (isNull(flagship))
             return;
 
+        // Always give flagship smods.
         if (flagship.getVariant().getSMods().isEmpty()) {
-            ShipUtils.upgradeShip(flagship, 2, random);
+            ShipUtils.upgradeShip(flagship, (int) Math.ceil(modValue), random);
             ShipUtils.addMinorUpgrades(flagship, random);
         }
 
-        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, modValue, modValue * 0.1f, true, random);
+        flagship.updateStats();
+
+        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, flatModValue, flatModValue * 0.1f, true, random);
     }
 }

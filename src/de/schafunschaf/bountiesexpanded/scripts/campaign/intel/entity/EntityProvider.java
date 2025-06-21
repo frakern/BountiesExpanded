@@ -421,23 +421,31 @@ public class EntityProvider {
             return null;
         }
 
-        PersonAPI fleetCommander = OfficerManagerEvent.createOfficer(offeringFaction, level);
+        PersonAPI fleetCommander;
+        PersonAPI offeringPerson = null;
+        if (offeringFaction.getRelToPlayer().isHostile()) {
+            offeringPerson = BountyGiverGenerator.generateBountyGiver(spawnLocation.getMarket());
+            fleetCommander = OfficerManagerEvent.createOfficer(offeringFaction, level);
+        }
+        else {
+            fleetCommander = OfficerManagerEvent.createOfficer(Global.getSector().getFaction(Factions.MERCENARY), level);
+        }
+
         if (isNull(fleetCommander)) {
             log.warn(NO_COMMANDER);
             return null;
         }
 
-        // TODO Move fleet creation to Intel?
         CampaignFleetAPI bountyFleet = FleetGenerator.createBountyFleetV2(fp, fleetQuality, null, spawnLocation, fleetCommander);
         if (isNull(bountyFleet)) {
             log.warn(NO_FLEET);
             return null;
         }
-
-        PersonAPI offeringPerson = BountyGiverGenerator.generateBountyGiver(spawnLocation.getMarket());
-        if (isNull(offeringPerson)) {
-            log.warn(NO_DESTINATION);
-            return null;
+        if (offeringFaction.getRelToPlayer().isHostile()) {
+            bountyFleet.setName(String.format("%s Bounty Hunter", offeringFaction.getDisplayName()));
+        }
+        else {
+            bountyFleet.setName("Bounty Hunter");
         }
 
         if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn

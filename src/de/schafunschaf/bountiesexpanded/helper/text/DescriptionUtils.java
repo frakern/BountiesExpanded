@@ -96,7 +96,7 @@ public class DescriptionUtils {
     }
 
 
-    private static void generateFancyCommanderDescription(TooltipMakerAPI info, float padding, CampaignFleetAPI fleet, PersonAPI person) {
+    public static void generateFancyCommanderDescription(TooltipMakerAPI info, float padding, CampaignFleetAPI fleet, PersonAPI person) {
         if (isNull(person))
             return;
         if (isNull(person.getStats()))

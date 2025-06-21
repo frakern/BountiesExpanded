@@ -114,7 +114,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
     }
 
     protected void handleFleetAssignment(CampaignFleetAPI playerFleet) {
-        // TODO commented here due to call to updateLocationToken in  advanceImpl?.
+        // commented here due to call to updateLocationToken in advanceImpl?
         //updateLocationToken();
 
         boolean playerVisible = false;
@@ -140,7 +140,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
             }
         }
 
-        // TODO WHY IS THIS ADDED?
+        // added by rat.
         if (fleet.getContainingLocation().equals(playerFleet.getContainingLocation())) {
             //2f, originaly 1.5f
             var detectRange = (
@@ -219,15 +219,15 @@ public class BountyHunterIntel extends BaseBountyIntel {
                 }
             }
         } else {
-            // TODO need cleanup fleet here?
             result = new BountyResult(BountyResultType.END_PLAYER_NO_REWARD, 0, 0, 0);
+            cleanUp(false);
             return;
         }
 
         if (!fleetVisible || !playerVisible) {
             if (daysLeft <= 0f) {
-                // TODO need cleanup fleet here?
                 result = new BountyResult(BountyResultType.END_TIME, 0, 0, 0);
+                cleanUp(false);
             }
         }
     }
@@ -328,7 +328,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
                 2f + (float) Math.random() * 2f,
                 "orbiting " + market.getName());
 
-//        fleet.getStats().getFleetwideMaxBurnMod().modifyFlat("bounty_fleet", -1f);
+        //fleet.getStats().getFleetwideMaxBurnMod().modifyFlat("bounty_fleet", -1f);
 
         fleetMemory.set(MemFlags.MEMORY_KEY_SAW_PLAYER_WITH_TRANSPONDER_ON, true);
         fleetMemory.set(MemFlags.MEMORY_KEY_LOW_REP_IMPACT, true);
