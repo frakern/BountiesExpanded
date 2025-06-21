@@ -4,16 +4,20 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Personalities;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
 import de.schafunschaf.bountiesexpanded.Blacklists;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.credits.CreditCalculator;
+import de.schafunschaf.bountiesexpanded.helper.faction.BountyHunterFactionPicker;
 import de.schafunschaf.bountiesexpanded.helper.faction.HostileFactionPicker;
 import de.schafunschaf.bountiesexpanded.helper.faction.MiscFactionUtils;
 import de.schafunschaf.bountiesexpanded.helper.faction.ParticipatingFactionPicker;
@@ -25,9 +29,11 @@ import de.schafunschaf.bountiesexpanded.helper.location.CoreWorldPicker;
 import de.schafunschaf.bountiesexpanded.helper.location.RemoteWorldPicker;
 import de.schafunschaf.bountiesexpanded.helper.location.TagCollection;
 import de.schafunschaf.bountiesexpanded.helper.market.MarketUtils;
+import de.schafunschaf.bountiesexpanded.helper.person.BountyGiverGenerator;
 import de.schafunschaf.bountiesexpanded.helper.person.OfficerGenerator;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.RareFlagshipManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.assassination.AssassinationBountyEntity;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.bountyhunter.BountyHunterEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.deserter.DeserterBountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.pirate.PirateBountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.skirmish.SkirmishBountyEntity;
@@ -36,8 +42,10 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficu
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler;
 import lombok.extern.log4j.Log4j;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler.MissionType;
 import static de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler.createNewMissionGoal;
@@ -54,6 +62,7 @@ public class EntityProvider {
     private static final String NO_HIDEOUT = "BountiesExpanded: failed to pick hideout";
     private static final String NO_DESTINATION = "BountiesExpanded: failed to pick destination";
     private static final String NO_FLEET = "BountiesExpanded: failed to create bounty fleet";
+    private static final String NOT_IN_RANGE = "BountiesExpanded: player fleet not in range to create bounty";
 
     public static SkirmishBountyEntity skirmishBountyEntity() {
         Difficulty difficulty = Difficulty.randomDifficulty();
@@ -363,4 +372,85 @@ public class EntityProvider {
 
         return new DeserterBountyEntity(bountyCredits, level, fleetQuality, difficulty, offeringFaction, bountyFleet, fleetCommander, spawnLocation, travelDestination, missionHandler);
     }
+
+    public static BountyHunterEntity bountyHunterEntity() {
+        MissionHandler missionHandler = createNewMissionGoal(MissionType.DESTRUCTION);
+        Difficulty difficulty = Difficulty.randomDifficulty();
+        int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
+        float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), Settings.bountyHunterMinFP);
+        int rareFlagshipChance = difficulty.getFlatModifier();
+        float fleetQuality = difficulty.getFlatModifier() * 0.2f + 0.4f;
+
+        // Check if player is within 2 light years of a market.
+        float rangeToShowBounties = 2f;
+        boolean withinRange = false;
+        if (!Global.getSector().getPlayerFleet().getContainingLocation().hasTag(Tags.THEME_HIDDEN)) {
+            List<StarSystemAPI> nearbyStarSystems = Misc.getNearbyStarSystems(Global.getSector().getPlayerFleet(), rangeToShowBounties);
+            for (StarSystemAPI system : nearbyStarSystems) {
+                List<MarketAPI> markets = Misc.getMarketsInLocation(system);
+                for (MarketAPI market : markets) {
+                    if (!market.isHidden() && market.getSize() >=3) {
+                        withinRange = true;
+                        break;
+                    }
+                }
+                if (withinRange) {
+                    break;
+                }
+            }
+        }
+
+        if (!withinRange) {
+            log.info(NOT_IN_RANGE);
+            return null;
+        }
+
+        Set<String> defaultBlacklist = Blacklists.getDefaultBlacklist();
+
+        FactionAPI offeringFaction = BountyHunterFactionPicker.pickFaction(defaultBlacklist);
+        if (isNull(offeringFaction)) {
+            log.warn(NO_TARGETED_FACTION);
+            return null;
+        }
+        if (!MiscFactionUtils.canFactionOfferBounties(offeringFaction)) return null;
+
+        SectorEntityToken spawnLocation = CoreWorldPicker.pickFactionHideout(offeringFaction);
+
+        if (isNull(spawnLocation)) {
+            log.warn(NO_HIDEOUT);
+            return null;
+        }
+
+        PersonAPI fleetCommander = OfficerManagerEvent.createOfficer(offeringFaction, level);
+        if (isNull(fleetCommander)) {
+            log.warn(NO_COMMANDER);
+            return null;
+        }
+
+        // TODO Move fleet creation to Intel?
+        CampaignFleetAPI bountyFleet = FleetGenerator.createBountyFleetV2(fp, fleetQuality, null, spawnLocation, fleetCommander);
+        if (isNull(bountyFleet)) {
+            log.warn(NO_FLEET);
+            return null;
+        }
+
+        PersonAPI offeringPerson = BountyGiverGenerator.generateBountyGiver(spawnLocation.getMarket());
+        if (isNull(offeringPerson)) {
+            log.warn(NO_DESTINATION);
+            return null;
+        }
+
+        if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn
+            boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
+            if (rareFlagshipAdded) {
+                FleetMemberAPI flagship = bountyFleet.getFlagship();
+                bountyFleet.getMemoryWithoutUpdate().set(RareFlagshipManager.RARE_FLAGSHIP_KEY, flagship);
+                log.info(String.format("BountiesExpanded: Fleet got lucky! Added '%s' as rare flagship", flagship.getHullSpec().getHullName()));
+            }
+        }
+
+        return new BountyHunterEntity(offeringFaction, bountyFleet, offeringPerson, spawnLocation, difficulty, level, fleetQuality, missionHandler);
+
+    }
+
 }

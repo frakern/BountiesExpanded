@@ -11,6 +11,8 @@ import de.schafunschaf.bountiesexpanded.helper.intel.BountyEventData;
 import de.schafunschaf.bountiesexpanded.helper.ship.HullModUtils;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.assassination.AssassinationBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.assassination.AssassinationBountyManager;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.bountyhunter.BountyHunterIntel;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.bountyhunter.BountyHunterManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.deserter.DeserterBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.deserter.DeserterBountyManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.pirate.PirateBountyIntel;
@@ -74,6 +76,7 @@ public class BountiesExpandedPlugin extends BaseModPlugin {
         reloadWarCriminalMods();
         reloadPirateBountyMods();
         reloadDeserterBountyMods();
+        reloadBountyHunterMods();
     }
 
     private void reloadSkirmishMods() {
@@ -141,6 +144,20 @@ public class BountiesExpandedPlugin extends BaseModPlugin {
             CampaignFleetAPI fleet = bountyIntel.getFleet();
             float fleetQuality = ((BountyEntity) fleet.getMemoryWithoutUpdate().get(DeserterBountyManager.DESERTER_BOUNTY_FLEET_KEY)).getFleetQuality();
             HullModUtils.addDMods(fleet, fleetQuality);
+        }
+    }
+
+    private void reloadBountyHunterMods() {
+        BountyHunterManager bountyManager = BountyHunterManager.getInstance();
+        if (isNull(bountyManager))
+            return;
+
+        for (EveryFrameScript everyFrameScript : bountyManager.getActive()) {
+            BountyHunterIntel bountyIntel = (BountyHunterIntel) everyFrameScript;
+            CampaignFleetAPI fleet = bountyIntel.getFleet();
+            float fleetQuality = ((BountyEntity) fleet.getMemoryWithoutUpdate().get(BountyHunterManager.BOUNTY_HUNTER_FLEET_KEY)).getFleetQuality();
+            HullModUtils.addDMods(fleet, fleetQuality);
+            bountyManager.upgradeShips(fleet);
         }
     }
 

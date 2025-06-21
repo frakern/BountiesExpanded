@@ -62,6 +62,14 @@ public class Settings {
     public static int deserterBountyMaxDuration = 90;
     public static float deserterMinFP = 22;
 
+    public static boolean bountyHunterActive = true;
+    public static double bountyHunterSpawnChance = 0.1;
+    public static int bountyHunterMinBounties = 0;
+    public static int bountyHunterMaxBounties = 2;
+    public static int bountyHunterMinDuration = 60;
+    public static int bountyHunterMaxDuration = 90;
+    public static float bountyHunterMinFP = 22;
+
     public static boolean isDebugActive() {
         return DebugFlags.PERSON_BOUNTY_DEBUG_INFO || Settings.sheepDebug;
     }

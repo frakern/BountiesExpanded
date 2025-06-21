@@ -66,6 +66,14 @@ public class ExternalDataSupplier {
             Settings.deserterBountyMaxDuration = settings.getInt("deserterBountyMaxDuration");
             Settings.deserterMinFP = settings.getInt("deserterMinFP");
 
+            Settings.bountyHunterActive = settings.getBoolean("bountyHunterActive");
+            Settings.bountyHunterSpawnChance = settings.getDouble("bountyHunterSpawnChance");
+            Settings.bountyHunterMinBounties = settings.getInt("bountyHunterMinBounties");
+            Settings.bountyHunterMaxBounties = settings.getInt("bountyHunterMaxBounties");
+            Settings.bountyHunterMinDuration = settings.getInt("bountyHunterMinDuration");
+            Settings.bountyHunterMaxDuration = settings.getInt("bountyHunterMaxDuration");
+            Settings.bountyHunterMinFP = settings.getInt("bountyHunterMinFP");
+
             Settings.triggeredEventsActive = settings.getBoolean("triggeredEventsActive");
             Settings.retrievalEventActive = settings.getBoolean("retrievalEventActive");
             Settings.retrievalEventDuration = settings.getInt("retrievalEventDuration");

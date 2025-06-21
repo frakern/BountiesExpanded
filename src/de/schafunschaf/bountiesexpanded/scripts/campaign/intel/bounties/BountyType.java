@@ -6,5 +6,6 @@ public enum BountyType {
     PIRATE,
     DESERTER,
     WAR_CRIMINAL,
+    BOUNTY_HUNTER,
     DEFAULT
 }
