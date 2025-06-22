@@ -13,10 +13,7 @@ import de.schafunschaf.bountiesexpanded.ExternalDataSupplier;
 import de.schafunschaf.bountiesexpanded.plugins.BountiesExpandedPlugin;
 import lombok.extern.log4j.Log4j;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
@@ -34,8 +31,9 @@ public class RareFlagshipManager {
             String flagshipVariantID = rareFlagshipDataEntry.getValue().getFlagshipVariantID();
             float weight = rareFlagshipDataEntry.getValue().getWeight();
             Set<String> factionID = rareFlagshipDataEntry.getValue().getFactionIDs();
+            int fleetPoints = rareFlagshipDataEntry.getValue().getFleetPoints();
 
-            log.info(String.format("ID: '%s' || VariantID: '%s' || Weight: '%s' || FactionID: '%s'", flagshipID, flagshipVariantID, weight, factionID));
+            log.info(String.format("ID: '%s' || VariantID: '%s' || Weight: '%s' || FactionID: '%s' || FleetPoints: '%s'", flagshipID, flagshipVariantID, weight, factionID, fleetPoints));
         }
     }
 
@@ -54,51 +52,65 @@ public class RareFlagshipManager {
         return allFlagshipIDs;
     }
 
-    public static RareFlagshipData pickRareFlagship() {
-        return pickRareFlagship(null, null, null);
+    public static RareFlagshipData pickRareFlagship(String factionID, FleetMemberAPI currFlagship) {
+        return pickRareFlagship(null, factionID, currFlagship);
     }
 
-    public static RareFlagshipData pickRareFlagship(ShipAPI.HullSize maxShipSize) {
-        return pickRareFlagship(null, null, maxShipSize);
-    }
-
-    public static RareFlagshipData pickRareFlagship(String factionID) {
-        return pickRareFlagship(null, factionID, null);
-    }
-
-    public static RareFlagshipData pickRareFlagship(String factionID, ShipAPI.HullSize maxShipSize) {
-        return pickRareFlagship(null, factionID, maxShipSize);
-    }
-
-    public static RareFlagshipData pickRareFlagship(String flagshipID, String factionID, ShipAPI.HullSize maxShipSize) {
-        if (isNotNull(flagshipID))
+    public static RareFlagshipData pickRareFlagship(String flagshipID, String factionID, FleetMemberAPI currFlagship) {
+        if (isNotNull(flagshipID)) {
             return getRareFlagship(flagshipID);
-
-        WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
-
-        Map<String, RareFlagshipData> rareFlagshipData = getRareFlagshipData();
-
-        for (Map.Entry<String, RareFlagshipData> dataEntry : rareFlagshipData.entrySet()) {
-            if (isNotNull(factionID))
-                if (!dataEntry.getValue().getFactionIDs().contains(factionID))
-                    continue;
-
-            if (isNotNull(maxShipSize))
-                if (!checkShipSize(maxShipSize, dataEntry))
-                    continue;
-
-            picker.add(dataEntry.getKey(), dataEntry.getValue().getWeight());
         }
 
-        return getRareFlagship(picker.pick());
+        int baseFp = currFlagship.getFleetPointCost();
+        List<RareFlagshipData> allowedShips = new ArrayList<>();
+        WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
+        Map<String, RareFlagshipData> rareFlagshipData = getRareFlagshipData();
+
+        // recalculate weights to take into account difference of current ship fp vs rare ship fp.
+        int min = 9999;
+        int max = 0;
+        // find ships for valid faction and are not smaller than current ship.
+        for (Map.Entry<String, RareFlagshipData> flagshipDataEntry : rareFlagshipData.entrySet()) {
+            RareFlagshipData candidateShip = flagshipDataEntry.getValue();
+            if (candidateShip.getFactionIDs().contains(factionID) && candidateShip.getFleetPoints() >= baseFp) {
+                allowedShips.add(candidateShip);
+                int diff = candidateShip.getFleetPoints() - baseFp;
+                int absDiff = Math.abs(diff);
+                if (absDiff < min) {
+                    min = absDiff;
+                }
+                if (absDiff > max) {
+                    max = absDiff;
+                }
+            }
+        }
+
+        // recalculate ship weights.
+        for (RareFlagshipData candidateShip : allowedShips) {
+            int diff = candidateShip.getFleetPoints() - baseFp;
+            int absDiff = Math.abs(diff);
+            float diffMult = 1f - ((absDiff - min) / (max - min == 0 ? 0.0000001f : max - min));
+            float weight = candidateShip.getWeight() * diffMult;
+            picker.add(candidateShip.getFlagshipID(), weight);
+        }
+
+        if (picker.isEmpty()) {
+            return null;
+        } else {
+            // we add a null at 1.0 weight just to make the spawn weights work
+            // and to reduce incidence of way-out-of-band flagship picks
+            // because like, otherwise if a 0.01 weight 10000FP ship is the only one for the faction...
+            // you're gonna see it every time
+            picker.add(null, 1f);
+            return getRareFlagship(picker.pick());
+        }
     }
 
     public static boolean replaceFlagship(CampaignFleetAPI fleet) {
         String factionID = fleet.getFaction().getId();
         PersonAPI fleetCommander = fleet.getCommander();
-        ShipAPI.HullSize hullSizeFlagship = isNull(fleet.getFlagship()) ? ShipAPI.HullSize.CAPITAL_SHIP : fleet.getFlagship().getHullSpec().getHullSize();
 
-        RareFlagshipData rareFlagshipData = RareFlagshipManager.pickRareFlagship(factionID, hullSizeFlagship);
+        RareFlagshipData rareFlagshipData = RareFlagshipManager.pickRareFlagship(factionID, fleet.getFlagship());
         if (isNotNull(rareFlagshipData)) {
             ShipVariantAPI variant = Global.getSettings().getVariant(rareFlagshipData.getFlagshipVariantID());
             if (isNotNull(variant)) {

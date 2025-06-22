@@ -8,10 +8,8 @@ import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
 import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.WeightedRandomPicker;
 import de.schafunschaf.bountiesexpanded.Blacklists;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.credits.CreditCalculator;
@@ -41,11 +39,9 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Mission
 import lombok.extern.log4j.Log4j;
 import org.lazywizard.lazylib.MathUtils;
 
-import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler.MissionType;
 import static de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler.createNewMissionGoal;
@@ -155,7 +151,7 @@ public class EntityProvider {
             return null;
         }
 
-        if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn
+        if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn (by difficulty level)
             boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
             if (rareFlagshipAdded) {
                 FleetMemberAPI flagship = bountyFleet.getFlagship();
@@ -232,7 +228,7 @@ public class EntityProvider {
             return null;
         }
 
-        if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn
+        if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn (by difficulty level)
             boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
             if (rareFlagshipAdded) {
                 FleetMemberAPI flagship = bountyFleet.getFlagship();
@@ -300,7 +296,7 @@ public class EntityProvider {
             return null;
         }
 
-        if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn
+        if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn (by difficulty level)
             boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
             if (rareFlagshipAdded) {
                 FleetMemberAPI flagship = bountyFleet.getFlagship();
@@ -361,7 +357,7 @@ public class EntityProvider {
             return null;
         }
 
-        if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn
+        if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn (by difficulty level)
             boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
             if (rareFlagshipAdded) {
                 FleetMemberAPI flagship = bountyFleet.getFlagship();
@@ -460,7 +456,7 @@ public class EntityProvider {
             bountyFleet.setName("Bounty Hunter");
         }
 
-        if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn
+        if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn (by difficulty level)
             boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
             if (rareFlagshipAdded) {
                 FleetMemberAPI flagship = bountyFleet.getFlagship();

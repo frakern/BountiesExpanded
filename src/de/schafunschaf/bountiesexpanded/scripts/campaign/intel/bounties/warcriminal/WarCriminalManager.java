@@ -14,7 +14,6 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetGenerator;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetUpgradeHelper;
-import de.schafunschaf.bountiesexpanded.helper.location.LocationUtils;
 import de.schafunschaf.bountiesexpanded.helper.ship.HullModUtils;
 import de.schafunschaf.bountiesexpanded.helper.ship.ShipUtils;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyManager;
