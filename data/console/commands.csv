@@ -1,7 +1,9 @@
 command,class,tags,syntax,help
 SpawnAssassinationBounty,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedSpawnAssassinationBounty,campaign,bountiesExpandedSpawnAssassinationBounty,"Forces an AssassinationBounty to spawn."
+SpawnDeserterBounty,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedSpawnDeserterBounty,campaign,bountiesExpandedSpawnDeserterBounty,"Forces an DeserterBounty to spawn."
 SpawnSkirmishBounty,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedSpawnSkirmishBounty,campaign,bountiesExpandedSpawnSkirmishBounty,"Forces a SkirmishBounty to spawn."
 SpawnPirateBounty,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedSpawnPirateBounty,campaign,bountiesExpandedSpawnPirateBounty,"Forces a PirateBounty to spawn."
-SpawnBountyHunter,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedSpawnBountyHunter,campaign,bountiesExpandedSpawnBountyHunter,"Forces a Bounty Hunter to spawn."
+SpawnWarCriminalBounty,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedSpawnWarCriminalBounty,campaign,bountiesExpandedSpawnWarCriminalBounty,"Forces a WarCriminalBounty to spawn."
+SpawnBountyHunter,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedSpawnBountyHunter,campaign,bountiesExpandedSpawnBountyHunter,"Forces a BountyHunter to spawn."
 BountiesExpandedPrepareUpdate,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedPrepareUpdate,campaign,bountiesExpanded_PrepareUpdate,"Prepares the mod for an update."
 BountiesExpandedRemoveFaultyBounties,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedRemoveFaultyBounties,campaign,bountiesExpanded_RemoveFaultyBounties,"Removes faulty Skirmish-Fleets that happened with 0.3.1"

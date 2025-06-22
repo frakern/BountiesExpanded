@@ -15,7 +15,6 @@ import de.schafunschaf.bountiesexpanded.helper.text.TextUtils;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.NameStringCollection;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.EntityProvider;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
-import de.schafunschaf.bountiesexpanded.util.CollectionUtils;
 import lombok.extern.log4j.Log4j;
 
 import java.util.Random;
