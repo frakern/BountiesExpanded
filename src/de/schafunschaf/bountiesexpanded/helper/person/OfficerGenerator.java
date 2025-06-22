@@ -45,15 +45,13 @@ public class OfficerGenerator {
         List<String> personalities = Arrays.asList(Personalities.RECKLESS, Personalities.AGGRESSIVE,
                 Personalities.STEADY, Personalities.CAUTIOUS, Personalities.TIMID);
 
-        PersonAPI generatedOfficer = OfficerManagerEvent.createOfficer(faction, personLevel, false);
+        PersonAPI generatedOfficer = OfficerManagerEvent.createOfficer(faction, personLevel);
 
         if (isNotNull(name))
             generatedOfficer.setName(name);
 
         if (personalities.contains(personality)) {
             generatedOfficer.setPersonality(personality);
-        } else {
-            generatedOfficer.setPersonality(personalities.get(new Random().nextInt(personalities.size())));
         }
 
         return generatedOfficer;

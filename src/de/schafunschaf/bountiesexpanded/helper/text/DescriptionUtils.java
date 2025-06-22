@@ -177,7 +177,7 @@ public class DescriptionUtils {
         if (levelDesc.contains("unremarkable"))
             levelDesc = "an otherwise unremarkable officer";
 
-        info.addPara("%s is %s known for %s.", padding, commander.getFaction().getBaseUIColor(), Misc.ucFirst(heOrShe), levelDesc, skillDesc);
+        info.addPara(Misc.ucFirst(heOrShe) + " is %s known for %s.", padding, commander.getFaction().getBaseUIColor(), levelDesc, skillDesc);
     }
 
     public static void generateFancyFleetDescription(TooltipMakerAPI info, float padding, CampaignFleetAPI fleet, PersonAPI person) {
@@ -208,7 +208,7 @@ public class DescriptionUtils {
         Color[] highlightColors = new Color[]{commander.getFaction().getBaseUIColor(), Misc.getHighlightColor(), Misc.getHighlightColor(), Misc.getHighlightColor(), Misc.getHighlightColor()};
         String[] highlights = new String[]{commander.getFaction().getRank(commander.getRankId()) + " " + person.getName().getFullName(), fleetDesc, shipName, shipClass, shipDesignation};
 
-        outputText = String.format("%s is in command of a %s and personally commands the %s, " + rareString + " %s %s, as " + hisOrHer + " flagship.", (Object[]) highlights);
+        outputText = String.format("%s is known to be in command of a %s and personally commands the %s, " + rareString + " %s %s, as " + hisOrHer + " flagship.", (Object[]) highlights);
 
         info.addPara(outputText, padding, highlightColors, highlights);
     }

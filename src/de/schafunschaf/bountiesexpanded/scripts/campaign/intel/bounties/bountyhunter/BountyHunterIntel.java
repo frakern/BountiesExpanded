@@ -93,6 +93,8 @@ public class BountyHunterIntel extends BaseBountyIntel {
         }
         // need to add days to launch to duration so bounty isn't over as soon as it launches.
         this.duration += daysToLaunchFixed;
+
+        this.daysLeft = duration;
     }
 
     @Override
@@ -339,6 +341,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
 
     public void activateFleet() {
         FleetGenerator.spawnFleet(fleet, market.getPrimaryEntity());
+        sendUpdateIfPlayerHasIntel(null, false);
         fleet.getAI().clearAssignments();
 
         final MemoryAPI fleetMemory = fleet.getMemoryWithoutUpdate();

@@ -122,7 +122,7 @@ public class WarCriminalEntity implements BountyEntity {
             }
 
             info.addPara("Reward: %s", bulletPadding, bulletColor, highlightColor, Misc.getDGSCredits(baseReward));
-            info.addPara("Time left: %s", bulletPadding, bulletColor, highlightColor, days + singularOrPlural(days, " day"));
+            info.addPara("Time left: %s" + singularOrPlural(days, " day"), bulletPadding, bulletColor, highlightColor, String.valueOf(days));
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:

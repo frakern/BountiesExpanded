@@ -9,7 +9,6 @@ import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin.ListInfoMode;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
-import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -45,6 +44,7 @@ public class BountyHunterEntity implements BountyEntity {
     private final float fleetQuality;
     private final MissionHandler missionHandler;
     private final Difficulty difficulty;
+    private final String personality = (String) CollectionUtils.getRandomEntry(NameStringCollection.piratePersonalities);
 
     private final FactionAPI offeringFaction;
     private final CampaignFleetAPI fleet;
@@ -106,7 +106,7 @@ public class BountyHunterEntity implements BountyEntity {
                     return "Bounty Hunter - Ended";
             }
         }
-        return offeringFaction.getDisplayName() + " - Bounty Hunter";
+        return Misc.ucFirst(offeringFaction.getDisplayName()) + " - Bounty Hunter";
     }
 
     @Override
@@ -128,8 +128,7 @@ public class BountyHunterEntity implements BountyEntity {
 
         baseBountyIntel.bullet(info);
 
-        String name = Misc.ucFirst(offeringFaction.getDisplayNameWithArticle());
-        info.addPara(String.format("A bounty contract has been put on you by %s", name), initPad, bulletColor, offeringFaction.getBaseUIColor() ,"bounty", name);
+        info.addPara(String.format("A bounty contract has been put on you by %s", offeringFaction.getDisplayNameWithArticle()), initPad, bulletColor, offeringFaction.getColor(), offeringFaction.getDisplayName());
 
         var bullet = "";
 
@@ -139,10 +138,10 @@ public class BountyHunterEntity implements BountyEntity {
                     bullet = "Contract canceled";
                     break;
                 case END_PLAYER_NO_REWARD:
-                    bullet = "Bounty Hunter fleet defeated";
+                    bullet = "Bounty hunter fleet defeated";
                     break;
                 case END_TIME:
-                    bullet = "Bounty Hunter gave up";
+                    bullet = "Contract expired";
                     break;
                 case END_PLAYER_NO_BOUNTY:
                     bullet = "Cancelled: No longer hostile";
@@ -151,13 +150,13 @@ public class BountyHunterEntity implements BountyEntity {
             info.addPara(bullet, bulletPadding, bulletColor, Misc.getGrayColor());
         }
         else if (intel.assembling) {
-            String dtl = Math.round(intel.daysToLaunch) + " " + BaseIntelPlugin.getDaysString(intel.daysToLaunch);
-            bullet = String.format("The contract is open for %s", dtl);
+            String dtl = Misc.getAtLeastStringForDays((int) intel.daysToLaunch);
+            bullet = "The contract will be open for %s";
             info.addPara(bullet, bulletPadding, bulletColor, highlightColor, dtl);
         }
         else {
-            String durStr = Misc.getAtLeastStringForDays((int) intel.getDuration());
-            bullet = String.format("The Bounty Hunter fleet has set out from %s and will pursue you for %s", spawnLocation.getMarket().getName(), durStr);
+            String durStr = Misc.getStringForDays((int) intel.getDuration());
+            bullet = String.format("A bounty hunter fleet has set out from %s and will pursue you for around %s", spawnLocation.getMarket().getName(), durStr);
             info.addPara(bullet, bulletPadding, bulletColor, highlightColor, spawnLocation.getMarket().getName(), durStr);
         }
 
@@ -171,26 +170,24 @@ public class BountyHunterEntity implements BountyEntity {
         List<FleetMemberAPI> flagshipCopy = getFlagshipCopy();
         BountyResult result = baseBountyIntel.getResult();
         float opad = 10f;
-        String bountyCredits = String.valueOf(CreditCalculator.getRewardByFP(Global.getSector().getPlayerFleet().getFleetPoints(), difficulty.getModifier() * 5f));
+        String bountyCredits = Misc.getDGSCredits(CreditCalculator.getRewardByFP(Global.getSector().getPlayerFleet().getFleetPoints(), difficulty.getModifier() * 5f));
 
-        LabelAPI para;
         if (isNotNull(offeringPerson)) {
             TooltipAPIUtils.addPersonWithFactionRepBar(info, width, opad, opad, offeringPerson);
-            var bullet = String.format("You have received rumors that %s a %s of %s has put out a bounty contract on your head for %s credits.", offeringPerson.getName().getFullName(), offeringPerson.getPost(), offeringFaction.getDisplayNameWithArticle(), bountyCredits);
-            para = info.addPara(bullet, opad, Misc.getTextColor(), offeringFaction.getColor(), offeringPerson.getName().getFullName(), offeringPerson.getPost(), offeringFaction.getDisplayNameWithArticle(), bountyCredits);
+            Color[] highlightColors = new Color[]{offeringFaction.getColor(), Misc.getTextColor(), offeringFaction.getColor(), Misc.getHighlightColor()};
+            String bullet = String.format("You have received rumors that %s a %s of %s has grown tired of your meddling in their affairs and has put out a bounty contract on your head for %s.", offeringPerson.getName().getFullName(), offeringPerson.getPost(), offeringFaction.getDisplayNameWithArticle(), bountyCredits);
+            info.addPara(bullet, opad, highlightColors, offeringPerson.getName().getFullName(), offeringPerson.getPost(), offeringFaction.getDisplayName(), bountyCredits);
         }
         else {
             info.addImage(offeringFaction.getLogo(), width, 128f, opad);
-            var bullet = String.format("You have received rumors that someone within %s put out a bounty on your head for %s credits.", offeringFaction.getDisplayNameWithArticle(), bountyCredits);
-            para = info.addPara(bullet, opad, Misc.getTextColor(), offeringFaction.getColor(), offeringFaction.getDisplayNameWithArticle(), bountyCredits);
+            Color[] highlightColors = new Color[]{offeringFaction.getColor(), Misc.getHighlightColor()};
+            String bullet = String.format("You have received rumors that someone within %s has put out a bounty on your head for %s.", offeringFaction.getDisplayNameWithArticle(), bountyCredits);
+            info.addPara(bullet, opad, highlightColors, offeringFaction.getDisplayName(), bountyCredits);
         }
-
-        para.setHighlight(offeringFaction.getDisplayNameWithArticleWithoutArticle());
-        para.setHighlightColor(offeringFaction.getBaseUIColor());
 
         if (!offeringFaction.getRelToPlayer().isHostile()) {
             info.addSpacer(opad);
-            info.addPara("This fleet operates without official support of its governing faction. Defeating it is unlikely to cause reductions in reputations.", opad);
+            info.addPara("This fleet operates without the official support of its governing faction. Defeating it is unlikely to cause reductions in reputations.", opad);
         }
 
         info.addSectionHeading("Status",
@@ -221,35 +218,31 @@ public class BountyHunterEntity implements BountyEntity {
 
         }
         else if (intel.assembling) {
-            String dtl = Math.round(intel.daysToLaunch) + " " + BaseIntelPlugin.getDaysString(intel.daysToLaunch);
-            text = String.format("The contract is open for %s", dtl);
+            String dtl = Misc.getAtLeastStringForDays((int) intel.daysToLaunch);
+            text = String.format("The contract will be open for %s or until a someone accepts it.", dtl);
             info.addPara(text, opad, Misc.getTextColor(), highlightColor, dtl);
         }
         else {
-            String personality = (String) CollectionUtils.getRandomEntry(NameStringCollection.piratePersonalities);
-            String durStr = Misc.getAtLeastStringForDays((int) intel.getDuration());
-            text = String.format("The contract has been given to the %s bounty hunter %s %s. %s will pursue you for %s", personality, fleet.getCommander().getRank(), fleet.getCommander().getNameString(), fleet.getCommander().getHisOrHer(), durStr);
-            info.addPara(text, opad, Misc.getTextColor(), Misc.getHighlightColor(), fleet.getCommander().getNameString(), durStr);
+            String durStr = Misc.getStringForDays((int) intel.getDuration());
 
-            addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
+            text = String.format("The contract has been claimed by the %s bounty hunter %s %s.", personality, fleet.getCommander().getRank(), fleet.getCommander().getNameString());
+            info.addPara(text, opad, Misc.getTextColor(), offeringFaction.getColor(), fleet.getCommander().getRank(), fleet.getCommander().getNameString());
 
-            DescriptionUtils.generateFancyCommanderDescription(info, opad, fleet, fleet.getCommander());
+            text = String.format("%s fleet has departed from %s and will pursue you for around %s.", Misc.ucFirst(fleet.getCommander().getHisOrHer()), spawnLocation.getMarket().getName(), durStr);
+            info.addPara(text, opad, Misc.getTextColor(), Misc.getHighlightColor(), spawnLocation.getMarket().getName(), durStr);
+
+            // Fleet Intel.
+            info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
 
             DescriptionUtils.generateFancyFleetDescription(info, opad, fleet, fleet.getCommander());
 
-            info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
+            DescriptionUtils.generateFancyCommanderDescription(info, opad, fleet, fleet.getCommander());
 
-            int cols = 1;
-            int rows = 1;
-            float iconSize = width / 3;
-            if (!Settings.isDebugActive())
-                info.addShipList(cols, rows, iconSize, Color.BLACK, flagshipCopy, opad);
             info.addPara("Intercepted communications suggest that " + fleet.getCommander().getHisOrHer() + " fleet contains roughly %s additional " + singularOrPlural(obfuscatedFleetSize, "ship") + ".",
                     opad, highlightColor, String.valueOf(obfuscatedFleetSize));
             DescriptionUtils.generateThreatDescription(info, fleet, opad);
 
             if (Settings.isDebugActive()) {
-                info.addPara("Debug information", opad);
                 intel.bullet(info);
                 DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, fleet.getNumShips(), 1, false);
                 info.addPara(String.format("Current location: %s", fleet.getContainingLocation()), 0);
@@ -262,6 +255,9 @@ public class BountyHunterEntity implements BountyEntity {
                     info.addPara(String.format("Location token is in: %s", intel.locationToken.getContainingLocation()), 0);
                 }
                 info.addPara("Tracking mode: " + intel.trackingMode, 0);
+                info.addPara("Time spent looking: " + intel.timeSpentLooking, 0);
+                info.addPara("Days left: " + intel.daysLeft, 0);
+                info.addPara("Found player yet: " + intel.foundPlayerYet, 0);
                 intel.unindent(info);
             }
         }

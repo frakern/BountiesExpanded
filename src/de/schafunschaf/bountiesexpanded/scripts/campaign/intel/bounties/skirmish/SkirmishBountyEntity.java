@@ -150,17 +150,16 @@ public class SkirmishBountyEntity implements BountyEntity {
             if (mode == ListInfoMode.IN_DESC) {
                 info.addPara("%s reward on completion", initPad, bulletColor, highlightColor, Misc.getDGSCredits(baseReward));
                 info.addPara("%s maximum reward", bulletPadding, bulletColor, highlightColor, Misc.getDGSCredits(maxPayout));
-                info.addPara("Time left: %s", bulletPadding, bulletColor, highlightColor, days + singularOrPlural(days, " day"));
+                info.addPara("Time left: %s" + singularOrPlural(days, " day"), bulletPadding, bulletColor, highlightColor, String.valueOf(days));
             } else {
                 info.addPara("Offered by: %s", initPad, bulletColor,
-                        offeringFaction.getBaseUIColor(), offeringFaction.getDisplayName());
+                        offeringFaction.getBaseUIColor(), Misc.ucFirst(offeringFaction.getDisplayNameWithArticle()));
                 info.addPara("Target: %s", bulletPadding, bulletColor,
-                        targetedFaction.getBaseUIColor(), targetedFaction.getDisplayName());
+                        targetedFaction.getBaseUIColor(), Misc.ucFirst(targetedFaction.getDisplayNameWithArticle()));
                 if (!baseBountyIntel.isEnding()) {
                     info.addPara("Reward: %s", bulletPadding, bulletColor,
                             highlightColor, Misc.getDGSCredits(maxPayout));
-                    info.addPara("Time left: %s", bulletPadding, bulletColor,
-                            highlightColor, days + singularOrPlural(days, " day"));
+                    info.addPara("Time left: %s" + singularOrPlural(days, " day"), bulletPadding, bulletColor, highlightColor, String.valueOf(days));
                 }
             }
         } else {

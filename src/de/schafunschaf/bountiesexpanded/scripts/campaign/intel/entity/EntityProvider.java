@@ -11,6 +11,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Personalities;
+import com.fs.starfarer.api.impl.campaign.ids.Ranks;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -41,6 +42,7 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.warcrimi
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler;
 import lombok.extern.log4j.Log4j;
+import org.lazywizard.lazylib.MathUtils;
 
 import java.util.List;
 import java.util.Random;
@@ -63,6 +65,7 @@ public class EntityProvider {
     private static final String NO_DESTINATION = "BountiesExpanded: failed to pick destination";
     private static final String NO_FLEET = "BountiesExpanded: failed to create bounty fleet";
     private static final String NOT_IN_RANGE = "BountiesExpanded: player fleet not in range to create bounty";
+    private static final String IN_RANGE = "BountiesExpanded: player fleet in range of market to create bounty";
 
     public static SkirmishBountyEntity skirmishBountyEntity() {
         Difficulty difficulty = Difficulty.randomDifficulty();
@@ -83,7 +86,7 @@ public class EntityProvider {
             return null;
         }
 
-        PersonAPI fleetCommander = OfficerManagerEvent.createOfficer(targetedFaction, level);
+        PersonAPI fleetCommander = OfficerGenerator.generateOfficer(targetedFaction, level);
         if (isNull(fleetCommander)) {
             log.warn(String.format(NO_COMMANDER, targetedFaction.getDisplayName()));
             return null;
@@ -213,9 +216,9 @@ public class EntityProvider {
             return null;
         }
 
-        PersonAPI fleetCommander = OfficerManagerEvent.createOfficer(targetedFaction, level);
+        PersonAPI fleetCommander = OfficerGenerator.generateOfficer(targetedFaction, level);
         if (isNull(fleetCommander)) {
-            log.warn(NO_COMMANDER);
+            log.warn(String.format(NO_COMMANDER, targetedFaction.getDisplayName()));
             return null;
         }
 
@@ -286,9 +289,9 @@ public class EntityProvider {
             return null;
         }
 
-        PersonAPI fleetCommander = OfficerManagerEvent.createOfficer(targetedFaction, level);
+        PersonAPI fleetCommander = OfficerGenerator.generateOfficer(targetedFaction, level);
         if (isNull(fleetCommander)) {
-            log.warn(NO_COMMANDER);
+            log.warn(String.format(NO_COMMANDER, targetedFaction.getDisplayName()));
             return null;
         }
 
@@ -347,9 +350,9 @@ public class EntityProvider {
             return null;
         }
 
-        PersonAPI fleetCommander = OfficerManagerEvent.createOfficer(offeringFaction, level);
+        PersonAPI fleetCommander = OfficerGenerator.generateOfficer(offeringFaction, level);
         if (isNull(fleetCommander)) {
-            log.warn(NO_COMMANDER);
+            log.warn(String.format(NO_COMMANDER, offeringFaction.getDisplayName()));
             return null;
         }
 
@@ -381,6 +384,7 @@ public class EntityProvider {
         int rareFlagshipChance = difficulty.getFlatModifier();
         float fleetQuality = difficulty.getFlatModifier() * 0.2f + 0.4f;
 
+        // TODO REMOVE THIS?
         // Check if player is within 2 light years of a market.
         float rangeToShowBounties = 2f;
         boolean withinRange = false;
@@ -391,6 +395,7 @@ public class EntityProvider {
                 for (MarketAPI market : markets) {
                     if (!market.isHidden() && market.getSize() >=3) {
                         withinRange = true;
+                        log.info(IN_RANGE);
                         break;
                     }
                 }
@@ -412,7 +417,10 @@ public class EntityProvider {
             log.warn(NO_TARGETED_FACTION);
             return null;
         }
-        if (!MiscFactionUtils.canFactionOfferBounties(offeringFaction)) return null;
+        if (!MiscFactionUtils.canFactionOfferBounties(offeringFaction)) {
+            log.info(String.format("BountiesExpanded: offering faction %s cannot create bounties.", offeringFaction.getId()));
+            return null;
+        }
 
         SectorEntityToken spawnLocation = CoreWorldPicker.pickFactionHideout(offeringFaction);
 
@@ -421,14 +429,19 @@ public class EntityProvider {
             return null;
         }
 
+        // TODO CHANGE RANK BASED ON FP
         PersonAPI fleetCommander;
         PersonAPI offeringPerson = null;
         if (offeringFaction.getRelToPlayer().isHostile()) {
             offeringPerson = BountyGiverGenerator.generateBountyGiver(spawnLocation.getMarket());
-            fleetCommander = OfficerManagerEvent.createOfficer(offeringFaction, level);
+            fleetCommander = OfficerGenerator.generateOfficer(offeringFaction, level);
         }
         else {
-            fleetCommander = OfficerManagerEvent.createOfficer(Global.getSector().getFaction(Factions.MERCENARY), level);
+            if (MathUtils.getRandomNumberInRange(0, 100) <= 20) {
+                fleetCommander = OfficerGenerator.generateOfficer(offeringFaction, level);
+            } else {
+                fleetCommander = OfficerGenerator.generateOfficer(Global.getSector().getFaction(Factions.MERCENARY), level);
+            }
         }
 
         if (isNull(fleetCommander)) {
@@ -448,6 +461,17 @@ public class EntityProvider {
             bountyFleet.setName("Bounty Hunter");
         }
 
+
+        if (bountyFleet.getFleetPoints() >= 0 && bountyFleet.getFleetPoints() <= 50) {
+            fleetCommander.setRankId(Ranks.SPACE_LIEUTENANT);
+        } else if (bountyFleet.getFleetPoints() >= 51 && bountyFleet.getFleetPoints() <= 80) {
+            fleetCommander.setRankId(Ranks.SPACE_CAPTAIN);
+        } else if (bountyFleet.getFleetPoints() >= 81 && bountyFleet.getFleetPoints() <= 160) {
+            fleetCommander.setRankId(Ranks.SPACE_CAPTAIN);
+        } else {
+            fleetCommander.setRankId(Ranks.SPACE_ADMIRAL);
+        }
+
         if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn
             boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
             if (rareFlagshipAdded) {
@@ -456,6 +480,8 @@ public class EntityProvider {
                 log.info(String.format("BountiesExpanded: Fleet got lucky! Added '%s' as rare flagship", flagship.getHullSpec().getHullName()));
             }
         }
+
+        log.info("BountiesExpanded: got to end");
 
         return new BountyHunterEntity(offeringFaction, bountyFleet, offeringPerson, spawnLocation, difficulty, level, fleetQuality, missionHandler);
 
