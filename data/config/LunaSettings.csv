@@ -1,0 +1,60 @@
+fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
+disableVanillaBounties,Disable Vanilla Bounties,Boolean,true,,Disables Vanilla pirate bounties.,,,
+baseRewardPerFP,Base Bounty Reward,Int,250,,Base bounty reward per fleet point.,100,600,
+retrievalEventActive,Enable Retrieval Missions,Boolean,false,,(EXPERIMENTAL) May contain some bugs.,,,
+retrievalEventDuration,Disable Vanilla Bounties,Int,30,,Time given to return ship (in days).,10,60,
+debug,Enable Debugging,Boolean,false,,,,,
+
+skirmish,Skirmish-Bounty-Settings,Header,Skirmish-Bounty-Settings,,,,,Skirmish
+skirmishActive,Enable Skirmish Bounties,Boolean,true,,,,,Skirmish
+skirmishSpawnChance,Spawn Chance,Double,0.3,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,Skirmish
+skirmishMinBounties,Min Bounties,Int,0,,Minimum currently active bounties.,0,10,Skirmish
+skirmishMaxBounties,Max Bounties,Int,2,,Maximum currently active bounties.,1,10,Skirmish
+skirmishMinDuration,Min Duration,Int,30,,Minimum bounty duration (in days).,1,360,Skirmish
+skirmishMaxDuration,Max Duration,Int,60,,Maximum bounty duration (in days).,1,360,Skirmish
+skirmishBaseShipBounty,Base Ship Bounty,Int,3000,,Base amount for ship bounty calculation. Modified by hull size.,0,15000,Skirmish
+skirmishMinFP,Min Fleet Points,Int,30,,Minimum fleet points. Spawned fleet will otherwise be based on player fleet size.,15,300,Skirmish
+
+assassination,Assassination-Bounty-Settings,Header,Assassination-Bounty-Settings,,,,,Assassination
+assassinationActive,Enable Assassination Bounties,Boolean,true,,,,,Assassination
+assassinationSpawnChance,Spawn Chance,Double,0.1,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,Assassination
+assassinationMinBounties,Min Bounties,Int,0,,Minimum currently active bounties.,0,10,Assassination
+assassinationMaxBounties,Max Bounties,Int,2,,Maximum currently active bounties.,1,10,Assassination
+assassinationMinTravelDistance,Min Travel Distance,Double,5.0,,Minimum travel distance in light-years.,1,10,Assassination
+assassinationBaseRewardMultiplier,Base Reward Multi,Double,1.0,,Base reward multiplier for killing the target.,0,4,Assassination
+assassinationBonusRewardMultiplier,Bonus Reward Multi,Double,4.0,,Bonus reward multiplier for killing the target in hyperspace.,0,10,Assassination
+assassinationMinFP,Min Fleet Points,Int,50,,Minimum fleet points. Spawned fleet will otherwise be based on player fleet size.,15,300,Assassination
+
+warCriminal,War-Criminal-Bounty-Settings,Header,War-Criminal-Bounty-Settings,,,,,War Criminal
+warCriminalActive,Enable War Criminal Bounties,Boolean,true,,,,,War Criminal
+warCriminalSpawnChance,Spawn Chance,Double,0.2,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,War Criminal
+warCriminalMinBounties,Min Bounties,Int,0,,Minimum currently active bounties.,0,10,War Criminal
+warCriminalMaxBounties,Max Bounties,Int,2,,Maximum currently active bounties.,1,10,War Criminal
+warCriminalMinDuration,Min Duration,Int,30,,Minimum bounty duration (in days).,1,360,War Criminal
+warCriminalMaxDuration,Max Duration,Int,60,,Maximum bounty duration (in days).,1,360,War Criminal
+warCriminalMinFP,Min Fleet Points,Int,65,,Minimum fleet points. Spawned fleet will otherwise be based on player fleet size.,15,300,War Criminal
+
+pirateBounty,Pirate-Bounty-Settings,Header,Pirate-Bounty-Settings,,,,,Pirate
+pirateBountyActive,Enable Pirate Bounties,Boolean,true,,,,,Pirate
+pirateBountySpawnChance,Spawn Chance,Double,0.8,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,Pirate
+pirateBountyMinBounties,Min Bounties,Int,0,,Minimum currently active bounties.,0,10,Pirate
+pirateBountyMaxBounties,Max Bounties,Int,4,,Maximum currently active bounties.,1,10,Pirate
+pirateBountyMinDuration,Min Duration,Int,30,,Minimum bounty duration (in days).,1,360,Pirate
+pirateBountyMaxDuration,Max Duration,Int,60,,Maximum bounty duration (in days).,1,360,Pirate
+pirateBountyMinFP,Min Fleet Points,Int,18,,Minimum fleet points. Spawned fleet will otherwise be based on player fleet size.,15,300,Pirate
+
+deserterBounty,Deserter-Bounty-Settings,Header,Deserter-Bounty-Settings,,,,,Deserter
+deserterBountyActive,Enable Deserter Bounties,Boolean,true,,,,,Deserter
+deserterBountySpawnChance,Spawn Chance,Double,0.3,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,Deserter
+deserterBountyMinBounties,Min Bounties,Int,0,,Minimum currently active bounties.,0,10,Deserter
+deserterBountyMaxBounties,Max Bounties,Int,2,,Maximum currently active bounties.,1,10,Deserter
+deserterBountyMinDuration,Min Duration,Int,30,,Minimum bounty duration (in days).,1,360,Deserter
+deserterBountyMaxDuration,Max Duration,Int,60,,Maximum bounty duration (in days).,1,360,Deserter
+deserterBountyMinFP,Min Fleet Points,Int,22,,Minimum fleet points. Spawned fleet will otherwise be based on player fleet size.,15,300,Deserter
+
+bountyHunter,Bounty-Hunter-Settings,Header,Bounty-Hunter-Settings,,,,,Bounty Hunter
+bountyHunterActive,Enable Bounty Hunters,Boolean,true,,,,,Bounty Hunter
+bountyHunterSpawnChance,Spawn Chance,Double,0.1,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,Bounty Hunter
+bountyHunterMinBounties,Min Bounties,Int,0,,Minimum currently active bounty hunters.,0,10,Bounty Hunter
+bountyHunterMaxBounties,Max Bounties,Int,2,,Maximum currently active bounty hunters.,1,10,Bounty Hunter
+bountyHunterMinFP,Min Fleet Points,Int,22,,Minimum fleet points. Spawned fleet will otherwise be based on player fleet size.,15,300,Bounty Hunter
