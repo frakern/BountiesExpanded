@@ -1,6 +1,7 @@
 package de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter;
 
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import de.schafunschaf.bountiesexpanded.Settings;
 import lombok.Getter;
 
 import java.awt.*;
@@ -8,21 +9,20 @@ import java.awt.*;
 @Getter
 public final class Difficulty {
 
-    // TODO put modifiers into settings.
     public static final Difficulty EASY = new Difficulty(
-            "easy", "an", 0.9f, 0, Color.GREEN
+            "easy", "an", Settings.multiplierEasy, 0, Color.GREEN
     );
     public static final Difficulty MEDIUM = new Difficulty(
-            "fair", "a", 1f, 1, Color.CYAN
+            "fair", "a", Settings.multiplierMedium, 1, Color.CYAN
     );
     public static final Difficulty CHALLENGING = new Difficulty(
-            "challenging", "a", 1.1f, 2, Color.ORANGE
+            "challenging", "a", Settings.multiplierChallenging, 2, Color.ORANGE
     );
     public static final Difficulty HARD = new Difficulty(
-            "difficult", "a", 1.2f, 3, Color.RED
+            "difficult", "a", Settings.multiplierHard, 3, Color.RED
     );
     public static final Difficulty BOSS = new Difficulty(
-            "BOSS", "a", 1.4f, 4, Color.MAGENTA
+            "BOSS", "a", (float) (Settings.multiplierHard * 1.5), 4, Color.MAGENTA
     );
     private static final Difficulty[] VALUES = {
             EASY, MEDIUM, HARD, CHALLENGING, BOSS
@@ -47,10 +47,10 @@ public final class Difficulty {
 
     public static Difficulty randomDifficulty() {
         WeightedRandomPicker<Difficulty> picker = new WeightedRandomPicker<>();
-        picker.add(EASY, 1);
-        picker.add(MEDIUM, 2);
-        picker.add(CHALLENGING, 2);
-        picker.add(HARD, 1);
+        picker.add(EASY, Settings.chanceEasy);
+        picker.add(MEDIUM, Settings.chanceMedium);
+        picker.add(CHALLENGING, Settings.chanceChallenging);
+        picker.add(HARD, Settings.chanceHard);
         return picker.pick();
     }
 }

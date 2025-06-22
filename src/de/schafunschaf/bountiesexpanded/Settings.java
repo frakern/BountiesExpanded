@@ -7,16 +7,15 @@ import lunalib.lunaSettings.LunaSettingsListener;
 public class Settings implements LunaSettingsListener {
     private static final String modId = "bountiesexpanded";
 
-    public static boolean debug = LunaSettings.getBoolean(modId, "debug");
-    public static boolean prepareUpdate = false;
-    public static boolean ignorePlayerMarkets = true;
-
-    public static boolean disableVanillaBounties = LunaSettings.getBoolean(modId, "disableVanillaBounties");
     public static int baseRewardPerFP = LunaSettings.getInt(modId, "baseRewardPerFP");
-    public static boolean retrievalEventActive = LunaSettings.getBoolean(modId, "retrievalEventActive");
-    public static int retrievalEventDuration = LunaSettings.getInt(modId, "retrievalEventDuration");
-    public static boolean triggeredEventsActive = LunaSettings.getBoolean(modId, "retrievalEventActive");
-    public static boolean onlyRecoverWithSP = false;
+    public static float chanceEasy = LunaSettings.getFloat(modId, "chanceEasy");
+    public static float chanceMedium = LunaSettings.getFloat(modId, "chanceMedium");
+    public static float chanceChallenging = LunaSettings.getFloat(modId, "chanceChallenging");
+    public static float chanceHard = LunaSettings.getFloat(modId, "chanceHard");
+    public static float multiplierEasy = LunaSettings.getFloat(modId, "multiplierEasy");
+    public static float multiplierMedium = LunaSettings.getFloat(modId, "multiplierMedium");
+    public static float multiplierChallenging = LunaSettings.getFloat(modId, "multiplierChallenging");
+    public static float multiplierHard = LunaSettings.getFloat(modId, "multiplierHard");
 
     public static boolean skirmishActive = LunaSettings.getBoolean(modId, "skirmishActive");
     public static double skirmishSpawnChance = LunaSettings.getDouble(modId, "skirmishSpawnChance");
@@ -66,15 +65,26 @@ public class Settings implements LunaSettingsListener {
     public static int bountyHunterMaxBounties = LunaSettings.getInt(modId, "bountyHunterMaxBounties");
     public static float bountyHunterMinFP = LunaSettings.getFloat(modId, "bountyHunterMinFP");
 
+    public static boolean debug = LunaSettings.getBoolean(modId, "debug");
+    public static boolean disableVanillaBounties = LunaSettings.getBoolean(modId, "disableVanillaBounties");
+    public static boolean retrievalEventActive = LunaSettings.getBoolean(modId, "retrievalEventActive");
+    public static int retrievalEventDuration = LunaSettings.getInt(modId, "retrievalEventDuration");
+    public static boolean triggeredEventsActive = LunaSettings.getBoolean(modId, "retrievalEventActive");
+    public static boolean onlyRecoverWithSP = false;
+    public static boolean prepareUpdate = false;
+    public static boolean ignorePlayerMarkets = true;
+
     @Override
     public void settingsChanged(String modID) {
-        debug = LunaSettings.getBoolean(modId, "debug");
-
-        disableVanillaBounties = LunaSettings.getBoolean(modId, "disableVanillaBounties");
         baseRewardPerFP = LunaSettings.getInt(modId, "baseRewardPerFP");
-        retrievalEventActive = LunaSettings.getBoolean(modId, "retrievalEventActive");
-        retrievalEventDuration = LunaSettings.getInt(modId, "retrievalEventDuration");
-        triggeredEventsActive = LunaSettings.getBoolean(modId, "retrievalEventActive");
+        chanceEasy = LunaSettings.getFloat(modId, "chanceEasy");
+        chanceMedium = LunaSettings.getFloat(modId, "chanceMedium");
+        chanceChallenging = LunaSettings.getFloat(modId, "chanceChallenging");
+        chanceHard = LunaSettings.getFloat(modId, "chanceHard");
+        multiplierEasy = LunaSettings.getFloat(modId, "multiplierEasy");
+        multiplierMedium = LunaSettings.getFloat(modId, "multiplierMedium");
+        multiplierChallenging = LunaSettings.getFloat(modId, "multiplierChallenging");
+        multiplierHard = LunaSettings.getFloat(modId, "multiplierHard");
 
         skirmishActive = LunaSettings.getBoolean(modId, "skirmishActive");
         skirmishSpawnChance = LunaSettings.getDouble(modId, "skirmishSpawnChance");
@@ -123,6 +133,12 @@ public class Settings implements LunaSettingsListener {
         bountyHunterMinBounties = LunaSettings.getInt(modId, "bountyHunterMinBounties");
         bountyHunterMaxBounties = LunaSettings.getInt(modId, "bountyHunterMaxBounties");
         bountyHunterMinFP = LunaSettings.getFloat(modId, "bountyHunterMinFP");
+
+        debug = LunaSettings.getBoolean(modId, "debug");
+        disableVanillaBounties = LunaSettings.getBoolean(modId, "disableVanillaBounties");
+        retrievalEventActive = LunaSettings.getBoolean(modId, "retrievalEventActive");
+        retrievalEventDuration = LunaSettings.getInt(modId, "retrievalEventDuration");
+        triggeredEventsActive = LunaSettings.getBoolean(modId, "retrievalEventActive");
     }
 
     public static boolean isDebugActive() {
