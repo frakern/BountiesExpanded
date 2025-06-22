@@ -18,7 +18,6 @@ import de.schafunschaf.bountiesexpanded.helper.ui.TooltipAPIUtils;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.NameStringCollection;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BountyResult;
-import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.RareFlagshipManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.BountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler;
@@ -67,7 +66,7 @@ public class PirateBountyEntity implements BountyEntity {
         this.targetedPerson = targetedPerson;
         this.spawnLocation = spawnLocation;
         this.missionHandler = missionHandler;
-        this.pirateBountyIcon = fleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY) ? "bountiesExpanded_pirate_silly" : "bountiesExpanded_pirate";
+        this.pirateBountyIcon = "bountiesExpanded_pirate";
         String title = (String) CollectionUtils.getRandomEntry(NameStringCollection.pirateTitles);
         String market;
         MarketAPI factionMarket = MarketUtils.getRandomFactionMarket(offeringFaction);

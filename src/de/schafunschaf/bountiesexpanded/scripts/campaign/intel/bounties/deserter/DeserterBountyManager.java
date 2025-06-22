@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import de.schafunschaf.bountiesexpanded.Settings;
@@ -23,7 +24,6 @@ import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 
 @Log4j
 public class DeserterBountyManager extends BaseEventManager {
-    public static final String FLEET_NAME = "Deserter Fleet";
     public static final String KEY = "$bountiesExpanded_deserterBountyManager";
     public static final String DESERTER_BOUNTY_FLEET_KEY = "$bountiesExpanded_deserterBountyFleet";
 
@@ -77,9 +77,9 @@ public class DeserterBountyManager extends BaseEventManager {
         final SectorEntityToken travelDestination = bountyEntity.getTravelDestination();
         PersonAPI person = bountyEntity.getTargetedPerson();
         Difficulty difficulty = bountyEntity.getDifficulty();
-        final String fleetTravelingActionText = String.format("leaving %s territory", fleet.getFaction().getDisplayName());
+        final String fleetTravelingActionText = String.format("fleeing %s territory", fleet.getFaction().getDisplayName());
 
-        fleet.setName(FLEET_NAME);
+        fleet.setName(fleet.getFaction().getDisplayName() + " Deserter Fleet");
         FleetGenerator.spawnFleet(fleet, spawnLocation);
 
         final DeserterBountyIntel bountyIntel = new DeserterBountyIntel(bountyEntity, fleet, person, spawnLocation, travelDestination);
@@ -93,13 +93,17 @@ public class DeserterBountyManager extends BaseEventManager {
         fleet.clearAssignments();
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, travelDestination, bountyIntel.getDuration(), fleetTravelingActionText, new Script() {
             public void run() {
+                // Turn fleet to pirate once they reach the destination.
+                fleet.setFaction(Factions.PIRATES);
                 fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, travelDestination, bountyIntel.getRemainingDuration(), new Script() {
                     @Override
                     public void run() {
-                        if (fleet.isInCurrentLocation())
+                        if (fleet.isInCurrentLocation()){
                             fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, LocationUtils.getNearestLocation(fleet), 30f);
-                        else
+                        }
+                        else {
                             fleet.despawn();
+                        }
                     }
                 });
                 fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_PIRATE, true);

@@ -9,10 +9,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.impl.campaign.ids.Personalities;
-import com.fs.starfarer.api.impl.campaign.ids.Ranks;
-import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.ids.*;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import de.schafunschaf.bountiesexpanded.Blacklists;
@@ -44,6 +41,7 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Mission
 import lombok.extern.log4j.Log4j;
 import org.lazywizard.lazylib.MathUtils;
 
+import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -94,7 +92,7 @@ public class EntityProvider {
 
         fleetCommander.setPersonality(Personalities.AGGRESSIVE);
 
-        SectorEntityToken hideout = CoreWorldPicker.pickSafeHideout(targetedFaction);
+        SectorEntityToken hideout = CoreWorldPicker.pickFactionHideout(targetedFaction);
         if (isNull(hideout)) {
             log.warn(NO_HIDEOUT);
             return null;
@@ -163,7 +161,7 @@ public class EntityProvider {
                 FleetMemberAPI flagship = bountyFleet.getFlagship();
                 bountyFleet.getMemoryWithoutUpdate().set(RareFlagshipManager.RARE_FLAGSHIP_KEY, flagship);
                 float flagshipFP = flagship.getFleetPointCost();
-                bountyCredits += Settings.baseRewardPerFP * flagshipFP * difficulty.getModifier() * Misc.getSizeNum(flagship.getHullSpec().getHullSize());
+                bountyCredits += (int) (Settings.baseRewardPerFP * flagshipFP * difficulty.getModifier() * Misc.getSizeNum(flagship.getHullSpec().getHullSize()));
                 log.info(String.format("BountiesExpanded: Fleet got lucky! Added '%s' as rare flagship", flagship.getHullSpec().getHullName()));
             }
         }
@@ -294,6 +292,7 @@ public class EntityProvider {
             log.warn(String.format(NO_COMMANDER, targetedFaction.getDisplayName()));
             return null;
         }
+        fleetCommander.setRankId(Ranks.SPACE_CAPTAIN);
 
         CampaignFleetAPI bountyFleet = FleetGenerator.createBountyFleetV2(fp, fleetQuality, null, spawnLocation, fleetCommander);
         if (isNull(bountyFleet)) {
@@ -429,7 +428,6 @@ public class EntityProvider {
             return null;
         }
 
-        // TODO CHANGE RANK BASED ON FP
         PersonAPI fleetCommander;
         PersonAPI offeringPerson = null;
         if (offeringFaction.getRelToPlayer().isHostile()) {
@@ -441,6 +439,7 @@ public class EntityProvider {
                 fleetCommander = OfficerGenerator.generateOfficer(offeringFaction, level);
             } else {
                 fleetCommander = OfficerGenerator.generateOfficer(Global.getSector().getFaction(Factions.MERCENARY), level);
+                fleetCommander.setRankId(Ranks.SPACE_CAPTAIN);
             }
         }
 
@@ -449,7 +448,7 @@ public class EntityProvider {
             return null;
         }
 
-        CampaignFleetAPI bountyFleet = FleetGenerator.createBountyFleetV2(fp, fleetQuality, null, spawnLocation, fleetCommander);
+        CampaignFleetAPI bountyFleet = FleetGenerator.createBountyFleetV2(fp, fleetQuality, null, spawnLocation, fleetCommander, fleetCommander.getFaction(), FleetTypes.MERC_BOUNTY_HUNTER);
         if (isNull(bountyFleet)) {
             log.warn(NO_FLEET);
             return null;
@@ -459,17 +458,6 @@ public class EntityProvider {
         }
         else {
             bountyFleet.setName("Bounty Hunter");
-        }
-
-
-        if (bountyFleet.getFleetPoints() >= 0 && bountyFleet.getFleetPoints() <= 50) {
-            fleetCommander.setRankId(Ranks.SPACE_LIEUTENANT);
-        } else if (bountyFleet.getFleetPoints() >= 51 && bountyFleet.getFleetPoints() <= 80) {
-            fleetCommander.setRankId(Ranks.SPACE_CAPTAIN);
-        } else if (bountyFleet.getFleetPoints() >= 81 && bountyFleet.getFleetPoints() <= 160) {
-            fleetCommander.setRankId(Ranks.SPACE_CAPTAIN);
-        } else {
-            fleetCommander.setRankId(Ranks.SPACE_ADMIRAL);
         }
 
         if (new Random().nextInt(20) + 1 <= rareFlagshipChance) { // 0/5/10/15 % chance to spawn

@@ -15,7 +15,6 @@ import de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils;
 import de.schafunschaf.bountiesexpanded.helper.ui.TooltipAPIUtils;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BountyResult;
-import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.RareFlagshipManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.BountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler;
@@ -33,7 +32,6 @@ import static de.schafunschaf.bountiesexpanded.util.FormattingTools.singularOrPl
 @Setter
 public class DeserterBountyEntity implements BountyEntity {
     private String deserterBountyIcon;
-    private String deserterBountyFlag;
     private final int baseReward;
     private final int level;
     private final float fleetQuality;
@@ -62,8 +60,7 @@ public class DeserterBountyEntity implements BountyEntity {
         this.spawnLocation = spawnLocation;
         this.travelDestination = travelDestination;
         this.missionHandler = missionHandler;
-        this.deserterBountyIcon = fleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY) ? "bountiesExpanded_deserter_crest_silly" : "bountiesExpanded_deserter_crest";
-        this.deserterBountyFlag = fleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY) ? "bountiesExpanded_deserter_flag_silly" : "bountiesExpanded_deserter_flag";
+        this.deserterBountyIcon = "bountiesExpanded_deserter_crest";
     }
 
     @Override
@@ -120,9 +117,9 @@ public class DeserterBountyEntity implements BountyEntity {
     public void createSmallDescription(BaseBountyIntel baseBountyIntel, TooltipMakerAPI info, float width, float height) {
         boolean isRetrievalMission = false;
         String hisOrHer = getTargetedPerson().getHisOrHer();
-        String briefingText = String.format("A large sum has been put on the head of %s, wanted dead for %s recent theft of military equipment and betrayal of %s.\n\n" +
+        String briefingText = String.format("A bounty has been put on the head of %s, wanted dead for misappropriation of military equipment, dereliction of duty, piracy, treason, and betrayal of %s.\n\n" +
                         "To claim this bounty, we need to end %s life by destroying the %s.",
-                targetedPerson.getNameString(), hisOrHer, offeringFaction.getDisplayNameWithArticle(), hisOrHer, flagship.getShipName());
+                targetedPerson.getNameString(), offeringFaction.getDisplayNameWithArticle(), hisOrHer, flagship.getShipName());
         Color factionColor = baseBountyIntel.getFactionForUIColors().getBaseUIColor();
         BountyResult result = baseBountyIntel.getResult();
         float opad = 10f;
@@ -132,7 +129,7 @@ public class DeserterBountyEntity implements BountyEntity {
         if (isNull(result)) {
             TooltipAPIUtils.addCustomImagesWithSingleRepBar(info, width, opad, 10f,
                     targetedPerson.getPortraitSprite(),
-                    Global.getSettings().getSpriteName("intel", deserterBountyFlag), offeringFaction.getRelToPlayer().getRel());
+                    offeringFaction.getLogo(), offeringFaction.getRelToPlayer().getRel());
             info.addSectionHeading("Briefing", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
             info.addPara(briefingText, opad, factionColor, targetedPerson.getNameString(), offeringFaction.getDisplayNameWithArticle(), flagship.getShipName());
 
@@ -154,8 +151,8 @@ public class DeserterBountyEntity implements BountyEntity {
                     String debriefingText = "Mission completed. You brought %s to justice.";
 
                     TooltipAPIUtils.addCustomImagesWithSingleRepBarAndChange(info, width, opad, 10f,
-                            offeringFaction.getLogo(),
-                            Global.getSettings().getSpriteName("intel", deserterBountyFlag), offeringFaction.getRelToPlayer().getRel(), result.rep.delta);
+                            targetedPerson.getPortraitSprite(),
+                            offeringFaction.getLogo(), offeringFaction.getRelToPlayer().getRel(), result.rep.delta);
                     info.addSectionHeading("Briefing", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
                     info.addPara(briefingText, Misc.getGrayColor(), opad);
 
@@ -170,7 +167,7 @@ public class DeserterBountyEntity implements BountyEntity {
                 case END_TIME:
                     TooltipAPIUtils.addCustomImagesWithSingleRepBar(info, width, opad, 10f,
                             targetedPerson.getPortraitSprite(),
-                            Global.getSettings().getSpriteName("intel", deserterBountyFlag), offeringFaction.getRelToPlayer().getRel());
+                            offeringFaction.getLogo(), offeringFaction.getRelToPlayer().getRel());
                     info.addSectionHeading("Briefing", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
                     info.addPara(briefingText, Misc.getGrayColor(), opad);
 

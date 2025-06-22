@@ -83,6 +83,7 @@ public class RemoteWorldPicker {
             if (distToPlayer < noSpawnRange)
                 continue;
 
+            // TODO Find a better way to find center of sector.
             float distToAskonia = Misc.getDistanceLY(Global.getSector().getStarSystem("Askonia").getLocation(), system.getLocation());
             if (distToAskonia > rangeLY)
                 continue;

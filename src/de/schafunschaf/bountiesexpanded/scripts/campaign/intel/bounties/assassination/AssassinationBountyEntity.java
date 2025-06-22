@@ -12,6 +12,7 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils;
 import de.schafunschaf.bountiesexpanded.helper.ui.TooltipAPIUtils;
@@ -25,6 +26,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.awt.*;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -251,16 +253,19 @@ public class AssassinationBountyEntity implements BountyEntity {
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
+            // TODO REPLACE DESCRIPTION BASED ON TYPE OF TARGET.
             DescriptionUtils.generateFancyFleetDescription(info, opad, fleet, targetedPerson);
 
+            // Fleet Intel.
             info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
 
             int cols = 1;
             int rows = 1;
             float iconSize = width / 3;
             info.addPara("The message had an intel file containing the targets ship attached.", opad);
-            if (!Settings.isDebugActive())
+            if (!Settings.isDebugActive()) {
                 info.addShipList(cols, rows, iconSize, Color.BLACK, flagshipCopy, opad);
+            }
             info.addPara("Intercepted communications suggest that " + targetedPerson.getHisOrHer() + " escort contains roughly %s additional " + singularOrPlural(obfuscatedFleetSize, "ship") + ".",
                     opad, highlightColor, String.valueOf(obfuscatedFleetSize));
             DescriptionUtils.generateThreatDescription(info, fleet, opad);

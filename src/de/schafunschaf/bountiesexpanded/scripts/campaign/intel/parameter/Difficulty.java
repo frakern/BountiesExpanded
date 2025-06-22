@@ -8,6 +8,7 @@ import java.awt.*;
 @Getter
 public final class Difficulty {
 
+    // TODO put modifiers into settings.
     public static final Difficulty EASY = new Difficulty(
             "easy", "an", 0.9f, 0, Color.GREEN
     );

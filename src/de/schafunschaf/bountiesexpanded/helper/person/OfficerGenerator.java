@@ -5,6 +5,7 @@ import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.events.OfficerManagerEvent;
 import com.fs.starfarer.api.impl.campaign.ids.Personalities;
+import com.fs.starfarer.api.impl.campaign.ids.Ranks;
 import de.schafunschaf.bountiesexpanded.helper.level.LevelPicker;
 
 import java.util.Arrays;
@@ -52,6 +53,14 @@ public class OfficerGenerator {
 
         if (personalities.contains(personality)) {
             generatedOfficer.setPersonality(personality);
+        }
+
+        if (personLevel <= 5) {
+            generatedOfficer.setRankId(Ranks.SPACE_LIEUTENANT);
+        } else if (personLevel <= 15) {
+            generatedOfficer.setRankId(Ranks.SPACE_CAPTAIN);
+        } else {
+            generatedOfficer.setRankId(Ranks.SPACE_ADMIRAL);
         }
 
         return generatedOfficer;

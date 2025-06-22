@@ -39,7 +39,7 @@ import static de.schafunschaf.bountiesexpanded.util.FormattingTools.singularOrPl
 @Getter
 @Setter
 public class BountyHunterEntity implements BountyEntity {
-    private final String assassinationIcon = "bountiesExpanded_assassination";
+    private final String assassinationIcon = "bountiesExpanded_bounty_hunter";
     private final int level;
     private final float fleetQuality;
     private final MissionHandler missionHandler;
@@ -187,7 +187,7 @@ public class BountyHunterEntity implements BountyEntity {
 
         if (!offeringFaction.getRelToPlayer().isHostile()) {
             info.addSpacer(opad);
-            info.addPara("This fleet operates without the official support of its governing faction. Defeating it is unlikely to cause reductions in reputations.", opad);
+            info.addPara("This contract is being issued without the official support of its governing faction. Any action is unlikely to cause reductions in reputations.", opad);
         }
 
         info.addSectionHeading("Status",
@@ -201,7 +201,7 @@ public class BountyHunterEntity implements BountyEntity {
         if (!isNull(result)) {
             switch (result.type) {
                 case END_OTHER:
-                    text = "The contract expired without a taker";
+                    text = "The contract was not claimed.";
                     break;
                 case END_PLAYER_NO_REWARD:
                     text = "The bounty hunter fleet has been defeated.";
@@ -219,7 +219,7 @@ public class BountyHunterEntity implements BountyEntity {
         }
         else if (intel.assembling) {
             String dtl = Misc.getAtLeastStringForDays((int) intel.daysToLaunch);
-            text = String.format("The contract will be open for %s or until a someone accepts it.", dtl);
+            text = String.format("The contract will be open for %s or until a someone claims it.", dtl);
             info.addPara(text, opad, Misc.getTextColor(), highlightColor, dtl);
         }
         else {
@@ -238,7 +238,14 @@ public class BountyHunterEntity implements BountyEntity {
 
             DescriptionUtils.generateFancyCommanderDescription(info, opad, fleet, fleet.getCommander());
 
-            info.addPara("Intercepted communications suggest that " + fleet.getCommander().getHisOrHer() + " fleet contains roughly %s additional " + singularOrPlural(obfuscatedFleetSize, "ship") + ".",
+            int cols = 1;
+            int rows = 1;
+            float iconSize = width / 3;
+            if (!Settings.isDebugActive()) {
+                info.addShipList(cols, rows, iconSize, Color.BLACK, flagshipCopy, opad);
+            }
+
+            info.addPara(spawnLocation.getMarket().getName() + " spaceport registry records indicate that " + fleet.getCommander().getHisOrHer() + " fleet likely contains around %s additional " + singularOrPlural(obfuscatedFleetSize, "ship") + ".",
                     opad, highlightColor, String.valueOf(obfuscatedFleetSize));
             DescriptionUtils.generateThreatDescription(info, fleet, opad);
 

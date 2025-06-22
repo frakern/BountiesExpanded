@@ -35,8 +35,6 @@ public class MissionHandler {
                 "Destruction", "destruction"),
         OBLITERATION(
                 "Obliteration", "obliteration"),
-        //        INTIMIDATION(
-//                "Intimidation", "intimidation", "force %s's fleet into retreat"),
         RETRIEVAL(
                 "Retrieval", "retrieval");
 
@@ -58,8 +56,7 @@ public class MissionHandler {
 
     public static MissionHandler createNewMissionGoal(MissionType missionType) {
         if (isNull(missionType))
-//            missionType = MissionType.getRandomMissionType();
-            missionType = MissionType.ASSASSINATION;
+            missionType = MissionType.getRandomMissionType();
 
         float chanceForConsequences = 0f;
         if (MissionType.RETRIEVAL == missionType)
