@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.CoreReputationPlugin;
+import com.fs.starfarer.api.impl.campaign.ids.Ranks;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -163,15 +164,16 @@ public class WarCriminalEntity implements BountyEntity {
                 ? String.format("%s has posted a reward for the %s of %s. %s is accused for stealing %s from a private collector.\n\n" +
                         "The mission contractor, %s, requires you to be especially careful with the recovery of %s ship. Any lasting damage done will reduce the payout.",
                 offeringFactionUCFirst, killWord, targetRankAndName, Misc.ucFirst(heOrSheTargeted), shipClassAndDesignation, offeringPerson.getNameString(), hisOrHerOffering)
-                : String.format("%s has posted a bounty for the %s of %s after multiple crimes against military and civilian personnel.\n\n" +
-                        "The latest entry on the ever-growing list of misconducts was %s %s.",
-                offeringFactionUCFirst, killWord, targetRankAndName, hisOrHerTargeted, crimeReasonString);
+                : String.format("%s has posted a bounty for the %s of %s for their brazen assaults on %s personnel and infrastructure.\n\n" +
+                        "The latest entry in %s ever-growing list of crimes was the %s.\n\n",
+                offeringFactionUCFirst, killWord, targetRankAndName, offeringFaction.getDisplayName(), hisOrHerTargeted, crimeReasonString);
         Color[] highlightColors = isRetrievalMission
                 ? new Color[]{offeringFactionColor, targetedFactionColor, highlightColor, offeringFactionColor}
-                : new Color[]{offeringFactionColor, targetedFactionColor, offeringFactionColor};
+                : new Color[]{offeringFactionColor, targetedFactionColor, offeringFactionColor, offeringFactionColor};
         String[] highlightStrings = isRetrievalMission
                 ? new String[]{offeringFactionUCFirst, targetRankAndName, shipClassAndDesignation, offeringPerson.getNameString()}
-                : new String[]{offeringFactionUCFirst, targetRankAndName, crimeReasonString};
+                : new String[]{offeringFactionUCFirst, targetRankAndName, offeringFaction.getDisplayName(), crimeReasonString};
+
 
         BountyResult result = baseBountyIntel.getResult();
         float opad = 10f;
@@ -192,7 +194,9 @@ public class WarCriminalEntity implements BountyEntity {
             }
 
             info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, isRetrievalMission ? 0f : opad);
-            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, fleet.getNumShips(), 3, false);
+            info.addPara("Since this is an official military operation, %s has transmitted a complete intel report.",
+                    opad, offeringFaction.getBaseUIColor(), offeringFaction.getDisplayNameWithArticle());
+            DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet);
             DescriptionUtils.generateThreatDescription(info, fleet, opad);
         } else {
             switch (result.type) {
@@ -270,6 +274,7 @@ public class WarCriminalEntity implements BountyEntity {
         returnString = returnString.replace("$market", crimeMarketName);
         returnString = returnString.replace("$crime", crimeType);
         returnString = returnString.replace("$victim", crimeVictim);
+        returnString = returnString.replace("$factionLeader", offeringFaction.getPost(Ranks.FACTION_LEADER));
         returnString = returnString.replace("$aOrAnFaction", FormattingTools.aOrAn(offeringFaction.getDisplayName()) + " " + offeringFaction.getDisplayName());
 
         return returnString;

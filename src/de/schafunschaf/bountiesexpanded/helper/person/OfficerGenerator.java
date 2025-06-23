@@ -10,7 +10,6 @@ import de.schafunschaf.bountiesexpanded.helper.level.LevelPicker;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
@@ -48,17 +47,20 @@ public class OfficerGenerator {
 
         PersonAPI generatedOfficer = OfficerManagerEvent.createOfficer(faction, personLevel);
 
-        if (isNotNull(name))
+        if (isNotNull(name)) {
             generatedOfficer.setName(name);
+        }
 
         if (personalities.contains(personality)) {
             generatedOfficer.setPersonality(personality);
         }
 
-        if (personLevel <= 5) {
-            generatedOfficer.setRankId(Ranks.SPACE_LIEUTENANT);
-        } else if (personLevel <= 15) {
+        if (personLevel <= 2) {
+            generatedOfficer.setRankId(Ranks.SPACE_ENSIGN);
+        } else if (personLevel <= 4) {
             generatedOfficer.setRankId(Ranks.SPACE_CAPTAIN);
+        } else if (personLevel <= 12) {
+            generatedOfficer.setRankId(Ranks.SPACE_COMMANDER);
         } else {
             generatedOfficer.setRankId(Ranks.SPACE_ADMIRAL);
         }

@@ -63,13 +63,13 @@ public class EntityProvider {
 
     public static SkirmishBountyEntity skirmishBountyEntity() {
         Difficulty difficulty = Difficulty.randomDifficulty();
-        int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
+        int level = Math.max(LevelPicker.pickLevel(1) + difficulty.getFlatModifier(), 0);
         float fractionToKill = (50 - new Random().nextInt(26)) / 100f;
         float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), Settings.skirmishMinFP);
         int bountyCredits = CreditCalculator.getRewardByFP(fp, difficulty.getModifier());
         int bountyLevel = BountyEventData.getSharedData().getLevel();
-        fp += level / 100 + 1;
-        fp += bountyLevel / 100 + 1;
+        fp += level / 100f + 1;
+        fp += bountyLevel / 100f + 1;
 
         FactionAPI offeringFaction = ParticipatingFactionPicker.pickFaction();
         if (!MiscFactionUtils.canFactionOfferBounties(offeringFaction)) return null;
@@ -112,7 +112,7 @@ public class EntityProvider {
     public static AssassinationBountyEntity assassinationBountyEntity() {
         MissionHandler missionHandler = createNewMissionGoal(MissionType.ASSASSINATION);
         Difficulty difficulty = Difficulty.randomDifficulty();
-        int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
+        int level = Math.max(LevelPicker.pickLevel(2) + difficulty.getFlatModifier(), 0);
         float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), Settings.assassinationMinFP);
         int bountyCredits = CreditCalculator.getRewardByFP(fp, difficulty.getModifier());
         int rareFlagshipChance = difficulty.getFlatModifier();
@@ -168,7 +168,7 @@ public class EntityProvider {
     public static WarCriminalEntity warCriminalEntity() {
         MissionHandler missionHandler = createNewMissionGoal();
         Difficulty difficulty = Difficulty.randomDifficulty();
-        int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
+        int level = Math.max(LevelPicker.pickLevel(1) + difficulty.getFlatModifier(), 0);
         float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), Settings.warCriminalMinFP);
         float payoutMult = 1f;
         switch (missionHandler.getMissionType()) {
@@ -313,7 +313,7 @@ public class EntityProvider {
     public static DeserterBountyEntity deserterBountyEntity() {
         MissionHandler missionHandler = createNewMissionGoal(MissionType.ASSASSINATION);
         Difficulty difficulty = Difficulty.randomDifficulty();
-        int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
+        int level = Math.max(LevelPicker.pickLevel(1) + difficulty.getFlatModifier(), 0);
         float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), Settings.deserterMinFP);
         float payoutMult = 5f;
         int bountyCredits = CreditCalculator.getRewardByFP(fp, difficulty.getModifier() * payoutMult);
@@ -374,21 +374,20 @@ public class EntityProvider {
     public static BountyHunterEntity bountyHunterEntity() {
         MissionHandler missionHandler = createNewMissionGoal(MissionType.DESTRUCTION);
         Difficulty difficulty = Difficulty.randomDifficulty();
-        int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getFlatModifier(), 0);
+        int level = Math.max(LevelPicker.pickLevel(1) + difficulty.getFlatModifier(), 0);
         float fp = FleetPointCalculator.getPlayerBasedFP(difficulty.getModifier(), Settings.bountyHunterMinFP);
         int rareFlagshipChance = difficulty.getFlatModifier();
         float fleetQuality = difficulty.getFlatModifier() * 0.2f + 0.4f;
 
-        // TODO REMOVE THIS?
-        // Check if player is within 2 light years of a market.
-        float rangeToShowBounties = 2f;
+        // Check if player is within 16 light years of a market.
+        float rangeToShowBounties = 16f;
         boolean withinRange = false;
         if (!Global.getSector().getPlayerFleet().getContainingLocation().hasTag(Tags.THEME_HIDDEN)) {
             List<StarSystemAPI> nearbyStarSystems = Misc.getNearbyStarSystems(Global.getSector().getPlayerFleet(), rangeToShowBounties);
             for (StarSystemAPI system : nearbyStarSystems) {
                 List<MarketAPI> markets = Misc.getMarketsInLocation(system);
                 for (MarketAPI market : markets) {
-                    if (!market.isHidden() && market.getSize() >=3) {
+                    if (!market.isHidden() && market.getSize() > 3) {
                         withinRange = true;
                         log.info(IN_RANGE);
                         break;

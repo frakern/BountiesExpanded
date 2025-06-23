@@ -19,6 +19,6 @@ public class LevelPicker {
         level += Math.round(3 * timeFactor);
         level = Math.min(level, 10);
         level = (level - variation) + new Random().nextInt(variation * 2 + 1);
-        return Math.max(level, 0);
+        return Math.max(level, 2);
     }
 }

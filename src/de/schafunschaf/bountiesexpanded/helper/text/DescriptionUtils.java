@@ -30,6 +30,10 @@ import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.*;
 public class DescriptionUtils {
     public static final float DEFAULT_IMAGE_HEIGHT = 100f;
 
+    public static void generateFullShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet) {
+        generateShipListForIntel(info, width, padding, fleet, fleet.getNumShips(), 3, false);
+    }
+
     public static void generateShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, int maxShipsToDisplay, int maxRows, boolean showShipsRemaining) {
         Random random = new Random(fleet.getCommander().getNameString().hashCode() * 170000L);
         List<FleetMemberAPI> fleetMemberList;
@@ -53,7 +57,13 @@ public class DescriptionUtils {
 
         CampaignFleetAPI fleet = shipList.get(0).getFleetData().getFleet();
 
-        shipList = FleetUtils.orderListBySize(shipList);
+        List<FleetMemberAPI> shipListDisplay;
+        if (shipList.size() > maxShipsToDisplay) {
+            shipListDisplay = FleetUtils.generateShipList(shipList, maxShipsToDisplay, random);
+        }
+        else {
+            shipListDisplay = FleetUtils.orderListBySize(shipList);
+        }
 
         int cols = 7;
         int rows = (int) Math.ceil(shipList.size() / (float) cols);
@@ -69,10 +79,10 @@ public class DescriptionUtils {
             info.addPara("Player FP -> " + playerFP, padding, Misc.getHighlightColor(), String.valueOf(playerFP));
         }
 
-        info.addShipList(cols, rows, iconSize, fleet.getFaction().getBaseUIColor(), shipList, padding);
+        info.addShipList(cols, rows, iconSize, fleet.getFaction().getBaseUIColor(), shipListDisplay, padding);
 
         if (showShipsRemaining && !Settings.isDebugActive()) {
-            int num = shipList.size() - maxShipsToDisplay;
+            int num = shipList.size() - shipListDisplay.size();
             num = Math.round((float) num * (1f + random.nextFloat() * 0.5f));
 
             if (num < 5) num = 0;
@@ -198,17 +208,29 @@ public class DescriptionUtils {
         String outputText;
 
         if (fleetSize <= 4) fleetDesc = "few ships";
-        else if (fleetSize <= 10) fleetDesc = "small fleet";
-        else if (fleetSize <= 20) fleetDesc = "medium-sized fleet";
-        else if (fleetSize <= 32) fleetDesc = "large fleet";
-        else if (fleetSize <= 44) fleetDesc = "very large fleet";
-        else if (fleetSize <= 56) fleetDesc = "gigantic fleet";
-        else fleetDesc = "freaking armada";
+        else if (fleetSize <= 8) fleetDesc = "small fleet";
+        else if (fleetSize <= 16) fleetDesc = "medium-sized fleet";
+        else if (fleetSize <= 24) fleetDesc = "large fleet";
+        else if (fleetSize <= 36) fleetDesc = "very large fleet";
+        else if (fleetSize <= 42) fleetDesc = "gigantic fleet";
+        else fleetDesc = "large armada";
 
-        Color[] highlightColors = new Color[]{commander.getFaction().getBaseUIColor(), Misc.getHighlightColor(), Misc.getHighlightColor(), Misc.getHighlightColor(), Misc.getHighlightColor()};
-        String[] highlights = new String[]{commander.getFaction().getRank(commander.getRankId()) + " " + person.getName().getFullName(), fleetDesc, shipName, shipClass, shipDesignation};
+        Color[] highlightColors = new Color[]{
+                commander.getFaction().getBaseUIColor(),
+                Misc.getHighlightColor(),
+                Misc.getHighlightColor(),
+                Misc.getHighlightColor(),
+                Misc.getHighlightColor()
+        };
+        String[] highlights = new String[]{
+                commander.getFaction().getRank(commander.getRankId()) + " " + person.getName().getFullName(),
+                fleetDesc,
+                shipName,
+                shipClass,
+                shipDesignation
+        };
 
-        outputText = String.format("%s is known to be in command of a %s and personally commands the %s, " + rareString + " %s %s, as " + hisOrHer + " flagship.", (Object[]) highlights);
+        outputText = String.format("%s is rumored to be in company of a %s and is known to personally command the %s, " + rareString + " %s %s, as " + hisOrHer + " flagship.", (Object[]) highlights);
 
         info.addPara(outputText, padding, highlightColors, highlights);
     }
@@ -249,6 +271,9 @@ public class DescriptionUtils {
                 10f, highlightColor, hideout.getName(), hideout.getStarSystem().getName());
     }
 
+    /**
+     * Will show location of fleet by planet type and constellation.
+     */
     public static void generateFakeHideoutDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding) {
         String heOrShe = FormattingTools.capitalizeFirst(baseBountyIntel.getPerson().getHeOrShe());
         SectorEntityToken spawnLocation = baseBountyIntel.getSpawnLocation();
@@ -259,10 +284,13 @@ public class DescriptionUtils {
         loc = loc.replaceAll("orbiting", "hiding out near");
         loc = loc.replaceAll("located in", "hiding out in");
 
-        info.addPara(heOrShe + " is rumored to be " + loc + ".", padding);
+        info.addPara(heOrShe + " was last seen " + loc + ".", padding);
     }
 
-    public static void generateFakeHideoutDescription2(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding) {
+    /**
+     * Will show location of fleet by planet type and constellation.
+     */
+    public static void generateDestinationFakeHideoutDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding) {
         String heOrShe = FormattingTools.capitalizeFirst(baseBountyIntel.getPerson().getHeOrShe());
         SectorEntityToken travelDestination = baseBountyIntel.getTravelDestination();
         SectorEntityToken fakeLocation = travelDestination.getContainingLocation().createToken(0.0F, 0.0F);
@@ -272,7 +300,7 @@ public class DescriptionUtils {
         loc = loc.replaceAll("orbiting", "patrolling near");
         loc = loc.replaceAll("located in", "hiding out in");
 
-        info.addPara(heOrShe + " is rumored to be " + loc + ".", padding);
+        info.addPara(heOrShe + " was last seen " + loc + ".", padding);
     }
 
     public static void generatePatrolDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding, boolean isRealLocation) {
@@ -283,14 +311,14 @@ public class DescriptionUtils {
         String loc;
         if (isNotNull(terrainString)) {
             String systemDescription = BreadcrumbSpecial.getLocationDescription(fleet, isRealLocation);
-            loc = String.format("%s is rumored to be currently flying through %s in %s.", heOrShe, terrainString, systemDescription);
+            loc = String.format("%s was last seen flying through %s in %s.", heOrShe, terrainString, systemDescription);
             info.addPara(loc, padding);
         } else {
             loc = BreadcrumbSpecial.getLocatedString(LocationUtils.getNearestLocation(fleet));
             loc = loc.replaceAll("orbiting", "patrolling near");
             loc = loc.replaceAll("located in", "hiding out in");
 
-            info.addPara(heOrShe + " is rumored to be " + loc + ".", padding);
+            info.addPara(heOrShe + " was last seen " + loc + ".", padding);
         }
     }
 
@@ -301,7 +329,7 @@ public class DescriptionUtils {
 
         fakeLocation.setOrbit(Global.getFactory().createCircularOrbit(travelDestination, 0.0F, 1000.0F, 100.0F));
         String obfuscatedLocation = BreadcrumbSpecial.getLocationDescription(travelDestination, false);
-        String travelDescription = String.format("%s is currently traveling to %s.", heOrShe, obfuscatedLocation);
+        String travelDescription = String.format("%s was last seen traveling to %s.", heOrShe, obfuscatedLocation);
 
         info.addPara(travelDescription, padding);
     }
@@ -312,8 +340,10 @@ public class DescriptionUtils {
         float playerStrengthDifference = enemyEffectiveStrength / playerFleetStrength;
         String threatLevel = "cakewalk";
         Color threatColor = new Color(0, 255, 150);
-
-        if (playerStrengthDifference > 2f) {
+        if (playerStrengthDifference > 3f) {
+            threatLevel = "nigh on impossible challenge";
+            threatColor = new Color(255, 0, 255);
+        } else if (playerStrengthDifference > 2f) {
             threatLevel = "deathtrap";
             threatColor = new Color(255, 0, 0);
         } else if (playerStrengthDifference > 1.75f) {
@@ -330,7 +360,7 @@ public class DescriptionUtils {
             threatColor = new Color(0, 170, 0);
         }
 
-        String descriptionText = String.format("Your tactical officer ran some calculations and classified the target as a %s for our fleet.", threatLevel);
+        String descriptionText = String.format("Your tactical officer has run some calculations and classifies the target as a %s for our fleet.", threatLevel);
 
         info.addPara(descriptionText, padding, threatColor, threatLevel);
     }

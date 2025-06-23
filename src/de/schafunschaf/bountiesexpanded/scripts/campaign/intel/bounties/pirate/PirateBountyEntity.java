@@ -136,9 +136,9 @@ public class PirateBountyEntity implements BountyEntity {
         String targetName = targetedPerson.getNameString();
         String himOrHerself = targetedPerson.getHimOrHer() + "self";
         String offeringFactionName = offeringFaction.getDisplayNameWithArticle();
-        String briefingText = String.format("%s, also known as the %s, has proven %s as a big enough annoyance for %s which can't be ignored any longer.\n\n" +
-                        "A bounty was now offered for the %s of that %s %s.",
-                targetName, pirateTitle, himOrHerself, offeringFactionName,
+        String briefingText = String.format("%s, also known as the %s, has proven %s a big enough annoyance for %s that %s can be ignored no longer.\n\n" +
+                        "A bounty is now offered for the %s of that %s %s.",
+                targetName, pirateTitle, himOrHerself, offeringFactionName, targetedPerson.getHeOrShe(),
                 killWord, piratePersonality, pirateJob);
         Color highlightColor = Misc.getHighlightColor();
         Color offeringFactionColor = offeringFaction.getBaseUIColor();
@@ -148,7 +148,7 @@ public class PirateBountyEntity implements BountyEntity {
 
         BountyResult result = baseBountyIntel.getResult();
         float opad = 10f;
-        int maxShipsOnIntel = 14;
+        int maxShipsOnIntel = 7;
         boolean showShipsRemaining = fleet.getNumShips() > maxShipsOnIntel;
 
         if (isNull(result)) {
@@ -164,7 +164,8 @@ public class PirateBountyEntity implements BountyEntity {
             DescriptionUtils.generateFancyFleetDescription(info, opad, fleet, targetedPerson);
 
             info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
-            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, maxShipsOnIntel, 2, showShipsRemaining);
+            info.addPara("The bounty posting also contains partial intel on some of the ships under " + targetedPerson.getHisOrHer() + " command.", opad);
+            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, maxShipsOnIntel, 1, showShipsRemaining);
             DescriptionUtils.generateThreatDescription(info, fleet, opad);
         } else {
             switch (result.type) {

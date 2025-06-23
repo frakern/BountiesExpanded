@@ -10,6 +10,7 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetGenerator;
@@ -101,7 +102,7 @@ public class WarCriminalManager extends BaseEventManager implements BaseBountyMa
 
         fleet.clearAssignments();
 
-        final List<SectorEntityToken> objectives = spawnLocation.getStarSystem().getEntitiesWithTag("objective");
+        final List<SectorEntityToken> objectives = spawnLocation.getStarSystem().getEntitiesWithTag(Tags.OBJECTIVE);
         //objectives.addAll(spawnLocation.getStarSystem().getJumpPoints());
         objectives.add(spawnLocation.getStarSystem().getJumpPoints().get(0));
 

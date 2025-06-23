@@ -250,7 +250,7 @@ public class BountyHunterEntity implements BountyEntity {
 
             if (Settings.isDebugActive()) {
                 intel.bullet(info);
-                DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, fleet.getNumShips(), 1, false);
+                DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet);
                 info.addPara(String.format("Current location: %s", fleet.getContainingLocation()), 0);
                 if (!fleet.getAssignmentsCopy().isEmpty()) {
                     FleetAssignmentDataAPI assign = fleet.getAssignmentsCopy().get(0);

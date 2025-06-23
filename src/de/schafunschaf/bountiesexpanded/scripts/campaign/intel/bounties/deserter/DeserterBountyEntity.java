@@ -123,7 +123,7 @@ public class DeserterBountyEntity implements BountyEntity {
         Color factionColor = baseBountyIntel.getFactionForUIColors().getBaseUIColor();
         BountyResult result = baseBountyIntel.getResult();
         float opad = 10f;
-        int maxShipsOnIntel = 14;
+        int maxShipsOnIntel = 7;
         boolean showShipsRemaining = fleet.getNumShips() > maxShipsOnIntel;
 
         if (isNull(result)) {
@@ -136,19 +136,20 @@ public class DeserterBountyEntity implements BountyEntity {
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
             if (fleet.getContainingLocation() == travelDestination.getContainingLocation())
-                DescriptionUtils.generateFakeHideoutDescription2(info, baseBountyIntel, opad);
+                DescriptionUtils.generateDestinationFakeHideoutDescription(info, baseBountyIntel, opad);
             else
                 DescriptionUtils.generateFakeTravelDescription(info, baseBountyIntel, opad);
 
             DescriptionUtils.generateFancyFleetDescription(info, opad, fleet, targetedPerson);
 
             info.addSectionHeading("Fleet Intel", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, isRetrievalMission ? 0f : opad);
-            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, maxShipsOnIntel, 2, showShipsRemaining);
+            info.addPara("The bounty posting also contains partial intel on some of the ships under " + targetedPerson.getHisOrHer() + " command.", opad);
+            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, maxShipsOnIntel, 1, showShipsRemaining);
             DescriptionUtils.generateThreatDescription(info, fleet, opad);
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:
-                    String debriefingText = "Mission completed. You brought %s to justice.";
+                    String debriefingText = "Mission completed. %s has been eliminated.";
 
                     TooltipAPIUtils.addCustomImagesWithSingleRepBarAndChange(info, width, opad, 10f,
                             targetedPerson.getPortraitSprite(),

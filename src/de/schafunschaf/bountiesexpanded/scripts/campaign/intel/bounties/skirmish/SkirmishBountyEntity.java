@@ -189,7 +189,7 @@ public class SkirmishBountyEntity implements BountyEntity {
 
     @Override
     public void createSmallDescription(BaseBountyIntel baseBountyIntel, TooltipMakerAPI info, float width, float height) {
-        String briefingText = "%s officials have offered a reward for thinning out a hostile %s fleet.";
+        String briefingText = "Due to ongoing interfaction hostilities, %s is seeking privateers to raid a rival %s fleet.";
         String isOrWas = isNull(fleet.getAI().getCurrentAssignmentType()) ? "was last seen " : "is ";
         Color highlightColor = Misc.getHighlightColor();
         Color[] factionColors = {offeringFaction.getColor(), targetedFaction.getColor()};
@@ -204,7 +204,7 @@ public class SkirmishBountyEntity implements BountyEntity {
             info.addSectionHeading("Briefing", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
             info.addPara(briefingText, opad,
                     factionColors,
-                    Misc.ucFirst(offeringFaction.getDisplayName()),
+                    offeringFaction.getDisplayNameWithArticle(),
                     targetedFaction.getDisplayNameWithArticleWithoutArticle());
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
@@ -212,22 +212,22 @@ public class SkirmishBountyEntity implements BountyEntity {
             DescriptionUtils.generatePatrolDescription(info, baseBountyIntel, opad, true);
 
             if (shipsLeftToDestroy < shipsToDestroy)
-                info.addPara("To claim your bounty, %s demands the destruction of at least %s " + singularOrPlural(shipsToDestroy, "ship")
+                info.addPara("To claim the bounty, %s demands the destruction of at least %s " + singularOrPlural(shipsToDestroy, "ship")
                                 + " (%s " + singularOrPlural(shipsLeftToDestroy, "ship") + " left).",
                         opad, factionAndHighlightColors,
                         offeringFaction.getDisplayNameWithArticle(), String.valueOf(shipsToDestroy), String.valueOf(shipsLeftToDestroy));
             else
-                info.addPara("To claim your bounty, %s demands the destruction of at least %s " + singularOrPlural(shipsToDestroy, "ship") + ".",
+                info.addPara("To claim the bounty, %s demands the destruction of at least %s " + singularOrPlural(shipsToDestroy, "ship") + ".",
                         opad, factionAndHighlightColors,
                         offeringFaction.getDisplayNameWithArticle(), String.valueOf(shipsToDestroy));
-            info.addPara("They will also pay an additional %s / %s / %s / %s credits per kill as bonus on top of your reward.",
+            info.addPara("An additional %s / %s / %s / %s credits per ship destroyed is offered as a bonus.",
                     opad, highlightColor, creditsPerSize);
 
             info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
 
-            info.addPara("Since this is an official military operation, %s transmitted a complete intel report.",
+            info.addPara("Since this is an official military operation, %s has transmitted a complete intel report.",
                     opad, offeringFaction.getBaseUIColor(), offeringFaction.getDisplayNameWithArticle());
-            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, fleet.getNumShips(), 3, false);
+            DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet);
             DescriptionUtils.generateThreatDescription(info, fleet, opad);
         } else { // Bounty completed
             switch (result.type) {

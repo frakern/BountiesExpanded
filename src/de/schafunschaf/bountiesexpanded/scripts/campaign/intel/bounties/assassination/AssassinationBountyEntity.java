@@ -147,10 +147,10 @@ public class AssassinationBountyEntity implements BountyEntity {
             else {
                 if (getDifficulty() == Difficulty.EASY) {
                     String factionName = spawnLocation.getFaction().getDisplayNameWithArticleWithoutArticle();
-                    currentLocation = "Near " + aOrAn(factionName) + " " + factionName + " controlled world";
+                    currentLocation = "Preparing to depart from the " + spawnLocation.getName() + " system";
                 } else if (getDifficulty() == Difficulty.MEDIUM) {
                     String factionName = targetedPerson.getFaction().getDisplayNameWithArticle();
-                    currentLocation = "Near a world not at war with " + factionName;
+                    currentLocation = "Near " + aOrAn(factionName) + " " + factionName + " controlled world";
                 } else
                     currentLocation = "Unknown";
             }
@@ -260,7 +260,7 @@ public class AssassinationBountyEntity implements BountyEntity {
             int cols = 1;
             int rows = 1;
             float iconSize = width / 3;
-            info.addPara("The message had an intel file containing the targets ship attached.", opad);
+            info.addPara("The message had an intel file attached containing information on the target's ship.", opad);
             if (!Settings.isDebugActive()) {
                 info.addShipList(cols, rows, iconSize, Color.BLACK, flagshipCopy, opad);
             }
@@ -269,7 +269,7 @@ public class AssassinationBountyEntity implements BountyEntity {
             DescriptionUtils.generateThreatDescription(info, fleet, opad);
 
             if (Settings.isDebugActive()) {
-                DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, fleet.getNumShips(), 1, false);
+                DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet);
                 info.addPara("SPAWN LOCATION: " + spawnLocation.getName(), 0f);
                 info.addPara("DESTINATION: " + travelDestination.getName(), 0f);
             }

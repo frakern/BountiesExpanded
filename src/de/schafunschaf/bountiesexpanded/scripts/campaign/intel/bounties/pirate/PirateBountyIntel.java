@@ -44,6 +44,10 @@ public class PirateBountyIntel extends BaseBountyIntel {
         if (isDone || isNotInvolved || isNotComplete)
             return;
 
+        if (Math.random() <= 0.25) {
+            giveBreadcrumb(Global.getSector().getPlayerFleet());
+        }
+
         float targetRepAfterBattle = getUpdatedRep(pirateBountyEntity.getTargetedFaction());
 
         Global.getSector().getPlayerFleet().getCargo().getCredits().add(payment);
