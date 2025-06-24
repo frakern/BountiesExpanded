@@ -110,6 +110,8 @@ public class DeserterBountyManager extends BaseEventManager {
             }
         });
 
+        EntityProvider.markRecentlyUsedForBounty(travelDestination.getStarSystem());
+
         log.info(String.format("BountiesExpanded - Spawning Deserter Bounty: From %s | At %s | Travelling to %s, %s",
                 bountyEntity.getOfferingFaction().getDisplayName(), spawnLocation.getName(), travelDestination.getName(), travelDestination.getStarSystem().getName()));
         log.info(String.format("Player-FP at creation: %d", Global.getSector().getPlayerFleet().getFleetPoints()));

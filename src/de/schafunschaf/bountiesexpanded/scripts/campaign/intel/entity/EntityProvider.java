@@ -53,6 +53,7 @@ import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 @Log4j
 public class EntityProvider {
     public static final String FLEET_IDENTIFIER_KEY = "$bountiesExpanded_fleetIdentifier";
+    public static final String RECENTLY_USED_FOR_BOUNTY = "$bountiesExpanded_recentlyUsedForBounty";
     private static final String NO_TARGETED_FACTION = "BountiesExpanded: failed to pick valid targeted faction";
     private static final String NO_COMMANDER = "BountiesExpanded: failed to generate fleet commander for faction '%s'";
     private static final String NO_HIDEOUT = "BountiesExpanded: failed to pick hideout";
@@ -60,6 +61,16 @@ public class EntityProvider {
     private static final String NO_FLEET = "BountiesExpanded: failed to create bounty fleet";
     private static final String NOT_IN_RANGE = "BountiesExpanded: player fleet not in range to create bounty";
     private static final String IN_RANGE = "BountiesExpanded: player fleet in range of market to create bounty";
+
+    public static float genBountyUseTimeout() {
+        return 60f + 60f * (float) Math.random();
+    }
+
+    public static void markRecentlyUsedForBounty(StarSystemAPI system) {
+        if (system != null && system.getCenter() != null) {
+            system.getCenter().getMemoryWithoutUpdate().set(RECENTLY_USED_FOR_BOUNTY, true, genBountyUseTimeout());
+        }
+    }
 
     public static SkirmishBountyEntity skirmishBountyEntity() {
         Difficulty difficulty = Difficulty.randomDifficulty();
@@ -266,16 +277,16 @@ public class EntityProvider {
 
         SectorEntityToken spawnLocation;
         if (fp > 180) {
-            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false);
+            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS, true);
         }
         else if (fp > 120) {
-            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false, 24);
+            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS, true, 24);
         }
         else if (fp > 60) {
-            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false, 18);
+            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS, true, 18);
         }
         else {
-            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false, 13);
+            spawnLocation = RemoteWorldPicker.pickRandomHideout(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS, true, 13);
         }
 
         if (isNull(spawnLocation)) {
@@ -332,13 +343,13 @@ public class EntityProvider {
 
         SectorEntityToken travelDestination;
         if (fp > 140) {
-            travelDestination = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false);
+            travelDestination = RemoteWorldPicker.pickRandomHideout(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS, false);
         }
         else if (fp > 80) {
-            travelDestination = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false, 20);
+            travelDestination = RemoteWorldPicker.pickRandomHideout(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS, false, 20);
         }
         else {
-            travelDestination = RemoteWorldPicker.pickRandomHideout(TagCollection.getDefaultTagMap(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS), false, 16);
+            travelDestination = RemoteWorldPicker.pickRandomHideout(TagCollection.VANILLA_BOUNTY_SYSTEM_TAGS, false, 16);
         }
         if (isNull(travelDestination)) {
             log.warn(NO_DESTINATION);

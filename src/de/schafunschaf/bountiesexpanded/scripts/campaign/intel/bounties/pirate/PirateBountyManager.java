@@ -102,6 +102,8 @@ public class PirateBountyManager extends BaseEventManager {
         fleetMemory.set(EntityProvider.FLEET_IDENTIFIER_KEY, PIRATE_BOUNTY_FLEET_KEY);
         fleetMemory.set(PIRATE_BOUNTY_FLEET_KEY, pirateBountyEntity);
 
+        EntityProvider.markRecentlyUsedForBounty(spawnLocation.getStarSystem());
+
         log.info("BountiesExpanded - Spawning Pirate Bounty: By "
                 + pirateBountyEntity.getOfferingFaction().getDisplayName() + " | Against "
                 + pirateBountyEntity.getTargetedFaction().getDisplayName() + " | At "

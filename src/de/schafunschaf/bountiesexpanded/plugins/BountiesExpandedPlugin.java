@@ -27,7 +27,8 @@ import lunalib.lunaSettings.LunaSettings;
 
 import java.util.Set;
 
-import static de.schafunschaf.bountiesexpanded.ExternalDataSupplier.*;
+import static de.schafunschaf.bountiesexpanded.ExternalDataSupplier.loadBlacklists;
+import static de.schafunschaf.bountiesexpanded.ExternalDataSupplier.loadNameStringFiles;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 
 @Log4j

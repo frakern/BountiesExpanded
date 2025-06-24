@@ -1,6 +1,5 @@
 package de.schafunschaf.bountiesexpanded;
 
-import com.fs.starfarer.api.impl.campaign.DebugFlags;
 import lunalib.lunaSettings.LunaSettings;
 import lunalib.lunaSettings.LunaSettingsListener;
 

@@ -7,119 +7,123 @@ import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BreadcrumbSpecial;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import com.fs.starfarer.campaign.CampaignTerrain;
 import de.schafunschaf.bountiesexpanded.Settings;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.EntityProvider;
 import lombok.extern.log4j.Log4j;
-import org.jetbrains.annotations.NotNull;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.*;
 
 @Log4j
 public class RemoteWorldPicker {
-    public static SectorEntityToken pickRandomHideout(boolean useVanillaMethod) {
-        StarSystemAPI system = pickSystem(null, useVanillaMethod, 10000);
+    public static SectorEntityToken pickRandomHideout(boolean allowHiddenPirate) {
+        StarSystemAPI system = pickSystem(null, allowHiddenPirate, 10000);
         return pickEntity(system);
     }
 
-    public static SectorEntityToken pickRandomHideout(Map<String, Integer> requiredTags, boolean useVanillaMethod) {
-        StarSystemAPI system = pickSystem(requiredTags, useVanillaMethod, 10000);
+    public static SectorEntityToken pickRandomHideout(Map<String, Integer> requiredTags, boolean allowHiddenPirate) {
+        StarSystemAPI system = pickSystem(requiredTags, allowHiddenPirate, 10000);
         return pickEntity(system);
     }
 
-    public static SectorEntityToken pickRandomHideout(Map<String, Integer> requiredTags, boolean useVanillaMethod, int rangeLY) {
-        StarSystemAPI system = pickSystem(requiredTags, useVanillaMethod, rangeLY);
+    public static SectorEntityToken pickRandomHideout(Map<String, Integer> requiredTags, boolean allowHiddenPirate, float targetMaxLY) {
+        StarSystemAPI system = pickSystem(requiredTags, allowHiddenPirate, targetMaxLY);
         return pickEntity(system);
     }
 
-    public static void createFakeLocationHint(SectorEntityToken hideoutLocation, PersonAPI person, TooltipMakerAPI info, float padding) {
-        if (hideoutLocation != null) {
-            SectorEntityToken fake = hideoutLocation.getContainingLocation().createToken(0, 0);
-            fake.setOrbit(Global.getFactory().createCircularOrbit(hideoutLocation, 0, 1000, 100));
-
-            String loc = BreadcrumbSpecial.getLocatedString(fake);
-            loc = loc.replaceAll("orbiting", "hiding out near");
-            loc = loc.replaceAll("located in", "hiding out in");
-            String sheIs = "She is";
-            if (person.getGender() == FullName.Gender.MALE) {
-                sheIs = "He is";
-            }
-            info.addPara(sheIs + " rumored to be " + loc + ".", padding);
-        }
-    }
-
-    private static StarSystemAPI pickSystem(Map<String, Integer> requiredTags, boolean useVanillaMethod, int rangeLY) {
+    private static StarSystemAPI pickSystem(Map<String, Integer> requiredTags, boolean allowHiddenPirate, float targetMaxLY) {
         WeightedRandomPicker<StarSystemAPI> systemPicker = new WeightedRandomPicker<>();
-        int mult = isNull(requiredTags) ? 1 : 0;
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
-            if (system.hasPulsar())
-                continue;
+            float days = Global.getSector().getClock().getElapsedDaysSince(system.getLastPlayerVisitTimestamp());
+            if (days < 20f) continue;
 
-            if (isNotNull(requiredTags)) {
-                if (!containsAny(system.getTags(), requiredTags.keySet()))
-                    continue;
+            if (system.getCenter().getMemoryWithoutUpdate().contains(EntityProvider.RECENTLY_USED_FOR_BOUNTY)) continue;
 
-                if (!isNullOrEmpty(requiredTags))
-                    for (Map.Entry<String, Integer> entry : requiredTags.entrySet())
-                        mult = system.hasTag(entry.getKey()) ? entry.getValue() : 0;
+            // Skip if too close to player fleet.
+            float distToPlayer = Misc.getDistanceToPlayerLY(system.getLocation());
+            final float noSpawnRange = Global.getSettings().getFloat("personBountyNoSpawnRangeAroundPlayerLY");
+            if (distToPlayer < noSpawnRange) continue;
+
+            // Skip if pulsar system.
+            if (system.hasPulsar()) continue;
+
+            // Give weight to larger systems (more/better planets).
+            float weight = system.getPlanets().size();
+            for (PlanetAPI planet : system.getPlanets()) {
+                if (planet.isStar()) continue;
+                if (isNotNull(planet.getMarket())) {
+                    float hazardValue = planet.getMarket().getHazardValue();
+                    if (hazardValue <= 0f) weight += 5f;
+                    else if (hazardValue <= 0.25f) weight += 3f;
+                    else if (hazardValue <= 0.5f) weight += 1f;
+                }
             }
 
-            // TODO Don't skip if hidden pirate market?
+            float tagMult = 0f;
+            // Check for required tags.
+            if (isNotNull(requiredTags)) {
+                if (!containsAny(system.getTags(), requiredTags.keySet())) continue;
+
+                if (!isNullOrEmpty(requiredTags)) {
+                    for (Map.Entry<String, Integer> entry : requiredTags.entrySet()) {
+                        tagMult += system.hasTag(entry.getKey()) ? entry.getValue() : 0;
+                    }
+                }
+            }
+
+            // Skip if has hidden market.
             boolean hasHiddenMarket = false;
             for (MarketAPI market : Misc.getMarketsInLocation(system)) {
                 if (market.isHidden()) {
-                    hasHiddenMarket = true;
-                    continue;
+                    // Unless we are allowing pirate hidden markets.
+                    if (allowHiddenPirate && market.getFactionId().equals(Factions.PIRATES)) {
+                        hasHiddenMarket = false;
+                        tagMult += 5f;
+                    }
+                    else {
+                        hasHiddenMarket = true;
+                        continue;
+                    }
                 }
                 break;
             }
-            if (hasHiddenMarket)
-                continue;
+            if (hasHiddenMarket) continue;
 
-            float distToPlayer = Misc.getDistanceToPlayerLY(system.getLocation());
-            final float noSpawnRange = Global.getSettings().getFloat("personBountyNoSpawnRangeAroundPlayerLY");
-            if (distToPlayer < noSpawnRange)
-                continue;
-
+            // Give less weight to systems beyond targetMaxLY but do not remove entirely.
             float distToCoreWorlds = Misc.getDistanceLY(Misc.ZERO, system.getLocation());
-            if (distToCoreWorlds > rangeLY)
-                continue;
+            float distanceMult = computeDistanceMult(distToCoreWorlds, targetMaxLY);
 
-            if (useVanillaMethod) {
-                float weight = system.getPlanets().size();
-                for (PlanetAPI planet : system.getPlanets()) {
-                    if (planet.isStar())
-                        continue;
-                    if (isNotNull(planet.getMarket())) {
-                        float hazardValue = planet.getMarket().getHazardValue();
-                        if (hazardValue <= 0f)
-                            weight += 5f;
-                        else if (hazardValue <= 0.25f)
-                            weight += 3f;
-                        else if (hazardValue <= 0.5f)
-                            weight += 1f;
-                    }
-                }
-
-                float dist = system.getLocation().length();
-                float distMult = Math.max(0, 50000f - dist);
-
-                systemPicker.add(system, weight * distMult * mult);
-            } else
-                systemPicker.add(system);
+            systemPicker.add(system, weight * tagMult * distanceMult);
         }
 
         return systemPicker.pick();
+    }
+
+    private static float computeDistanceMult(float distLY, float targetMaxLY) {
+        // How gently it falls off beyond targetMaxLY
+        float softness = 4f;
+        // Check if beyond targetMaxLY and by how much.
+        float excess = distLY - targetMaxLY;
+        // Soft exponential falloff after targetMaxLY
+        float penalty = 1f / (1f + (excess / softness));
+        // Still favor slightly more distant in-range systems.
+        float bonus = 1f + distLY / 100f;
+
+        if (excess <= 0) {
+            return bonus; // float greater than 1
+        }
+        else {
+            return penalty * bonus; // float less than 1
+        }
     }
 
     private static SectorEntityToken pickPlanet(StarSystemAPI system) {
@@ -179,7 +183,7 @@ public class RemoteWorldPicker {
                     }
                 }
                 else if (
-                        // ((CampaignTerrainAPI) entity).getType().equals(Terrain.MAGNETIC_FIELD) ||
+                        // ((CampaignTerrainAPI) entity).getType().equals(Terrain.MAGNETIC_FIELD) || // caused fleets to fly into sun
                         ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_FIELD) ||
                         ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_BELT)
                 ) {
