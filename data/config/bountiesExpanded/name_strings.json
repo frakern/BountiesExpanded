@@ -282,15 +282,15 @@
     "quick termination"
   ],
   "crimeReasons": [
-    "relentless raiding of $faction shipping routes",
-    "destruction of $aOrAnFaction $faction AM fuel storage facility",
-    "deadly raid against $market",
-    "orbital bombardment of $market",
-    "recent blockading of $market",
-    "seizure of $aOrAnFaction supply convoy",
-    "failure to pay a 300,000� outstanding bar tab on $market",
-    "slanderous remarks about the $factionLeader",
-    "kidnapping of $aOrAnFaction fleet commander"
+    "the relentless raiding of $faction shipping routes",
+    "the destruction of $aOrAnFaction AM fuel storage facility",
+    "a deadly raid against $market",
+    "the orbital bombardment of $market",
+    "the recent blockading of $market",
+    "the seizure of $aOrAnFaction supply convoy",
+    "their failure to pay a 300,000 credit bar tab on $market",
+    "their slanderous remarks about the $facLeader",
+    "the kidnapping of $aOrAnFaction fleet commander's daughter"
   ],
   "pirateCrimeReasons": [
     "raiding of $faction shipping routes",

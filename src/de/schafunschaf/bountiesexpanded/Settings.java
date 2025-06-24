@@ -49,7 +49,7 @@ public class Settings implements LunaSettingsListener {
     public static int pirateBountyMaxBounties = LunaSettings.getInt(modId, "pirateBountyMaxBounties");
     public static int pirateBountyMinDuration = LunaSettings.getInt(modId, "pirateBountyMinDuration");
     public static int pirateBountyMaxDuration = LunaSettings.getInt(modId, "pirateBountyMaxDuration");
-    public static float pirateMinFP = LunaSettings.getFloat(modId, "pirateMinFP");
+    public static float pirateMinFP = LunaSettings.getFloat(modId, "pirateBountyMinFP");
 
     public static boolean deserterBountyActive = LunaSettings.getBoolean(modId, "deserterBountyActive");
     public static double deserterBountySpawnChance = LunaSettings.getDouble(modId, "deserterBountySpawnChance");
@@ -57,7 +57,7 @@ public class Settings implements LunaSettingsListener {
     public static int deserterBountyMaxBounties = LunaSettings.getInt(modId, "deserterBountyMaxBounties");
     public static int deserterBountyMinDuration = LunaSettings.getInt(modId, "deserterBountyMinDuration");
     public static int deserterBountyMaxDuration = LunaSettings.getInt(modId, "deserterBountyMaxDuration");
-    public static float deserterMinFP = LunaSettings.getFloat(modId, "deserterMinFP");
+    public static float deserterMinFP = LunaSettings.getFloat(modId, "deserterBountyMinFP");
 
     public static boolean bountyHunterActive = LunaSettings.getBoolean(modId, "bountyHunterActive");
     public static double bountyHunterSpawnChance = LunaSettings.getDouble(modId, "bountyHunterSpawnChance");
@@ -142,6 +142,6 @@ public class Settings implements LunaSettingsListener {
     }
 
     public static boolean isDebugActive() {
-        return DebugFlags.PERSON_BOUNTY_DEBUG_INFO || debug;
+        return debug;
     }
 }

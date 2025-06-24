@@ -135,12 +135,14 @@ public class DeserterBountyEntity implements BountyEntity {
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
-            if (fleet.getContainingLocation() == travelDestination.getContainingLocation())
-                DescriptionUtils.generateDestinationFakeHideoutDescription(info, baseBountyIntel, opad);
-            else
-                DescriptionUtils.generateFakeTravelDescription(info, baseBountyIntel, opad);
-
             DescriptionUtils.generateFancyFleetDescription(info, opad, fleet, targetedPerson);
+            DescriptionUtils.generateFancyCommanderDescription(info, opad, fleet, targetedPerson);
+
+            if (fleet.getContainingLocation() == travelDestination.getContainingLocation()) {
+                DescriptionUtils.generateDestinationFakeHideoutDescription(info, baseBountyIntel, opad);
+            } else {
+                DescriptionUtils.generateFakeTravelDescription(info, baseBountyIntel, opad);
+            }
 
             info.addSectionHeading("Fleet Intel", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, isRetrievalMission ? 0f : opad);
             info.addPara("The bounty posting also contains partial intel on some of the ships under " + targetedPerson.getHisOrHer() + " command.", opad);
@@ -157,7 +159,7 @@ public class DeserterBountyEntity implements BountyEntity {
                     info.addSectionHeading("Briefing", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
                     info.addPara(briefingText, Misc.getGrayColor(), opad);
 
-                    info.addPara(debriefingText, opad, factionColor, targetedPerson.getRank() + " " + targetedPerson.getNameString());
+                    info.addPara(debriefingText, opad, factionColor, targetedPerson.getFaction().getRank(targetedPerson.getRankId()) + " " + targetedPerson.getNameString());
                     baseBountyIntel.bullet(info);
                     info.addPara("%s Credits received", opad, Misc.getHighlightColor(), Misc.getDGSCredits(result.payment));
                     baseBountyIntel.unindent(info);

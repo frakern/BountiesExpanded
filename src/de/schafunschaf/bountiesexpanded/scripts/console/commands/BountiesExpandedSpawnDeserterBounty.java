@@ -9,7 +9,7 @@ import org.lazywizard.console.Console;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 
-public class BountiesExpandedSpawnDeserter implements BaseCommand {
+public class BountiesExpandedSpawnDeserterBounty implements BaseCommand {
      public CommandResult runCommand(@NotNull String args, @NotNull CommandContext context) {
         if (context != CommandContext.CAMPAIGN_MAP) {
             Console.showMessage("Error: This command is campaign-only.");

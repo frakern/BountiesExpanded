@@ -280,7 +280,7 @@ public abstract class BaseBountyIntel extends BaseIntelPlugin implements FleetEv
             String nameForTitle = target instanceof PlanetAPI ? "Hideout" : "Salvage";
             String subject = "Location: " + nameForTitle;
 
-            String intelText = "In the wreckage of " + person.getRank() + " " + person.getName().getLast() + "'s flagship, your crews found a partially accessible memory bank containing information that indicates " + targetName + " is " + located + ".";
+            String intelText = "In the wreckage of " + person.getFaction().getRank(person.getRankId()) + " " + person.getName().getLast() + "'s flagship, your crews found a partially accessible memory bank containing information that indicates " + targetName + " is " + located + ".";
 
             if (target.getCustomPlugin() instanceof DerelictShipEntityPlugin) {
                 DerelictShipEntityPlugin dsep = (DerelictShipEntityPlugin) target.getCustomPlugin();

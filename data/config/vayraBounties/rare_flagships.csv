@@ -22,32 +22,6 @@ bountiesexpanded_sunder_LG_Assault,sunder_LG_Assault,"sindrian_diktat",0.5,assum
 bountiesexpanded_eagle_LG_Assault,eagle_LG_Assault,"sindrian_diktat",1,assumption of command of
 bountiesexpanded_executor_Elite,executor_Elite,"sindrian_diktat",0.5,assumption of command of
 
-bountiesexpanded_enforcer_XIV_Elite,enforcer_XIV_Elite,"hegemony",1,assumption of command of
-bountiesexpanded_dominator_XIV_Elite,dominator_XIV_Elite,"hegemony",1,assumption of command of
-bountiesexpanded_eagle_xiv_Elite,eagle_xiv_Elite,"hegemony",1,assumption of command of
-bountiesexpanded_onslaught_domain,onslaught_xiv_Elite,"hegemony",0.2,assumption of command of
-bountiesexpanded_onslaught_Outdated,onslaught_Outdated,"luddic_church",0.2,desperate flight in
-
-bountiesexpanded_swp_lasher_xiv_eli,swp_lasher_xiv_eli,"hegemony",1,assumption of command of
-bountiesexpanded_swp_alastor_xiv_eli,swp_alastor_xiv_eli,"hegemony",1,assumption of command of
-bountiesexpanded_swp_sunder_xiv_eli,swp_sunder_xiv_eli,"hegemony",1,assumption of command of
-bountiesexpanded_swp_hammerhead_xiv_eli,swp_hammerhead_xiv_eli,"hegemony",1,assumption of command of
-bountiesexpanded_swp_gryphon_xiv_eli,swp_gryphon_xiv_eli,"hegemony",0.5,assumption of command of
-bountiesexpanded_swp_conquest_xiv_eli,swp_conquest_xiv_eli,"hegemony",0.2,assumption of command of
-
-bountiesexpanded_swp_alastor_lions_guard_eli,swp_alastor_lions_guard_eli,"sindrian_diktat",1,assumption of command of
-bountiesexpanded_swp_champion_lions_guard_eli,swp_champion_lions_guard_eli,"sindrian_diktat",0.5,assumption of command of
-bountiesexpanded_swp_conquest_lions_guard_eli,swp_conquest_lions_guard_eli,"sindrian_diktat",0.2,assumption of command of
-
-bountiesexpanded_kazeron_centurion_league_escort,kazeron_centurion_league_escort,"persean",1,assumption of command of
-bountiesexpanded_kazeron_sunder_league_elite,kazeron_sunder_league_elite,"persean",1,assumption of command of
-bountiesexpanded_kazeron_hammerhead_league_strike,kazeron_hammerhead_league_strike,"persean",0.8,assumption of command of
-bountiesexpanded_kazeron_drover_league_elite,kazeron_drover_league_elite,"persean",0.4,assumption of command of
-bountiesexpanded_kazeron_champion_league_elite,kazeron_champion_league_elite,"persean",1,assumption of command of
-bountiesexpanded_kazeron_eagle_league_elite,kazeron_eagle_league_elite,"persean",1,assumption of command of
-bountiesexpanded_kazeron_conquest_league_elite,kazeron_conquest_league_elite,"persean",1,assumption of command of
-bountiesexpanded_kazeron_pegasus_league_elite,kazeron_pegasus_league_elite,"persean",1,assumption of command of
-
 ,,,,
 # NOTES,,,,
 # bounty : line ID. Must be unique across all mods. I recommend a prefix,,,,

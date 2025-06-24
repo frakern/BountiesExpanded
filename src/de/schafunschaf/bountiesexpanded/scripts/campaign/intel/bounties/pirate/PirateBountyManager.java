@@ -86,7 +86,7 @@ public class PirateBountyManager extends BaseEventManager {
         String pirateFleetName;
 
         if (Math.random() < 0.666f)
-            pirateFleetName = String.format("%s %s's Fleet", person.getRankId(), person.getName().getLast());
+            pirateFleetName = String.format("%s %s's Fleet", person.getFaction().getRank(person.getRankId()), person.getName().getLast());
         else
             pirateFleetName = String.format("%s's %s",
                     person.getName().getFirst(),
@@ -105,7 +105,7 @@ public class PirateBountyManager extends BaseEventManager {
         log.info("BountiesExpanded - Spawning Pirate Bounty: By "
                 + pirateBountyEntity.getOfferingFaction().getDisplayName() + " | Against "
                 + pirateBountyEntity.getTargetedFaction().getDisplayName() + " | At "
-                + spawnLocation.getName());
+                + spawnLocation.getContainingLocation().getName());
         log.info("Player-FP at creation: " + Global.getSector().getPlayerFleet().getFleetPoints());
         log.info("Enemy-FP at creation: " + pirateBountyEntity.getFleet().getFleetPoints());
         log.info("Difficulty: " + difficulty.getShortDescription());

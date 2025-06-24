@@ -160,8 +160,8 @@ public class PirateBountyEntity implements BountyEntity {
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
-            DescriptionUtils.generateFakeHideoutDescription(info, baseBountyIntel, opad);
             DescriptionUtils.generateFancyFleetDescription(info, opad, fleet, targetedPerson);
+            DescriptionUtils.generateFakeHideoutDescription(info, baseBountyIntel, opad, highlightColor);
 
             info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
             info.addPara("The bounty posting also contains partial intel on some of the ships under " + targetedPerson.getHisOrHer() + " command.", opad);

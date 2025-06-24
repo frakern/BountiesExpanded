@@ -127,7 +127,7 @@ public class BountyHunterEntity implements BountyEntity {
 
         baseBountyIntel.bullet(info);
 
-        info.addPara(String.format("A bounty contract has been put on you by %s", offeringFaction.getDisplayNameWithArticle()), initPad, bulletColor, offeringFaction.getColor(), offeringFaction.getDisplayName());
+        info.addPara("A bounty has been put on you", initPad, bulletColor, offeringFaction.getColor(), "bounty");
 
         var bullet = "";
 
@@ -149,14 +149,13 @@ public class BountyHunterEntity implements BountyEntity {
             info.addPara(bullet, bulletPadding, bulletColor, Misc.getGrayColor());
         }
         else if (intel.assembling) {
-            String dtl = Misc.getAtLeastStringForDays((int) intel.daysToLaunch);
-            bullet = "The contract will be open for %s";
+            String dtl = DescriptionUtils.getStringForMoreDays((int) intel.daysToLaunch);
+            bullet = "The contract is open for %s";
             info.addPara(bullet, bulletPadding, bulletColor, highlightColor, dtl);
         }
         else {
-            String durStr = Misc.getStringForDays((int) intel.getDuration());
-            bullet = String.format("A bounty hunter fleet has set out from %s and will pursue you for around %s", spawnLocation.getMarket().getName(), durStr);
-            info.addPara(bullet, bulletPadding, bulletColor, highlightColor, spawnLocation.getMarket().getName(), durStr);
+            bullet = String.format("Bounty hunter departed %s", spawnLocation.getMarket().getName());
+            info.addPara(bullet, bulletPadding, bulletColor, highlightColor, spawnLocation.getMarket().getName());
         }
 
         baseBountyIntel.unindent(info);
@@ -186,7 +185,7 @@ public class BountyHunterEntity implements BountyEntity {
 
         if (!offeringFaction.getRelToPlayer().isHostile()) {
             info.addSpacer(opad);
-            info.addPara("This contract is being issued without the official support of its governing faction. Any action is unlikely to cause reductions in reputations.", opad);
+            info.addPara("This contract is being issued without the official sanction of its governing faction. Any action is unlikely to cause reductions in reputations.", opad);
         }
 
         info.addSectionHeading("Status",
@@ -217,15 +216,15 @@ public class BountyHunterEntity implements BountyEntity {
 
         }
         else if (intel.assembling) {
-            String dtl = Misc.getAtLeastStringForDays((int) intel.daysToLaunch);
+            String dtl = DescriptionUtils.getStringForMoreDays((int) intel.daysToLaunch);
             text = String.format("The contract will be open for %s or until a someone claims it.", dtl);
             info.addPara(text, opad, Misc.getTextColor(), highlightColor, dtl);
         }
         else {
             String durStr = Misc.getStringForDays((int) intel.getDuration());
 
-            text = String.format("The contract has been claimed by the %s bounty hunter %s %s.", personality, fleet.getCommander().getRank(), fleet.getCommander().getNameString());
-            info.addPara(text, opad, Misc.getTextColor(), offeringFaction.getColor(), fleet.getCommander().getRank(), fleet.getCommander().getNameString());
+            text = String.format("The contract has been claimed by the %s bounty hunter %s %s.", personality, fleet.getCommander().getFaction().getRank(fleet.getCommander().getRankId()), fleet.getCommander().getNameString());
+            info.addPara(text, opad, Misc.getTextColor(), fleet.getCommander().getFaction().getColor(), fleet.getCommander().getFaction().getRank(fleet.getCommander().getRankId()), fleet.getCommander().getNameString());
 
             text = String.format("%s fleet has departed from %s and will pursue you for around %s.", Misc.ucFirst(fleet.getCommander().getHisOrHer()), spawnLocation.getMarket().getName(), durStr);
             info.addPara(text, opad, Misc.getTextColor(), Misc.getHighlightColor(), spawnLocation.getMarket().getName(), durStr);
@@ -240,9 +239,7 @@ public class BountyHunterEntity implements BountyEntity {
             int cols = 1;
             int rows = 1;
             float iconSize = width / 3;
-            if (!Settings.isDebugActive()) {
-                info.addShipList(cols, rows, iconSize, Color.BLACK, flagshipCopy, opad);
-            }
+            info.addShipList(cols, rows, iconSize, Color.BLACK, flagshipCopy, opad);
 
             info.addPara(spawnLocation.getMarket().getName() + " spaceport registry records indicate that " + fleet.getCommander().getHisOrHer() + " fleet likely contains around %s additional " + singularOrPlural(obfuscatedFleetSize, "ship") + ".",
                     opad, highlightColor, String.valueOf(obfuscatedFleetSize));

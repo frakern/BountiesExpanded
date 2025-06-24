@@ -6,13 +6,17 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
+import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BreadcrumbSpecial;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import com.fs.starfarer.campaign.CampaignTerrain;
 import de.schafunschaf.bountiesexpanded.Settings;
 import lombok.extern.log4j.Log4j;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
@@ -140,41 +144,93 @@ public class RemoteWorldPicker {
         List<SectorEntityToken> entities = new ArrayList<SectorEntityToken>(system.getAllEntities());
 
         for (SectorEntityToken entity : entities) {
+            // Skip small asteroids
             if (entity instanceof AsteroidAPI) continue;
+            // skip derelict ships etc that will expire
             if (entity.hasTag(Tags.EXPIRES)) continue;
+            // copied other skipped entities from AnalyzeEntityIntelCreator
             if (entity.hasTag(Tags.NOT_RANDOM_MISSION_TARGET)) continue;
+            if (Misc.isImportantForReason(entity.getMemoryWithoutUpdate(), "aem")) continue;
+            if (entity.getMemoryWithoutUpdate() != null && entity.getMemoryWithoutUpdate().getBoolean("$ttWeaponsCache")) continue;
+            if (entity.getCircularOrbitRadius() > 10000f) continue;
 
             float distance = Misc.getDistance(entity.getLocation(), system.getCenter().getLocation());
             float distanceWeight = 1f / (0.25f + distance);
 
-            if (entity.getCustomPlugin() instanceof PlanetAPI) {
+            if (entity instanceof PlanetAPI) {
                 if (entity.isStar()) continue;
                 if (isNotNull(entity.getMarket()) && !entity.getMarket().isPlanetConditionMarketOnly()) continue;
                 if (Settings.ignorePlayerMarkets && entity.getMarket().isPlayerOwned()) continue;
                 if (entity.getMarket().isInHyperspace()) continue;
-                picker.add(entity, 2f);
-            }
-            if (entity.getCustomPlugin() instanceof DerelictShipEntityPlugin) {
                 picker.add(entity, 1f);
             }
-            if (entity.getCustomPlugin() instanceof JumpPointAPI) {
-                picker.add(entity, 2f);
+            else if (entity instanceof JumpPointAPI) {
+                picker.add(entity, 1f);
             }
-            if (entity.getCustomPlugin() instanceof CampaignTerrainAPI) {
-                float dist = Misc.getDistance(new Vector2f(), entity.getLocation());
-                if (dist < 3000) {
-                    picker.add(entity, 1f); // located in the heart of
-                } else if (dist > 12000) {
-                    picker.add(entity, 0.25f); // located in the outer reaches of
-                } else {
-                    picker.add(entity, 0.5f); // located some distance away from the center of
+            else if (entity instanceof CampaignTerrainAPI) {
+                if (entity.hasTag(Tags.DEBRIS_FIELD)) {
+                    float dist = Misc.getDistance(new Vector2f(), entity.getLocation());
+                    if (dist < 3000) {
+                        picker.add(entity, 1.5f); // located in the heart of
+                    } else if (dist > 12000) {
+                        picker.add(entity, 0.25f); // located in the outer reaches of
+                    } else {
+                        picker.add(entity, 0.5f); // located some distance away from the center of
+                    }
+                }
+                else if (
+                        // ((CampaignTerrainAPI) entity).getType().equals(Terrain.MAGNETIC_FIELD) ||
+                        ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_FIELD) ||
+                        ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_BELT)
+                ) {
+                    picker.add(entity, 5.0f);
                 }
             }
-            if (entity.getCustomPlugin() instanceof CustomCampaignEntityAPI) {
-                log.info("BountiesExpanded: pickEntity unmatched CustomCampaignEntityAPI encountered | " + entity.getName() + " | " + entity.getCustomEntityType());
+            else if (entity.getCustomPlugin() instanceof DerelictShipEntityPlugin) {
+                picker.add(entity, 0.5f);
             }
-
-            log.info("BountiesExpanded: pickEntity unmatched entity encountered | " + entity.getName() + " | " + entity.getCustomEntityType());
+            else if (entity instanceof CustomCampaignEntityAPI) {
+                if (
+                        entity.getCustomEntityType().equals(Entities.ORBITAL_HABITAT_REMNANT) ||
+                        entity.getCustomEntityType().equals(Entities.STATION_MINING_REMNANT) ||
+                        entity.getCustomEntityType().equals(Entities.STATION_RESEARCH_REMNANT)
+                ) {
+                    picker.add(entity, 1.5f);
+                }
+                else if (
+                        entity.getCustomEntityType().equals(Entities.DERELICT_SURVEY_PROBE) ||
+                        entity.getCustomEntityType().equals(Entities.DERELICT_SURVEY_SHIP) ||
+                        entity.getCustomEntityType().equals(Entities.DERELICT_MOTHERSHIP)
+                ) {
+                    picker.add(entity, 1f);
+                }
+                else if (
+                        entity.getCustomEntityType().equals(Entities.COMM_RELAY) ||
+                        entity.getCustomEntityType().equals(Entities.COMM_RELAY_MAKESHIFT) ||
+                        entity.getCustomEntityType().equals(Entities.SENSOR_ARRAY) ||
+                        entity.getCustomEntityType().equals(Entities.SENSOR_ARRAY_MAKESHIFT) ||
+                        entity.getCustomEntityType().equals(Entities.NAV_BUOY) ||
+                        entity.getCustomEntityType().equals(Entities.NAV_BUOY_MAKESHIFT)
+                ) {
+                    picker.add(entity, 0.25f);
+                }
+                else if (
+                        entity.getCustomEntityType().equals(Entities.INACTIVE_GATE) ||
+                        entity.getCustomEntityType().equals(Entities.SUPPLY_CACHE) ||
+                        entity.getCustomEntityType().equals(Entities.SUPPLY_CACHE_SMALL) ||
+                        entity.getCustomEntityType().equals(Entities.EQUIPMENT_CACHE) ||
+                        entity.getCustomEntityType().equals(Entities.EQUIPMENT_CACHE_SMALL) ||
+                        entity.getCustomEntityType().equals(Entities.WEAPONS_CACHE) ||
+                        entity.getCustomEntityType().equals(Entities.WEAPONS_CACHE_SMALL) ||
+                        entity.getCustomEntityType().equals(Entities.WEAPONS_CACHE_LOW) ||
+                        entity.getCustomEntityType().equals(Entities.WEAPONS_CACHE_SMALL_LOW) ||
+                        entity.getCustomEntityType().equals(Entities.WEAPONS_CACHE_HIGH) ||
+                        entity.getCustomEntityType().equals(Entities.WEAPONS_CACHE_SMALL_HIGH) ||
+                        entity.getCustomEntityType().equals(Entities.TECHNOLOGY_CACHE)
+                ) {
+                    picker.add(entity, 0.5f);
+                }
+            }
 
         }
 

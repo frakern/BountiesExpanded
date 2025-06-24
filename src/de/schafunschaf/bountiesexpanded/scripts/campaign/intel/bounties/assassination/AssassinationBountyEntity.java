@@ -146,10 +146,9 @@ public class AssassinationBountyEntity implements BountyEntity {
                 currentLocation = travelDestination.getStarSystem().getName();
             else {
                 if (getDifficulty() == Difficulty.EASY) {
-                    String factionName = spawnLocation.getFaction().getDisplayNameWithArticleWithoutArticle();
                     currentLocation = "Preparing to depart from the " + spawnLocation.getName() + " system";
                 } else if (getDifficulty() == Difficulty.MEDIUM) {
-                    String factionName = targetedPerson.getFaction().getDisplayNameWithArticle();
+                    String factionName = targetedPerson.getFaction().getDisplayNameWithArticleWithoutArticle();
                     currentLocation = "Near " + aOrAn(factionName) + " " + factionName + " controlled world";
                 } else
                     currentLocation = "Unknown";
@@ -261,9 +260,7 @@ public class AssassinationBountyEntity implements BountyEntity {
             int rows = 1;
             float iconSize = width / 3;
             info.addPara("The message had an intel file attached containing information on the target's ship.", opad);
-            if (!Settings.isDebugActive()) {
-                info.addShipList(cols, rows, iconSize, Color.BLACK, flagshipCopy, opad);
-            }
+            info.addShipList(cols, rows, iconSize, Color.BLACK, flagshipCopy, opad);
             info.addPara("Intercepted communications suggest that " + targetedPerson.getHisOrHer() + " escort contains roughly %s additional " + singularOrPlural(obfuscatedFleetSize, "ship") + ".",
                     opad, highlightColor, String.valueOf(obfuscatedFleetSize));
             DescriptionUtils.generateThreatDescription(info, fleet, opad);

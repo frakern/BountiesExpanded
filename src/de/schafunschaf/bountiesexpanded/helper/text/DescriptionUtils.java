@@ -1,11 +1,12 @@
 package de.schafunschaf.bountiesexpanded.helper.text;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CampaignFleetAPI;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
+import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Skills;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BreadcrumbSpecial;
 import com.fs.starfarer.api.ui.Alignment;
@@ -20,6 +21,9 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBoun
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.RareFlagshipManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import de.schafunschaf.bountiesexpanded.util.FormattingTools;
+import second_in_command.SCData;
+import second_in_command.SCUtils;
+import second_in_command.specs.SCOfficer;
 
 import java.awt.*;
 import java.util.List;
@@ -123,67 +127,112 @@ public class DescriptionUtils {
         else if (personLevel <= 11) levelDesc = "a highly capable officer";
         else levelDesc = "an exceptionally capable officer";
 
-        List<MutableCharacterStatsAPI.SkillLevelAPI> knownSkills = commander.getStats().getSkillsCopy();
-        WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
+        boolean hasSIC = Global.getSettings().getModManager().isModEnabled("second_in_command");
+        if (hasSIC) {
+            SCData fleetData = SCUtils.getFleetData(fleet);
+            List<second_in_command.specs.SCOfficer> officers = fleetData.getOfficersInFleet();
+            WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
 
-        for (MutableCharacterStatsAPI.SkillLevelAPI skill : knownSkills) {
-            String skillName = skill.getSkill().getId();
-            switch (skillName) {
-                case Skills.WEAPON_DRILLS:
-                    picker.add("a great number of illegal weapon modifications");
-                    break;
-                case Skills.AUXILIARY_SUPPORT:
-                    picker.add("armed-to-the-teeth support ships");
-                    break;
-                case Skills.COORDINATED_MANEUVERS:
-                    picker.add("a high effectiveness in coordinating the maneuvers of ships during combat");
-                    break;
-                case Skills.WOLFPACK_TACTICS:
-                    picker.add("highly coordinated frigate attacks");
-                    break;
-                case Skills.CREW_TRAINING:
-                    picker.add("a very courageous crew");
-                    break;
-                case Skills.CARRIER_GROUP:
-                    picker.add("a noteworthy level of skill in running carrier operations");
-                    break;
-                case Skills.OFFICER_TRAINING:
-                    picker.add("having extremely skilled subordinates");
-                    break;
-                case Skills.OFFICER_MANAGEMENT:
-                    picker.add("having a high number of skilled subordinates");
-                    break;
-                case Skills.NAVIGATION:
-                    picker.add("having highly skilled navigators");
-                    break;
-                case Skills.SENSORS:
-                    picker.add("having overclocked sensory equipment");
-                    break;
-                case Skills.ELECTRONIC_WARFARE:
-                    picker.add("being proficient in electronic warfare");
-                    break;
-                case Skills.FIGHTER_UPLINK:
-                    picker.add("removing engine-safety-protocols from fighters");
-                    break;
-                case Skills.FLUX_REGULATION:
-                    picker.add("using overclocked flux coils");
-                    break;
-                case Skills.PHASE_CORPS:
-                    picker.add("using experimental phase coils");
-                    break;
-                case Skills.FIELD_REPAIRS:
-                    picker.add("having highly skilled mechanics");
-                    break;
-                case Skills.DERELICT_CONTINGENT:
-                    picker.add("using military-grade duct tape");
-                    break;
+            for (SCOfficer officer : officers) {
+                var aptitudePlugin = officer.getAptitudePlugin();
+                var aptitudeId = aptitudePlugin.getId();
+                switch (aptitudeId) {
+                    case "sc_tactical":
+                        picker.add("having a strong tactical command of the battlespace");
+                        break;
+                    case "sc_management":
+                        picker.add("having a very courageous crew");
+                        break;
+                    case "sc_smallcraft":
+                        picker.add("highly coordinated frigate attacks");
+                        break;
+                    case "sc_strikecraft":
+                        picker.add("a noteworthy level of skill in running carrier operations");
+                        break;
+                    case "sc_technology":
+                        picker.add("using overclocked flux coils");
+                        break;
+                    case "sc_warfare":
+                        picker.add("tenacity in battle");
+                        break;
+                    case "sc_improvisation":
+                        picker.add("using military-grade duct tape");
+                        break;
+                    case "sc_starfaring":
+                        picker.add("having highly skilled navigators");
+                        break;
+                    case "sc_piracy":
+                        picker.add("using underhanded tactics in battle");
+                        break;
+                    case "sc_automated":
+                        picker.add("<REDACTED>");
+                        break;
+
+                }
             }
+
+            Random random = new Random(person.getId().hashCode() * 1337L);
+            picker.setRandom(random);
+
+            skillDesc = picker.isEmpty() ? "nothing, really" : picker.pick();
+        } else {
+            List<MutableCharacterStatsAPI.SkillLevelAPI> knownSkills = commander.getStats().getSkillsCopy();
+            WeightedRandomPicker<String> picker = new WeightedRandomPicker<>();
+
+            for (MutableCharacterStatsAPI.SkillLevelAPI skill : knownSkills) {
+                String skillName = skill.getSkill().getId();
+                switch (skillName) {
+                    case Skills.COORDINATED_MANEUVERS:
+                        picker.add("a high effectiveness in coordinating the maneuvers of ships during combat");
+                        break;
+                    case Skills.WOLFPACK_TACTICS:
+                        picker.add("highly coordinated frigate attacks");
+                        break;
+                    case Skills.CREW_TRAINING:
+                        picker.add("having a very courageous crew");
+                        break;
+                    case Skills.CARRIER_GROUP:
+                        picker.add("a noteworthy level of skill in running carrier operations");
+                        break;
+                    case Skills.OFFICER_TRAINING:
+                        picker.add("having extremely skilled subordinates");
+                        break;
+                    case Skills.OFFICER_MANAGEMENT:
+                        picker.add("having a high number of skilled subordinates");
+                        break;
+                    case Skills.NAVIGATION:
+                        picker.add("having highly skilled navigators");
+                        break;
+                    case Skills.SENSORS:
+                        picker.add("having overclocked sensory equipment");
+                        break;
+                    case Skills.ELECTRONIC_WARFARE:
+                        picker.add("being proficient in electronic warfare");
+                        break;
+                    case Skills.FIGHTER_UPLINK:
+                        picker.add("removing engine-safety-protocols from fighters");
+                        break;
+                    case Skills.FLUX_REGULATION:
+                        picker.add("using overclocked flux coils");
+                        break;
+                    case Skills.PHASE_CORPS:
+                        picker.add("using experimental phase coils");
+                        break;
+                    case Skills.FIELD_REPAIRS:
+                        picker.add("having highly skilled mechanics");
+                        break;
+                    case Skills.DERELICT_CONTINGENT:
+                        picker.add("using military-grade duct tape");
+                        break;
+                }
+            }
+
+            Random random = new Random(person.getId().hashCode() * 1337L);
+            picker.setRandom(random);
+
+            skillDesc = picker.isEmpty() ? "nothing, really" : picker.pick();
         }
 
-        Random random = new Random(person.getId().hashCode() * 1337L);
-        picker.setRandom(random);
-
-        skillDesc = picker.isEmpty() ? "nothing, really" : picker.pick();
         if (levelDesc.contains("unremarkable"))
             levelDesc = "an otherwise unremarkable officer";
 
@@ -230,7 +279,7 @@ public class DescriptionUtils {
                 shipDesignation
         };
 
-        outputText = String.format("%s is rumored to be in company of a %s and is known to personally command the %s, " + rareString + " %s %s, as " + hisOrHer + " flagship.", (Object[]) highlights);
+        outputText = String.format("%s is rumored to be accompanied by a %s and is known to personally command the %s, " + rareString + " %s %s, as " + hisOrHer + " flagship.", (Object[]) highlights);
 
         info.addPara(outputText, padding, highlightColors, highlights);
     }
@@ -274,15 +323,44 @@ public class DescriptionUtils {
     /**
      * Will show location of fleet by planet type and constellation.
      */
-    public static void generateFakeHideoutDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding) {
+    public static void generateFakeHideoutDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding, Color highlightColor) {
         String heOrShe = FormattingTools.capitalizeFirst(baseBountyIntel.getPerson().getHeOrShe());
         SectorEntityToken spawnLocation = baseBountyIntel.getSpawnLocation();
         SectorEntityToken fakeLocation = spawnLocation.getContainingLocation().createToken(0.0F, 0.0F);
 
         fakeLocation.setOrbit(Global.getFactory().createCircularOrbit(spawnLocation, 0.0F, 1000.0F, 100.0F));
         String loc = BreadcrumbSpecial.getLocatedString(fakeLocation);
-        loc = loc.replaceAll("orbiting", "hiding out near");
-        loc = loc.replaceAll("located in", "hiding out in");
+
+        if (spawnLocation instanceof PlanetAPI) {
+            loc = loc.replaceAll("orbiting", "hiding out near");
+            loc = loc.replaceAll("located in", "hiding in");
+        }
+        else if (spawnLocation instanceof JumpPointAPI) {
+            loc = loc.replaceAll("orbiting", "raiding around");
+            loc = loc.replaceAll("located in", "raiding in");
+        }
+        else if (spawnLocation instanceof CampaignTerrainAPI) {
+            loc = loc.replaceAll("orbiting", "hiding out near");
+            loc = loc.replaceAll("located in", "hiding in");
+        }
+        else if (spawnLocation.getCustomPlugin() instanceof DerelictShipEntityPlugin) {
+            loc = loc.replaceAll("orbiting", "salvaging");
+            loc = loc.replaceAll("located in", "hiding in");
+        }
+        else if (spawnLocation instanceof CustomCampaignEntityAPI) {
+            if (spawnLocation.getCustomEntityType().equals(Entities.INACTIVE_GATE) ) {
+                loc = loc.replaceAll("orbiting", "flying through");
+                loc = loc.replaceAll("located in", "hiding in");
+            }
+            else {
+                loc = loc.replaceAll("orbiting", "looting");
+                loc = loc.replaceAll("located in", "hiding in");
+            }
+        }
+        else {
+            loc = loc.replaceAll("orbiting", "hiding out near");
+            loc = loc.replaceAll("located in", "hiding in");
+        }
 
         info.addPara(heOrShe + " was last seen " + loc + ".", padding);
     }
@@ -303,22 +381,22 @@ public class DescriptionUtils {
         info.addPara(heOrShe + " was last seen " + loc + ".", padding);
     }
 
-    public static void generatePatrolDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding, boolean isRealLocation) {
+    public static void generatePatrolDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding) {
         String heOrShe = FormattingTools.capitalizeFirst(baseBountyIntel.getPerson().getHeOrShe());
         CampaignFleetAPI fleet = baseBountyIntel.getFleet();
 
         String terrainString = BreadcrumbSpecial.getTerrainString(fleet);
         String loc;
         if (isNotNull(terrainString)) {
-            String systemDescription = BreadcrumbSpecial.getLocationDescription(fleet, isRealLocation);
-            loc = String.format("%s was last seen flying through %s in %s.", heOrShe, terrainString, systemDescription);
+            String systemDescription = BreadcrumbSpecial.getLocationDescription(fleet, true);
+            loc = String.format("The fleet was last seen flying through %s in %s.", terrainString, systemDescription);
             info.addPara(loc, padding);
         } else {
             loc = BreadcrumbSpecial.getLocatedString(LocationUtils.getNearestLocation(fleet));
             loc = loc.replaceAll("orbiting", "patrolling near");
             loc = loc.replaceAll("located in", "hiding out in");
 
-            info.addPara(heOrShe + " was last seen " + loc + ".", padding);
+            info.addPara("The fleet was last seen " + loc + ".", padding);
         }
     }
 
@@ -363,5 +441,27 @@ public class DescriptionUtils {
         String descriptionText = String.format("Your tactical officer has run some calculations and classifies the target as a %s for our fleet.", threatLevel);
 
         info.addPara(descriptionText, padding, threatColor, threatLevel);
+    }
+
+    public static String getStringForMoreDays(int days) {
+        if (days <= 1f) {
+            return "one more day";
+        } else if (days <= 6f) {
+            return "a few more days";
+        } else if (days <= 7 + 6) {
+            return "another week";
+        } else if (days <= 14 + 6) {
+            return "two more weeks";
+        } else if (days <= 21 + 8) {
+            return "three more weeks";
+        } else if (days <= 30 + 29) {
+            return "another month";
+        } else if (days < 30 * 2 + 29) {
+            return "two more months";
+        } else if (days < 30 * 3 + 29) {
+            return "three more months";
+        } else {
+            return "many more months";
+        }
     }
 }

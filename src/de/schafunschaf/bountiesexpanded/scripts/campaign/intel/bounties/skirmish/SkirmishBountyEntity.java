@@ -209,19 +209,19 @@ public class SkirmishBountyEntity implements BountyEntity {
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
-            DescriptionUtils.generatePatrolDescription(info, baseBountyIntel, opad, true);
-
             if (shipsLeftToDestroy < shipsToDestroy)
-                info.addPara("To claim the bounty, %s demands the destruction of at least %s " + singularOrPlural(shipsToDestroy, "ship")
+                info.addPara("To claim the bounty, %s requires the destruction of at least %s " + singularOrPlural(shipsToDestroy, "ship")
                                 + " (%s " + singularOrPlural(shipsLeftToDestroy, "ship") + " left).",
                         opad, factionAndHighlightColors,
                         offeringFaction.getDisplayNameWithArticle(), String.valueOf(shipsToDestroy), String.valueOf(shipsLeftToDestroy));
             else
-                info.addPara("To claim the bounty, %s demands the destruction of at least %s " + singularOrPlural(shipsToDestroy, "ship") + ".",
+                info.addPara("To claim the bounty, %s requires the destruction of at least %s " + singularOrPlural(shipsToDestroy, "ship") + ".",
                         opad, factionAndHighlightColors,
                         offeringFaction.getDisplayNameWithArticle(), String.valueOf(shipsToDestroy));
             info.addPara("An additional %s / %s / %s / %s credits per ship destroyed is offered as a bonus.",
                     opad, highlightColor, creditsPerSize);
+
+            DescriptionUtils.generatePatrolDescription(info, baseBountyIntel, opad);
 
             info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
 
