@@ -32,6 +32,7 @@ import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 
 @Log4j
 public class WarCriminalManager extends BaseEventManager implements BaseBountyManager {
+    // TODO Change name.
     public static final String FLEET_NAME = "War Criminal Fleet";
     public static final String KEY = "$bountiesExpanded_warCriminalManagerBountyManager";
     public static final String WAR_CRIMINAL_BOUNTY_FLEET_KEY = "$bountiesExpanded_warCriminalBountyFleet";

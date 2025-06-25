@@ -94,6 +94,7 @@ public class DeserterBountyManager extends BaseEventManager {
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, travelDestination, bountyIntel.getDuration(), fleetTravelingActionText, new Script() {
             public void run() {
                 // Turn fleet to pirate once they reach the destination.
+                // TODO Fleet name is changed to Pirate FACTION Deserter Fleet.
                 fleet.setFaction(Factions.PIRATES);
                 fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, travelDestination, bountyIntel.getRemainingDuration(), new Script() {
                     @Override
@@ -115,7 +116,7 @@ public class DeserterBountyManager extends BaseEventManager {
         log.info(String.format("BountiesExpanded - Spawning Deserter Bounty: From %s | At %s | Travelling to %s, %s",
                 bountyEntity.getOfferingFaction().getDisplayName(), spawnLocation.getName(), travelDestination.getName(), travelDestination.getStarSystem().getName()));
         log.info(String.format("Player-FP at creation: %d", Global.getSector().getPlayerFleet().getFleetPoints()));
-        log.info(String.format("Enemy-FP at creation: %d", bountyEntity.getFleet().getFleetPoints()));
+        log.info(String.format("Enemy-FP at  creation: %d", bountyEntity.getFleet().getFleetPoints()));
         log.info(String.format("Difficulty: %s", difficulty.getShortDescription()));
 
         return bountyIntel;

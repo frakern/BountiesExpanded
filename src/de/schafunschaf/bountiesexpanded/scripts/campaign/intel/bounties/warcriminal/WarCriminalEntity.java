@@ -168,7 +168,7 @@ public class WarCriminalEntity implements BountyEntity {
                         "The latest entry in %s ever-growing list of crimes and misdeeds was %s.",
                 offeringFactionUCFirst, killWord, targetRankAndName, offeringFaction.getDisplayName(), hisOrHerTargeted, crimeReasonString);
         Color[] highlightColors = isRetrievalMission
-                ? new Color[]{offeringFactionColor, targetedFactionColor, highlightColor, offeringFactionColor}
+                ? new Color[]{offeringFactionColor, targetedFactionColor, highlightColor, highlightColor}
                 : new Color[]{offeringFactionColor, targetedFactionColor, offeringFactionColor, offeringFactionColor};
         String[] highlightStrings = isRetrievalMission
                 ? new String[]{offeringFactionUCFirst, targetRankAndName, shipClassAndDesignation, offeringPerson.getNameString()}

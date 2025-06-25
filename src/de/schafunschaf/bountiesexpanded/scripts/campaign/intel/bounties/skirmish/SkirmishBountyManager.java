@@ -27,7 +27,9 @@ import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 
 @Log4j
 public class SkirmishBountyManager extends BaseEventManager {
+    // TODO Change name.
     public static final String FLEET_NAME = "Skirmisher Fleet";
+    // TODO change text
     public static final String FLEET_ACTION_TEXT = "practicing military maneuvers";
     public static final String KEY = "$bountiesExpanded_skirmishBountyManager";
     public static final String SKIRMISH_BOUNTY_FLEET_KEY = "$bountiesExpanded_skirmishBountyFleet";
@@ -114,7 +116,7 @@ public class SkirmishBountyManager extends BaseEventManager {
 
         fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, objectives.get(randomBase.nextInt(objectives.size())), 16f, assignment);
 
-        // TODO Review mem flags.
+        // TODO Review mem flags. Fleet did not take action with transponder off.
         MemoryAPI fleetMemory = fleet.getMemoryWithoutUpdate();
         fleet.getCurrentAssignment().setActionText(FLEET_ACTION_TEXT);
         fleet.setTransponderOn(true);

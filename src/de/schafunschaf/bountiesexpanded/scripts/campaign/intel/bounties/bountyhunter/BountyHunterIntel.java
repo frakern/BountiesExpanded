@@ -63,6 +63,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
         this.market = bountyHunterEntity.getSpawnLocation().getMarket();
         this.setImportant(true);
 
+        // TODO This is too short
         if (fleet.getFleetPoints() >= 0 && fleet.getFleetPoints() <= 50) {
             daysToLaunch = 7f;
         } else if (fleet.getFleetPoints() >= 51 && fleet.getFleetPoints() <= 80) {

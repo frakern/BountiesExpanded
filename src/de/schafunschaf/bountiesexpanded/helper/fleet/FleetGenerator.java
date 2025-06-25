@@ -61,6 +61,7 @@ public class FleetGenerator {
                                                        String fleetType) {
         Random random = new Random();
         String factionID = faction.getId();
+        // TODO change names?
         String fleetName = fleetCaptain.getName().getLast() + "'s Fleet";
         float initialFP = fleetPoints * 0.7f;
         float remainingFP = fleetPoints - initialFP;

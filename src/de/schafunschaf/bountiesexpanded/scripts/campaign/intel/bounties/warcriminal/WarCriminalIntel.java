@@ -74,6 +74,7 @@ public class WarCriminalIntel extends BaseBountyIntel {
 
     @Override
     public SectorEntityToken getMapLocation(SectorMapAPI map) {
+        // TODO does this do anything?
         if (Settings.isDebugActive())
             return fleet.getContainingLocation().createToken(fleet.getLocation().x, fleet.getLocation().y);
 

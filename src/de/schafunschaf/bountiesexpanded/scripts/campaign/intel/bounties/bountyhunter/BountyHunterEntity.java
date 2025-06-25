@@ -171,7 +171,7 @@ public class BountyHunterEntity implements BountyEntity {
         String bountyCredits = Misc.getDGSCredits(CreditCalculator.getRewardByFP(Global.getSector().getPlayerFleet().getFleetPoints(), difficulty.getModifier() * 5f));
 
         if (isNotNull(offeringPerson)) {
-            TooltipAPIUtils.addPersonWithFactionRepBar(info, width, opad, opad, offeringPerson);
+            info.addImage(offeringFaction.getLogo(), width, 128f, opad);
             Color[] highlightColors = new Color[]{offeringFaction.getColor(), Misc.getTextColor(), offeringFaction.getColor(), Misc.getHighlightColor()};
             String bullet = String.format("You have received rumors that %s a %s of %s has grown tired of your meddling in their affairs and has put out a bounty contract on your head for %s.", offeringPerson.getName().getFullName(), offeringPerson.getPost(), offeringFaction.getDisplayNameWithArticle(), bountyCredits);
             info.addPara(bullet, opad, highlightColors, offeringPerson.getName().getFullName(), offeringPerson.getPost(), offeringFaction.getDisplayName(), bountyCredits);
@@ -221,6 +221,9 @@ public class BountyHunterEntity implements BountyEntity {
             info.addPara(text, opad, Misc.getTextColor(), highlightColor, dtl);
         }
         else {
+            // TODO Add bounty hunter portrait here.
+            //info.addImage(offeringFaction.getLogo(), width, 128f, opad);
+
             String durStr = Misc.getStringForDays((int) intel.getDuration());
 
             text = String.format("The contract has been claimed by the %s bounty hunter %s %s.", personality, fleet.getCommander().getFaction().getRank(fleet.getCommander().getRankId()), fleet.getCommander().getNameString());
@@ -245,6 +248,7 @@ public class BountyHunterEntity implements BountyEntity {
                     opad, highlightColor, String.valueOf(obfuscatedFleetSize));
             DescriptionUtils.generateThreatDescription(info, fleet, opad);
 
+            // TODO standardize debug intel.
             if (Settings.isDebugActive()) {
                 intel.bullet(info);
                 DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet);

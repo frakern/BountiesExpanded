@@ -148,7 +148,7 @@ public class AssassinationBountyEntity implements BountyEntity {
                 if (getDifficulty() == Difficulty.EASY) {
                     currentLocation = "Preparing to depart from the " + spawnLocation.getName() + " system";
                 } else if (getDifficulty() == Difficulty.MEDIUM) {
-                    String factionName = targetedPerson.getFaction().getDisplayNameWithArticleWithoutArticle();
+                    String factionName = spawnLocation.getFaction().getDisplayNameWithArticleWithoutArticle();
                     currentLocation = "Near " + aOrAn(factionName) + " " + factionName + " controlled world";
                 } else
                     currentLocation = "Unknown";

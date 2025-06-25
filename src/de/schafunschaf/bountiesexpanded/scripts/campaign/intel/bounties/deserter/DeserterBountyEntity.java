@@ -117,6 +117,7 @@ public class DeserterBountyEntity implements BountyEntity {
     public void createSmallDescription(BaseBountyIntel baseBountyIntel, TooltipMakerAPI info, float width, float height) {
         boolean isRetrievalMission = false;
         String hisOrHer = getTargetedPerson().getHisOrHer();
+        // TODO make misdeeds random
         String briefingText = String.format("A bounty has been put on the head of %s, wanted dead for misappropriation of military equipment, dereliction of duty, piracy, treason, and betrayal of %s.\n\n" +
                         "To claim this bounty, we need to end %s life by destroying the %s.",
                 targetedPerson.getNameString(), offeringFaction.getDisplayNameWithArticle(), hisOrHer, flagship.getShipName());

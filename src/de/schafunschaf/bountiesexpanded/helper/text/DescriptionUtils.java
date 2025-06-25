@@ -183,6 +183,7 @@ public class DescriptionUtils {
             for (MutableCharacterStatsAPI.SkillLevelAPI skill : knownSkills) {
                 String skillName = skill.getSkill().getId();
                 switch (skillName) {
+                    //TODO Many combat skills missing.
                     case Skills.COORDINATED_MANEUVERS:
                         picker.add("a high effectiveness in coordinating the maneuvers of ships during combat");
                         break;
@@ -237,7 +238,7 @@ public class DescriptionUtils {
         if (levelDesc.contains("unremarkable"))
             levelDesc = "an otherwise unremarkable officer";
 
-        info.addPara(Misc.ucFirst(heOrShe) + " is %s known for %s.", padding, commander.getFaction().getBaseUIColor(), levelDesc, skillDesc);
+        info.addPara(Misc.ucFirst(heOrShe) + " is %s known for %s.", padding, Misc.getHighlightColor(), levelDesc, skillDesc);
     }
 
     public static void generateFancyFleetDescription(TooltipMakerAPI info, float padding, CampaignFleetAPI fleet, PersonAPI person) {
@@ -268,7 +269,7 @@ public class DescriptionUtils {
         Color[] highlightColors = new Color[]{
                 commander.getFaction().getBaseUIColor(),
                 Misc.getHighlightColor(),
-                Misc.getHighlightColor(),
+                commander.getFaction().getBaseUIColor(),
                 Misc.getHighlightColor(),
                 Misc.getHighlightColor()
         };
@@ -386,6 +387,7 @@ public class DescriptionUtils {
         String heOrShe = FormattingTools.capitalizeFirst(baseBountyIntel.getPerson().getHeOrShe());
         CampaignFleetAPI fleet = baseBountyIntel.getFleet();
 
+        // TODO this is not generating the patrol type description as expected when orbiting relay. Just generic "last seen located some distance away from center of system". fleet action text was not "guarding relay" but just "patrolling system" may not be set correctly.
         String terrainString = BreadcrumbSpecial.getTerrainString(fleet);
         String loc;
         if (isNotNull(terrainString)) {

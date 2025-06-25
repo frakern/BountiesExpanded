@@ -187,7 +187,9 @@ public class RemoteWorldPicker {
                         ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_FIELD) ||
                         ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_BELT)
                 ) {
-                    picker.add(entity, 5.0f);
+                    if (!entity.getName().equals("Null")) {
+                        picker.add(entity, 5.0f);
+                    }
                 }
             }
             else if (entity.getCustomPlugin() instanceof DerelictShipEntityPlugin) {
