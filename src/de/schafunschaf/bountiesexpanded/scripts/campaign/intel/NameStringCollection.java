@@ -11,6 +11,7 @@ public class NameStringCollection {
     public static final List<String> pirateTitles = new ArrayList<>();
     public static final List<String> killWords = new ArrayList<>();
     public static final List<String> crimeReasons = new ArrayList<>();
+    public static final List<String> deserterMisdeeds = new ArrayList<>();
     public static final List<String> crimeTypes = new ArrayList<>();
     public static final List<String> crimeVictims = new ArrayList<>();
     public static final List<String> pirateFleetNames = new ArrayList<>();

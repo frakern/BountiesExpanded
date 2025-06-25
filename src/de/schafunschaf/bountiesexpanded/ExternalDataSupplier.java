@@ -36,6 +36,7 @@ public class ExternalDataSupplier {
             NameStringCollection.pirateTitles.addAll(parseJSONArray(fleetNames.getJSONArray("pirateTitles")));
             NameStringCollection.killWords.addAll(parseJSONArray(fleetNames.getJSONArray("killWords")));
             NameStringCollection.crimeReasons.addAll(parseJSONArray(fleetNames.getJSONArray("crimeReasons")));
+            NameStringCollection.deserterMisdeeds.addAll(parseJSONArray(fleetNames.getJSONArray("deserterMisdeeds")));
             NameStringCollection.crimeTypes.addAll(parseJSONArray(fleetNames.getJSONArray("crimeTypes")));
             NameStringCollection.crimeVictims.addAll(parseJSONArray(fleetNames.getJSONArray("crimeVictims")));
             NameStringCollection.pirateFleetNames.addAll(parseJSONArray(fleetNames.getJSONArray("pirateFleetNames")));

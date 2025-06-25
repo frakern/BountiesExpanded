@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-import com.fs.starfarer.api.campaign.ai.FleetAssignmentDataAPI;
 import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin.ListInfoMode;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -15,7 +14,6 @@ import com.fs.starfarer.api.util.Misc;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.credits.CreditCalculator;
 import de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils;
-import de.schafunschaf.bountiesexpanded.helper.ui.TooltipAPIUtils;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.NameStringCollection;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BountyResult;
@@ -149,7 +147,7 @@ public class BountyHunterEntity implements BountyEntity {
             info.addPara(bullet, bulletPadding, bulletColor, Misc.getGrayColor());
         }
         else if (intel.assembling) {
-            String dtl = DescriptionUtils.getStringForMoreDays((int) intel.daysToLaunch);
+            String dtl = DescriptionUtils.getStringForMoreDays((int) intel.daysToLaunchEstimate);
             bullet = "The contract is open for %s";
             info.addPara(bullet, bulletPadding, bulletColor, highlightColor, dtl);
         }
@@ -216,19 +214,17 @@ public class BountyHunterEntity implements BountyEntity {
 
         }
         else if (intel.assembling) {
-            String dtl = DescriptionUtils.getStringForMoreDays((int) intel.daysToLaunch);
-            text = String.format("The contract will be open for %s or until a someone claims it.", dtl);
+            String dtl = DescriptionUtils.getStringForMoreDays((int) intel.daysToLaunchEstimate);
+            text = String.format("The contract will be open for at least %s or until a someone claims it.", dtl);
             info.addPara(text, opad, Misc.getTextColor(), highlightColor, dtl);
         }
         else {
-            // TODO Add bounty hunter portrait here.
-            //info.addImage(offeringFaction.getLogo(), width, 128f, opad);
-
-            String durStr = Misc.getStringForDays((int) intel.getDuration());
+            info.addImage(fleet.getCommander().getPortraitSprite(), width, DescriptionUtils.DEFAULT_IMAGE_HEIGHT, opad);
 
             text = String.format("The contract has been claimed by the %s bounty hunter %s %s.", personality, fleet.getCommander().getFaction().getRank(fleet.getCommander().getRankId()), fleet.getCommander().getNameString());
             info.addPara(text, opad, Misc.getTextColor(), fleet.getCommander().getFaction().getColor(), fleet.getCommander().getFaction().getRank(fleet.getCommander().getRankId()), fleet.getCommander().getNameString());
 
+            String durStr = Misc.getStringForDays((int) intel.getDuration());
             text = String.format("%s fleet has departed from %s and will pursue you for around %s.", Misc.ucFirst(fleet.getCommander().getHisOrHer()), spawnLocation.getMarket().getName(), durStr);
             info.addPara(text, opad, Misc.getTextColor(), Misc.getHighlightColor(), spawnLocation.getMarket().getName(), durStr);
 
@@ -248,24 +244,15 @@ public class BountyHunterEntity implements BountyEntity {
                     opad, highlightColor, String.valueOf(obfuscatedFleetSize));
             DescriptionUtils.generateThreatDescription(info, fleet, opad);
 
-            // TODO standardize debug intel.
             if (Settings.isDebugActive()) {
-                intel.bullet(info);
-                DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet);
-                info.addPara(String.format("Current location: %s", fleet.getContainingLocation()), 0);
-                if (!fleet.getAssignmentsCopy().isEmpty()) {
-                    FleetAssignmentDataAPI assign = fleet.getAssignmentsCopy().get(0);
-                    info.addPara(String.format("Current assignment: %s, %s, target %s", assign.getAssignment(),
-                            assign.getActionText(), assign.getTarget()), 0);
-                }
+                DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, false);
                 if (intel.locationToken != null) {
-                    info.addPara(String.format("Location token is in: %s", intel.locationToken.getContainingLocation()), 0);
+                    info.addPara(String.format("LOCATION TOKEN: %s", intel.locationToken.getContainingLocation()), 0);
                 }
-                info.addPara("Tracking mode: " + intel.trackingMode, 0);
-                info.addPara("Time spent looking: " + intel.timeSpentLooking, 0);
-                info.addPara("Days left: " + intel.daysLeft, 0);
-                info.addPara("Found player yet: " + intel.foundPlayerYet, 0);
-                intel.unindent(info);
+                info.addPara("TRACKING MODE: " + intel.trackingMode, 0);
+                info.addPara("TIME SPENT LOOKING: " + intel.timeSpentLooking, 0);
+                info.addPara("DAYS LEFT: " + (int) intel.daysLeft, 0);
+                info.addPara("FOUND PLAYER YET: " + intel.foundPlayerYet, 0);
             }
         }
 

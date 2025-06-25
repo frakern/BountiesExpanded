@@ -80,6 +80,7 @@ public class DeserterBountyManager extends BaseEventManager {
         final String fleetTravelingActionText = String.format("fleeing %s territory", fleet.getFaction().getDisplayName());
 
         fleet.setName(fleet.getFaction().getDisplayName() + " Deserter Fleet");
+        fleet.setNoFactionInName(true);
         FleetGenerator.spawnFleet(fleet, spawnLocation);
 
         final DeserterBountyIntel bountyIntel = new DeserterBountyIntel(bountyEntity, fleet, person, spawnLocation, travelDestination);
@@ -90,24 +91,27 @@ public class DeserterBountyManager extends BaseEventManager {
         fleetMemory.set(EntityProvider.FLEET_IDENTIFIER_KEY, DESERTER_BOUNTY_FLEET_KEY);
         fleetMemory.set(DESERTER_BOUNTY_FLEET_KEY, bountyEntity);
 
-        fleet.clearAssignments();
-        fleet.addAssignment(FleetAssignment.GO_TO_LOCATION, travelDestination, bountyIntel.getDuration(), fleetTravelingActionText, new Script() {
+        fleet.getAI().clearAssignments();
+        fleet.getAI().addAssignment(FleetAssignment.GO_TO_LOCATION, travelDestination, bountyIntel.getDuration(), fleetTravelingActionText, new Script() {
             public void run() {
-                // Turn fleet to pirate once they reach the destination.
-                // TODO Fleet name is changed to Pirate FACTION Deserter Fleet.
-                fleet.setFaction(Factions.PIRATES);
-                fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, travelDestination, bountyIntel.getRemainingDuration(), new Script() {
+                fleet.getAI().addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, travelDestination, bountyIntel.getRemainingDuration(), new Script() {
                     @Override
                     public void run() {
                         if (fleet.isInCurrentLocation()){
-                            fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, LocationUtils.getNearestLocation(fleet), 30f);
+                            fleet.getAI().addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, LocationUtils.getNearestLocation(fleet), 7f, this);
                         }
                         else {
                             fleet.despawn();
                         }
                     }
                 });
-                fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_PIRATE, true);
+                // Turn fleet to pirate once they reach the destination.
+                fleet.setFaction(Factions.PIRATES);
+                fleet.setTransponderOn(false);
+                fleetMemory.set(MemFlags.MEMORY_KEY_PIRATE, true);
+                fleetMemory.set(MemFlags.MEMORY_KEY_MAKE_HOSTILE, true);
+                fleetMemory.unset(MemFlags.FLEET_IGNORES_OTHER_FLEETS);
+                fleetMemory.unset(MemFlags.MEMORY_KEY_NO_REP_IMPACT);
             }
         });
 

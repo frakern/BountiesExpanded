@@ -292,6 +292,23 @@
     "their slanderous remarks about the $facLeader",
     "the kidnapping of $aOrAnFaction fleet commander's daughter"
   ],
+  "deserterMisdeeds": [
+    "misappropriation of military equipment",
+    "embezzlement",
+    "dereliction of duty",
+    "contemptible cowardice",
+    "murder",
+    "piracy",
+    "mutiny",
+    "treason",
+    "brazen insubordination",
+    "desertion",
+    "conduct unbecoming an officer",
+    "gross misconduct",
+    "refusal to participate in the charity food drive",
+    "failure to pay a 100,000 credit bar tab on $market",
+    "insolent remarks about the $facLeader"
+  ],
   "pirateCrimeReasons": [
     "raiding of $faction shipping routes",
     "raid against $market",

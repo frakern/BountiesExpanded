@@ -13,6 +13,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils;
 import de.schafunschaf.bountiesexpanded.helper.ui.TooltipAPIUtils;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.NameStringCollection;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BountyResult;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.BountyEntity;
@@ -22,6 +23,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import static com.fs.starfarer.api.campaign.comm.IntelInfoPlugin.ListInfoMode;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
@@ -46,6 +49,8 @@ public class DeserterBountyEntity implements BountyEntity {
     private final MissionHandler missionHandler;
     private float targetRepBeforeBattle;
     private DeserterBountyIntel bountyIntel;
+    private final String misdeed1;
+    private final String misdeed2;
 
     public DeserterBountyEntity(int baseReward, int level, float fleetQuality, Difficulty difficulty, FactionAPI offeringFaction, CampaignFleetAPI fleet, PersonAPI targetedPerson, SectorEntityToken spawnLocation, SectorEntityToken travelDestination, MissionHandler missionHandler) {
         this.baseReward = baseReward;
@@ -61,6 +66,10 @@ public class DeserterBountyEntity implements BountyEntity {
         this.travelDestination = travelDestination;
         this.missionHandler = missionHandler;
         this.deserterBountyIcon = "bountiesExpanded_deserter_crest";
+        ArrayList<String> crimeReasonsCopy = new ArrayList<>(NameStringCollection.deserterMisdeeds);
+        Collections.shuffle(crimeReasonsCopy);
+        this.misdeed1 = crimeReasonsCopy.get(0);
+        this.misdeed2 = crimeReasonsCopy.get(1);
     }
 
     @Override
@@ -116,11 +125,11 @@ public class DeserterBountyEntity implements BountyEntity {
     @Override
     public void createSmallDescription(BaseBountyIntel baseBountyIntel, TooltipMakerAPI info, float width, float height) {
         boolean isRetrievalMission = false;
+        Color highlightColor = Misc.getHighlightColor();
         String hisOrHer = getTargetedPerson().getHisOrHer();
-        // TODO make misdeeds random
-        String briefingText = String.format("A bounty has been put on the head of %s, wanted dead for misappropriation of military equipment, dereliction of duty, piracy, treason, and betrayal of %s.\n\n" +
+        String briefingText = String.format("A bounty has been put on the head of %s, wanted dead for %s, %s, and betrayal of %s.\n\n" +
                         "To claim this bounty, we need to end %s life by destroying the %s.",
-                targetedPerson.getNameString(), offeringFaction.getDisplayNameWithArticle(), hisOrHer, flagship.getShipName());
+                targetedPerson.getNameString(), misdeed1, misdeed2, offeringFaction.getDisplayNameWithArticle(), hisOrHer, flagship.getShipName());
         Color factionColor = baseBountyIntel.getFactionForUIColors().getBaseUIColor();
         BountyResult result = baseBountyIntel.getResult();
         float opad = 10f;
@@ -131,8 +140,9 @@ public class DeserterBountyEntity implements BountyEntity {
             TooltipAPIUtils.addCustomImagesWithSingleRepBar(info, width, opad, 10f,
                     targetedPerson.getPortraitSprite(),
                     offeringFaction.getLogo(), offeringFaction.getRelToPlayer().getRel());
+            Color[] highlightColors = new Color[]{factionColor, highlightColor, highlightColor, highlightColor, factionColor, factionColor};
             info.addSectionHeading("Briefing", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
-            info.addPara(briefingText, opad, factionColor, targetedPerson.getNameString(), offeringFaction.getDisplayNameWithArticle(), flagship.getShipName());
+            info.addPara(briefingText, opad, highlightColors, targetedPerson.getNameString(), misdeed1, misdeed2, "betrayal of", offeringFaction.getDisplayNameWithArticle(), flagship.getShipName());
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
@@ -147,8 +157,7 @@ public class DeserterBountyEntity implements BountyEntity {
 
             info.addSectionHeading("Fleet Intel", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, isRetrievalMission ? 0f : opad);
             info.addPara("The bounty posting also contains partial intel on some of the ships under " + targetedPerson.getHisOrHer() + " command.", opad);
-            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, maxShipsOnIntel, 1, showShipsRemaining);
-            DescriptionUtils.generateThreatDescription(info, fleet, opad);
+            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, maxShipsOnIntel, true, 1, showShipsRemaining);
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:
@@ -162,7 +171,7 @@ public class DeserterBountyEntity implements BountyEntity {
 
                     info.addPara(debriefingText, opad, factionColor, targetedPerson.getFaction().getRank(targetedPerson.getRankId()) + " " + targetedPerson.getNameString());
                     baseBountyIntel.bullet(info);
-                    info.addPara("%s Credits received", opad, Misc.getHighlightColor(), Misc.getDGSCredits(result.payment));
+                    info.addPara("%s Credits received", opad, highlightColor, Misc.getDGSCredits(result.payment));
                     baseBountyIntel.unindent(info);
                     break;
                 case END_PLAYER_NO_BOUNTY:

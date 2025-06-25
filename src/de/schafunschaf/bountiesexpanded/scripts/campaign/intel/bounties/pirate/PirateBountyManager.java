@@ -99,6 +99,7 @@ public class PirateBountyManager extends BaseEventManager {
         //fleet.getCurrentAssignment().setActionText((String) CollectionUtils.getRandomEntry(NameStringCollection.fleetActionTexts));
         fleet.setTransponderOn(false);
         fleetMemory.set(MemFlags.MEMORY_KEY_PIRATE, true);
+        fleetMemory.set(MemFlags.MEMORY_KEY_MAKE_HOSTILE, true);
         fleetMemory.set(EntityProvider.FLEET_IDENTIFIER_KEY, PIRATE_BOUNTY_FLEET_KEY);
         fleetMemory.set(PIRATE_BOUNTY_FLEET_KEY, pirateBountyEntity);
 

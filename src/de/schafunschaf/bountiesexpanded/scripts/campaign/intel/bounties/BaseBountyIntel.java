@@ -97,6 +97,9 @@ public abstract class BaseBountyIntel extends BaseIntelPlugin implements FleetEv
 
     @Override
     public SectorEntityToken getMapLocation(SectorMapAPI map) {
+        if (Settings.isDebugActive())
+            return fleet.getContainingLocation().createToken(fleet.getLocation().x, fleet.getLocation().y);
+
         return spawnLocation;
     }
 

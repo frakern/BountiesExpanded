@@ -2,7 +2,7 @@ package de.schafunschaf.bountiesexpanded.helper.text;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
-import com.fs.starfarer.api.characters.FullName;
+import com.fs.starfarer.api.campaign.ai.FleetAssignmentDataAPI;
 import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -30,16 +30,17 @@ import java.awt.*;
 import java.util.List;
 import java.util.Random;
 
-import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.*;
+import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
+import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNullOrEmpty;
 
 public class DescriptionUtils {
     public static final float DEFAULT_IMAGE_HEIGHT = 100f;
 
-    public static void generateFullShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet) {
-        generateShipListForIntel(info, width, padding, fleet, fleet.getNumShips(), 3, false);
+    public static void generateFullShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, boolean showThreatDesc) {
+        generateShipListForIntel(info, width, padding, fleet, fleet.getNumShips(), showThreatDesc, 3, false);
     }
 
-    public static void generateShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, int maxShipsToDisplay, int maxRows, boolean showShipsRemaining) {
+    public static void generateShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, int maxShipsToDisplay, boolean showThreatDesc, int maxRows, boolean showShipsRemaining) {
         Random random = new Random(fleet.getCommander().getNameString().hashCode() * 170000L);
         List<FleetMemberAPI> fleetMemberList;
         if (Settings.isDebugActive()) {
@@ -47,10 +48,10 @@ public class DescriptionUtils {
         } else
             fleetMemberList = FleetGenerator.createCopyForIntel(fleet, maxShipsToDisplay, random);
 
-        generateShipListForIntel(info, width, padding, fleetMemberList, maxShipsToDisplay, maxRows, showShipsRemaining, random);
+        generateShipListForIntel(info, width, padding, fleetMemberList, maxShipsToDisplay, showThreatDesc, maxRows, showShipsRemaining, random);
     }
 
-    public static void generateShipListForIntel(TooltipMakerAPI info, float width, float padding, List<FleetMemberAPI> shipList, int maxShipsToDisplay, int maxRows, boolean showShipsRemaining, Random random) {
+    public static void generateShipListForIntel(TooltipMakerAPI info, float width, float padding, List<FleetMemberAPI> shipList, int maxShipsToDisplay, boolean showThreatDesc, int maxRows, boolean showShipsRemaining, Random random) {
         if (isNullOrEmpty(shipList))
             return;
 
@@ -76,13 +77,6 @@ public class DescriptionUtils {
             rows = maxRows;
 
         float iconSize = width / cols;
-        if (Settings.isDebugActive()) {
-            int enemyFP = fleet.getFleetPoints();
-            int playerFP = Global.getSector().getPlayerFleet().getFleetPoints();
-            info.addSectionHeading("DEBUG INFO", Alignment.MID, padding);
-            info.addPara("Enemy  FP -> " + enemyFP, padding, fleet.getFaction().getBaseUIColor(), String.valueOf(enemyFP));
-            info.addPara("Player FP -> " + playerFP, padding, Misc.getHighlightColor(), String.valueOf(playerFP));
-        }
 
         info.addShipList(cols, rows, iconSize, fleet.getFaction().getBaseUIColor(), shipListDisplay, padding);
 
@@ -103,11 +97,25 @@ public class DescriptionUtils {
                         " of lesser significance.", padding);
             }
         }
-    }
 
-    public static void addDifficultyText(TooltipMakerAPI info, float padding, Difficulty difficulty) {
-        info.addPara("Your tactical officer classifies this fleet as " + difficulty.getShortDescriptionAnOrA() + " %s encounter.",
-                padding, difficulty.getColor(), difficulty.getShortDescription());
+        if (showThreatDesc) DescriptionUtils.generateThreatDescription(info, fleet, padding);
+
+        if (Settings.isDebugActive()) {
+            info.addSectionHeading("DEBUG INFO", Alignment.MID, 0f);
+            info.setBulletedListMode("  - ");
+            //info.setTextWidthOverride(width);
+            int enemyFP = fleet.getFleetPoints();
+            int playerFP = Global.getSector().getPlayerFleet().getFleetPoints();
+            info.addPara("ENEMY FP: " + enemyFP, 0f, fleet.getFaction().getBaseUIColor(), String.valueOf(enemyFP));
+            info.addPara("PLAYER FP: " + playerFP, 0f, Misc.getHighlightColor(), String.valueOf(playerFP));
+            info.addPara(String.format("LOCATION: %s", fleet.getContainingLocation()), 0f);
+            if (!fleet.getAssignmentsCopy().isEmpty()) {
+                FleetAssignmentDataAPI assign = fleet.getAssignmentsCopy().get(0);
+                info.addPara(String.format("ASSIGNMENT: %s, %s", assign.getAssignment(),
+                        assign.getActionText()), 0f);
+                info.addPara(String.format("TARGET: %s", assign.getTarget()), 0f);
+            }
+        }
     }
 
 
@@ -166,7 +174,7 @@ public class DescriptionUtils {
                         picker.add("using underhanded tactics in battle");
                         break;
                     case "sc_automated":
-                        picker.add("<REDACTED>");
+                        picker.add("[REDACTED]");
                         break;
 
                 }
@@ -183,18 +191,17 @@ public class DescriptionUtils {
             for (MutableCharacterStatsAPI.SkillLevelAPI skill : knownSkills) {
                 String skillName = skill.getSkill().getId();
                 switch (skillName) {
-                    //TODO Many combat skills missing.
                     case Skills.COORDINATED_MANEUVERS:
                         picker.add("a high effectiveness in coordinating the maneuvers of ships during combat");
                         break;
                     case Skills.WOLFPACK_TACTICS:
-                        picker.add("highly coordinated frigate attacks");
+                        picker.add("using highly coordinated frigate attacks");
                         break;
                     case Skills.CREW_TRAINING:
                         picker.add("having a very courageous crew");
                         break;
                     case Skills.CARRIER_GROUP:
-                        picker.add("a noteworthy level of skill in running carrier operations");
+                        picker.add("an exceptional level of skill in running carrier operations");
                         break;
                     case Skills.OFFICER_TRAINING:
                         picker.add("having extremely skilled subordinates");
@@ -212,7 +219,7 @@ public class DescriptionUtils {
                         picker.add("being proficient in electronic warfare");
                         break;
                     case Skills.FIGHTER_UPLINK:
-                        picker.add("removing engine-safety-protocols from fighters");
+                        picker.add("using customized fighter targeting algorithms");
                         break;
                     case Skills.FLUX_REGULATION:
                         picker.add("using overclocked flux coils");
@@ -225,6 +232,84 @@ public class DescriptionUtils {
                         break;
                     case Skills.DERELICT_CONTINGENT:
                         picker.add("using military-grade duct tape");
+                        break;
+                    case Skills.HELMSMANSHIP:
+                        picker.add("meticulous ship engine maintenance");
+                        break;
+                    case Skills.TARGET_ANALYSIS:
+                        picker.add("precise targeting analysis of enemy vessels");
+                        break;
+                    case Skills.COMBAT_ENDURANCE:
+                        picker.add("having impressive endurance under sustained fire");
+                        break;
+                    case Skills.POINT_DEFENSE:
+                        picker.add("having exceptional point-defense");
+                        break;
+                    case Skills.IMPACT_MITIGATION:
+                        picker.add("quick reactions to mitigate hull damage");
+                        break;
+                    case Skills.BALLISTIC_MASTERY:
+                        picker.add("having mastery of ballistic weaponry");
+                        break;
+                    case Skills.FIELD_MODULATION:
+                        picker.add("active tuning of energy field modulation");
+                        break;
+                    case Skills.DAMAGE_CONTROL:
+                        picker.add("having rapid damage control procedures");
+                        break;
+                    case Skills.SYSTEMS_EXPERTISE:
+                        picker.add("expert knowledge of ship systems");
+                        break;
+                    case Skills.MISSILE_SPECIALIZATION:
+                        picker.add("using specialized missile loaders");
+                        break;
+                    case Skills.TACTICAL_DRILLS:
+                        picker.add("practicing rigorous tactical combat drills");
+                        break;
+                    case Skills.BEST_OF_THE_BEST:
+                        picker.add("exceptional officer prowess");
+                        break;
+                    case Skills.SUPPORT_DOCTRINE:
+                        picker.add("profound understanding of support doctrines");
+                        break;
+                    case Skills.GUNNERY_IMPLANTS:
+                        picker.add("enhanced reflexes via gunnery implants");
+                        break;
+                    case Skills.ENERGY_WEAPON_MASTERY:
+                        picker.add("their mastery of energy-based weapons");
+                        break;
+                    case Skills.CYBERNETIC_AUGMENTATION:
+                        picker.add("utilization of advanced cybernetic enhancements");
+                        break;
+                    case Skills.NEURAL_LINK:
+                        picker.add("using an experimental direct neural interface for instantaneous command");
+                        break;
+                    case Skills.AUTOMATED_SHIPS:
+                        picker.add("[REDACTED]");
+                        break;
+                    case Skills.BULK_TRANSPORT:
+                        picker.add("efficient management of bulk cargo transport");
+                        break;
+                    case Skills.SALVAGING:
+                        picker.add("expert salvaging and resource reclamation");
+                        break;
+                    case Skills.POLARIZED_ARMOR:
+                        picker.add("polarizing their flagship's armor plating");
+                        break;
+                    case Skills.ORDNANCE_EXPERTISE:
+                        picker.add("expertise in ordnance selection and handling");
+                        break;
+                    case Skills.CONTAINMENT_PROCEDURES:
+                        picker.add("having knowledge of hazardous containment procedures");
+                        break;
+                    case Skills.MAKESHIFT_EQUIPMENT:
+                        picker.add("their ingenuity in crafting makeshift ship equipment");
+                        break;
+                    case Skills.INDUSTRIAL_PLANNING:
+                        picker.add("strategic industrial resource planning");
+                        break;
+                    case Skills.HULL_RESTORATION:
+                        picker.add("skillful hull restoration techniques");
                         break;
                 }
             }
@@ -259,12 +344,12 @@ public class DescriptionUtils {
         String outputText;
 
         if (fleetSize <= 4) fleetDesc = "few ships";
-        else if (fleetSize <= 8) fleetDesc = "small fleet";
-        else if (fleetSize <= 16) fleetDesc = "medium-sized fleet";
-        else if (fleetSize <= 24) fleetDesc = "large fleet";
-        else if (fleetSize <= 36) fleetDesc = "very large fleet";
-        else if (fleetSize <= 42) fleetDesc = "gigantic fleet";
-        else fleetDesc = "large armada";
+        else if (fleetSize <= 7) fleetDesc = "small fleet";
+        else if (fleetSize <= 14) fleetDesc = "medium-sized fleet";
+        else if (fleetSize <= 21) fleetDesc = "large fleet";
+        else if (fleetSize <= 28) fleetDesc = "very large fleet";
+        else if (fleetSize <= 35) fleetDesc = "gigantic fleet";
+        else fleetDesc = "grand armada";
 
         Color[] highlightColors = new Color[]{
                 commander.getFaction().getBaseUIColor(),
@@ -325,7 +410,7 @@ public class DescriptionUtils {
     /**
      * Will show location of fleet by planet type and constellation.
      */
-    public static void generateFakeHideoutDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding, Color highlightColor) {
+    public static void generateFakeHideoutDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding) {
         String heOrShe = FormattingTools.capitalizeFirst(baseBountyIntel.getPerson().getHeOrShe());
         SectorEntityToken spawnLocation = baseBountyIntel.getSpawnLocation();
         SectorEntityToken fakeLocation = spawnLocation.getContainingLocation().createToken(0.0F, 0.0F);
@@ -384,23 +469,20 @@ public class DescriptionUtils {
     }
 
     public static void generatePatrolDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding) {
-        String heOrShe = FormattingTools.capitalizeFirst(baseBountyIntel.getPerson().getHeOrShe());
         CampaignFleetAPI fleet = baseBountyIntel.getFleet();
 
-        // TODO this is not generating the patrol type description as expected when orbiting relay. Just generic "last seen located some distance away from center of system". fleet action text was not "guarding relay" but just "patrolling system" may not be set correctly.
-        String terrainString = BreadcrumbSpecial.getTerrainString(fleet);
-        String loc;
-        if (isNotNull(terrainString)) {
-            String systemDescription = BreadcrumbSpecial.getLocationDescription(fleet, true);
-            loc = String.format("The fleet was last seen flying through %s in %s.", terrainString, systemDescription);
-            info.addPara(loc, padding);
-        } else {
-            loc = BreadcrumbSpecial.getLocatedString(LocationUtils.getNearestLocation(fleet));
-            loc = loc.replaceAll("orbiting", "patrolling near");
-            loc = loc.replaceAll("located in", "hiding out in");
+        String loc = BreadcrumbSpecial.getLocatedString(LocationUtils.getNearestLocation(fleet));
+        loc = loc.replaceAll("orbiting", "patrolling near");
+        loc = loc.replaceAll("located in", "patrolling in");
 
-            info.addPara("The fleet was last seen " + loc + ".", padding);
-        }
+        info.addPara("The fleet was last seen " + loc + ".", padding);
+
+//        String terrainString = BreadcrumbSpecial.getTerrainString(fleet);
+//        if (isNotNull(terrainString)) {
+//            String systemDescription = BreadcrumbSpecial.getLocationDescription(fleet, true);
+//            loc = String.format("The fleet was last seen flying through %s in %s.", terrainString, systemDescription);
+//            info.addPara(loc, padding);
+//        }
     }
 
     public static void generateFakeTravelDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding) {
@@ -418,6 +500,11 @@ public class DescriptionUtils {
     public static void generateThreatDescription(TooltipMakerAPI info, CampaignFleetAPI enemyFleet, float padding) {
         float playerFleetStrength = FleetUtils.getFleetStrength(Global.getSector().getPlayerFleet());
         float enemyEffectiveStrength = FleetUtils.getFleetStrength(enemyFleet);
+        // Add +-20% variation to enemy fleet strength.
+        float variation = 0.20f;
+        Random random = new Random(enemyFleet.getCommander().getNameString().hashCode() * 170000L);
+        float randFactor = 1f + (random.nextFloat() * 2f - 1f) * variation; // will be between 0.8 and 1.2
+        enemyEffectiveStrength *= randFactor;
         float playerStrengthDifference = enemyEffectiveStrength / playerFleetStrength;
         String threatLevel = "cakewalk";
         Color threatColor = new Color(0, 255, 150);
@@ -444,6 +531,11 @@ public class DescriptionUtils {
         String descriptionText = String.format("Your tactical officer has run some calculations and classifies the target as a %s for our fleet.", threatLevel);
 
         info.addPara(descriptionText, padding, threatColor, threatLevel);
+    }
+
+    public static void addDifficultyText(TooltipMakerAPI info, float padding, Difficulty difficulty) {
+        info.addPara("Your tactical officer classifies this fleet as " + difficulty.getShortDescriptionAnOrA() + " %s encounter.",
+                padding, difficulty.getColor(), difficulty.getShortDescription());
     }
 
     public static String getStringForMoreDays(int days) {

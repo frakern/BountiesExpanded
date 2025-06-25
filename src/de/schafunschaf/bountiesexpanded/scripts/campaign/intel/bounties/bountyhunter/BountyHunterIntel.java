@@ -27,6 +27,7 @@ import lombok.Getter;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.util.Random;
 import java.util.Set;
 
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
@@ -44,7 +45,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
     protected MarketAPI market;
     protected boolean assembling = true;
     protected float daysToLaunch;
-    protected final float daysToLaunchFixed;
+    protected final float daysToLaunchEstimate;
     protected float daysLeft;
     protected boolean foundPlayerYet = false;
     protected final IntervalUtil interval = new IntervalUtil(0.4f, 0.6f);
@@ -52,7 +53,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
     protected final IntervalUtil locationTokenInterval = new IntervalUtil(5f, 15f);
     protected float timeSpentLooking = 0f;
     protected boolean trackingMode = false;
-    protected SectorEntityToken locationToken;
+    protected SectorEntityToken locationToken; // Location system that fleet needs to move to.
 
     public BountyHunterIntel(BountyHunterEntity bountyHunterEntity, CampaignFleetAPI campaignFleetAPI, PersonAPI personAPI, SectorEntityToken spawnLocation, SectorEntityToken travelDestination) {
         super(BountyType.BOUNTY_HUNTER, bountyHunterEntity, bountyHunterEntity.getMissionHandler(), campaignFleetAPI, personAPI, spawnLocation, travelDestination);
@@ -63,24 +64,23 @@ public class BountyHunterIntel extends BaseBountyIntel {
         this.market = bountyHunterEntity.getSpawnLocation().getMarket();
         this.setImportant(true);
 
-        // TODO This is too short
         if (fleet.getFleetPoints() >= 0 && fleet.getFleetPoints() <= 50) {
-            daysToLaunch = 7f;
+            daysToLaunch = 14f;
         } else if (fleet.getFleetPoints() >= 51 && fleet.getFleetPoints() <= 80) {
-            daysToLaunch = 15f;
+            daysToLaunch = 21f;
         } else if (fleet.getFleetPoints() >= 81 && fleet.getFleetPoints() <= 120) {
-            daysToLaunch = 20f;
+            daysToLaunch = 28f;
         } else if (fleet.getFleetPoints() >= 121 && fleet.getFleetPoints() <= 180) {
-            daysToLaunch = 35f;
+            daysToLaunch = 40f;
         } else {
             daysToLaunch = 50f;
         }
 
         this.daysToLaunch = Math.round(daysToLaunch * MathUtils.getRandomNumberInRange(0.9f, 1.1f));
-        this.daysToLaunchFixed = daysToLaunch;
+        this.daysToLaunchEstimate = daysToLaunch + (daysToLaunch * 25) * new Random().nextFloat();
 
         float distance = Misc.getDistanceToPlayerLY(spawnLocation);
-        float distBonus = 30 + distance*1.5f;	// don't crank it up too much, I don't think this is the important component
+        float distBonus = 30 + distance*1.5f;
 
         if (fleet.getFleetPoints() >= 0 && fleet.getFleetPoints() <= 80) {
             duration = Math.max(60, Math.min(90,
@@ -95,7 +95,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
                     Math.round(distBonus * MathUtils.getRandomNumberInRange(2f, 2.5f))));
         }
         // need to add days to launch to duration so bounty isn't over as soon as it launches.
-        this.duration += daysToLaunchFixed;
+        this.duration += daysToLaunch;
 
         this.daysLeft = duration;
     }

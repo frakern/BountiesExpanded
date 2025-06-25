@@ -69,19 +69,21 @@ public class PirateBountyIntel extends BaseBountyIntel {
 
     @Override
     public SectorEntityToken getMapLocation(SectorMapAPI map) {
-        if (Settings.isDebugActive())
+        if (Settings.isDebugActive()) {
             return super.getMapLocation(map);
-
-        Constellation c = spawnLocation.getConstellation();
-        SectorEntityToken entity = null;
-        if (c != null && map != null) {
-            entity = map.getConstellationLabelEntity(c);
         }
+        else {
+            Constellation c = spawnLocation.getConstellation();
+            SectorEntityToken entity = null;
+            if (c != null && map != null) {
+                entity = map.getConstellationLabelEntity(c);
+            }
 
-        if (entity == null) {
-            entity = spawnLocation;
+            if (entity == null) {
+                entity = spawnLocation;
+            }
+
+            return entity;
         }
-
-        return entity;
     }
 }

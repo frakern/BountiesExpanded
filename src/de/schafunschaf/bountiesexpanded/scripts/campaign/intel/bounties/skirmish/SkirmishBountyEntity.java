@@ -92,7 +92,7 @@ public class SkirmishBountyEntity implements BountyEntity {
     private int calculateMaxBonus() {
         int maxBonus = 0;
         for (FleetMemberAPI ship : fleet.getFleetData().getMembersListCopy())
-            maxBonus += Misc.getSizeNum(ship.getHullSpec().getHullSize()) * baseShipBounty;
+            maxBonus += (int) (Misc.getSizeNum(ship.getHullSpec().getHullSize()) * baseShipBounty);
         return FormattingTools.roundWholeNumber(maxBonus, 2);
     }
 
@@ -227,8 +227,7 @@ public class SkirmishBountyEntity implements BountyEntity {
 
             info.addPara("Since this is an official military operation, %s has transmitted a complete intel report.",
                     opad, offeringFaction.getBaseUIColor(), offeringFaction.getDisplayNameWithArticle());
-            DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet);
-            DescriptionUtils.generateThreatDescription(info, fleet, opad);
+            DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, true);
         } else { // Bounty completed
             switch (result.type) {
                 case END_PLAYER_BOUNTY:

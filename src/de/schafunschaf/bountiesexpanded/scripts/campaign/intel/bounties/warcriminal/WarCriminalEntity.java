@@ -197,8 +197,7 @@ public class WarCriminalEntity implements BountyEntity {
             info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, isRetrievalMission ? 0f : opad);
             info.addPara("Since this is an official military operation, %s has transmitted a complete intel report.",
                     opad, offeringFaction.getBaseUIColor(), offeringFaction.getDisplayNameWithArticle());
-            DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet);
-            DescriptionUtils.generateThreatDescription(info, fleet, opad);
+            DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, true);
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:

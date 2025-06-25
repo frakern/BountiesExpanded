@@ -69,19 +69,21 @@ public class DeserterBountyIntel extends BaseBountyIntel {
 
     @Override
     public SectorEntityToken getMapLocation(SectorMapAPI map) {
-        if (Settings.isDebugActive())
-            return fleet.getContainingLocation().createToken(fleet.getLocation().x, fleet.getLocation().y);
-
-        Constellation c = travelDestination.getConstellation();
-        SectorEntityToken entity = null;
-        if (c != null && map != null) {
-            entity = map.getConstellationLabelEntity(c);
+        if (Settings.isDebugActive()) {
+            return super.getMapLocation(map);
         }
+        else {
+            Constellation c = travelDestination.getConstellation();
+            SectorEntityToken entity = null;
+            if (c != null && map != null) {
+                entity = map.getConstellationLabelEntity(c);
+            }
 
-        if (entity == null) {
-            entity = travelDestination;
+            if (entity == null) {
+                entity = travelDestination;
+            }
+
+            return entity;
         }
-
-        return entity;
     }
 }

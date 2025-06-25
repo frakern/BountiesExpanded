@@ -11,6 +11,7 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
+import com.fs.starfarer.api.util.Misc;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetGenerator;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetUpgradeHelper;
@@ -27,9 +28,7 @@ import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 
 @Log4j
 public class SkirmishBountyManager extends BaseEventManager {
-    // TODO Change name.
     public static final String FLEET_NAME = "Skirmisher Fleet";
-    // TODO change text
     public static final String FLEET_ACTION_TEXT = "practicing military maneuvers";
     public static final String KEY = "$bountiesExpanded_skirmishBountyManager";
     public static final String SKIRMISH_BOUNTY_FLEET_KEY = "$bountiesExpanded_skirmishBountyFleet";
@@ -93,20 +92,24 @@ public class SkirmishBountyManager extends BaseEventManager {
 
         final SkirmishBountyIntel skirmishBountyIntel = new SkirmishBountyIntel(skirmishBountyEntity, fleet, person, spawnLocation, null);
 
-        fleet.clearAssignments();
+        fleet.getAI().clearAssignments();
+        fleet.setTransponderOn(true);
 
-        // TODO Review objectives and watch fleet patrolling.
         final List<SectorEntityToken> objectives = spawnLocation.getStarSystem().getEntitiesWithTag(Tags.OBJECTIVE);
-        //objectives.addAll(spawnLocation.getStarSystem().getJumpPoints());
-        objectives.add(spawnLocation.getStarSystem().getJumpPoints().get(0));
+        //objectives.add(spawnLocation.getStarSystem().getJumpPoints().get(0));
+        objectives.addAll(spawnLocation.getStarSystem().getEntitiesWithTag(Tags.JUMP_POINT));
 
         final Script assignment = new Script() {
             @Override
             public void run() {
                 if (fleet.isInCurrentLocation() || skirmishBountyIntel.getRemainingDuration() > 0) {
-                    fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, objectives.get(randomBase.nextInt(objectives.size())), 16f, this);
-                    fleet.getCurrentAssignment().setActionText(FLEET_ACTION_TEXT);
-                    fleet.setTransponderOn(true);
+                    SectorEntityToken nextObj = objectives.get(randomBase.nextInt(objectives.size()));
+                    float speed = Misc.getSpeedForBurnLevel(8);
+                    float dist = Misc.getDistance(fleet.getLocation(), nextObj.getLocation());
+                    float seconds = dist / speed;
+                    float days = seconds / Global.getSector().getClock().getSecondsPerDay();
+                    days += 5f + 5f * (float) Math.random();
+                    fleet.getAI().addAssignment(FleetAssignment.PATROL_SYSTEM, nextObj, days, FLEET_ACTION_TEXT, this);
                 }
                 else {
                     fleet.despawn();
@@ -114,16 +117,15 @@ public class SkirmishBountyManager extends BaseEventManager {
             }
         };
 
-        fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, objectives.get(randomBase.nextInt(objectives.size())), 16f, assignment);
+        fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, spawnLocation, 1f, "preparing for " + FLEET_ACTION_TEXT, assignment);
 
-        // TODO Review mem flags. Fleet did not take action with transponder off.
         MemoryAPI fleetMemory = fleet.getMemoryWithoutUpdate();
-        fleet.getCurrentAssignment().setActionText(FLEET_ACTION_TEXT);
-        fleet.setTransponderOn(true);
-        fleetMemory.set(MemFlags.MEMORY_KEY_MAKE_ALLOW_DISENGAGE, true);
-        fleetMemory.set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);
         fleetMemory.set(EntityProvider.FLEET_IDENTIFIER_KEY, SKIRMISH_BOUNTY_FLEET_KEY);
         fleetMemory.set(SKIRMISH_BOUNTY_FLEET_KEY, skirmishBountyEntity);
+        //fleetMemory.set(MemFlags.MEMORY_KEY_MAKE_ALLOW_DISENGAGE, true);
+        //fleetMemory.set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);
+        fleetMemory.set(MemFlags.MEMORY_KEY_PATROL_FLEET, true);
+        fleetMemory.set(MemFlags.MEMORY_KEY_ALLOW_LONG_PURSUIT, true);
 
         log.info("BountiesExpanded - Spawning Skirmish Bounty: By "
                 + skirmishBountyEntity.getOfferingFaction().getDisplayName() + " | Against "
