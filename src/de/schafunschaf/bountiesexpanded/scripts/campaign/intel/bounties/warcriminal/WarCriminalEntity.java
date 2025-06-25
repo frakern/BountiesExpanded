@@ -76,7 +76,7 @@ public class WarCriminalEntity implements BountyEntity {
         this.dropOffLocation = dropOffLocation;
         this.missionHandler = missionHandler;
         this.offeringPerson = offeringFaction.createRandomPerson();
-        this.warCriminalIcon = fleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY) ? "bountiesExpanded_warcriminal_silly" : "bountiesExpanded_warcriminal";
+        this.warCriminalIcon = "bountiesExpanded_warcriminal";
         MarketAPI randomFactionMarket = MarketUtils.getRandomFactionMarket(offeringFaction);
         if (isNotNull(randomFactionMarket))
             this.crimeMarketName = randomFactionMarket.getName();

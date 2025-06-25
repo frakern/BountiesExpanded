@@ -141,6 +141,6 @@ public class Settings implements LunaSettingsListener {
     }
 
     public static boolean isDebugActive() {
-        return debug;
+        return LunaSettings.getBoolean(modId, "debug");
     }
 }
