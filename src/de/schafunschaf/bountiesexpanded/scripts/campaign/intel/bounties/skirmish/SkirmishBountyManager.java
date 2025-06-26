@@ -2,17 +2,16 @@ package de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.skirmis
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.Script;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
+import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
-import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetGenerator;
@@ -30,8 +29,6 @@ import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 
 @Log4j
 public class SkirmishBountyManager extends BaseEventManager {
-    public static final String FLEET_NAME = "Skirmisher Fleet";
-    public static final String FLEET_ACTION_TEXT = "practicing military maneuvers";
     public static final String KEY = "$bountiesExpanded_skirmishBountyManager";
     public static final String SKIRMISH_BOUNTY_FLEET_KEY = "$bountiesExpanded_skirmishBountyFleet";
     private final Set<String> bountiesActiveForFaction = new HashSet<>();
@@ -89,8 +86,15 @@ public class SkirmishBountyManager extends BaseEventManager {
         PersonAPI person = skirmishBountyEntity.getTargetedPerson();
         Difficulty difficulty = skirmishBountyEntity.getDifficulty();
 
+        if (fleet.getFleetPoints() > 150) {
+            fleet.setName(fleet.getFaction().getFleetTypeName(FleetTypes.PATROL_LARGE));
+        } else if (fleet.getFleetPoints() <  60) {
+            fleet.setName(fleet.getFaction().getFleetTypeName(FleetTypes.PATROL_SMALL));
+        } else {
+            fleet.setName(fleet.getFaction().getFleetTypeName(FleetTypes.PATROL_MEDIUM));
+        }
+
         FleetGenerator.spawnFleet(fleet, spawnLocation);
-        fleet.setName(FLEET_NAME);
         fleet.setTransponderOn(true);
 
         final SkirmishBountyIntel skirmishBountyIntel = new SkirmishBountyIntel(skirmishBountyEntity, fleet, person, spawnLocation, null);
@@ -98,15 +102,10 @@ public class SkirmishBountyManager extends BaseEventManager {
         MemoryAPI fleetMemory = fleet.getMemoryWithoutUpdate();
         fleetMemory.set(EntityProvider.FLEET_IDENTIFIER_KEY, SKIRMISH_BOUNTY_FLEET_KEY);
         fleetMemory.set(SKIRMISH_BOUNTY_FLEET_KEY, skirmishBountyEntity);
-        //fleetMemory.set(MemFlags.MEMORY_KEY_MAKE_ALLOW_DISENGAGE, true);
-        //fleetMemory.set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);
-//        fleetMemory.set(MemFlags.FLEET_IGNORED_BY_OTHER_FLEETS, false);
-//        fleetMemory.set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, false);
         fleetMemory.set(MemFlags.MEMORY_KEY_PATROL_FLEET, true);
-        fleetMemory.set(MemFlags.MEMORY_KEY_ALLOW_LONG_PURSUIT, true);
 
         fleet.getAI().clearAssignments();
-        fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, spawnLocation, 1f, "preparing for " + FLEET_ACTION_TEXT);
+        fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, spawnLocation, 1f, "preparing for patrol duty");
 
         StarSystemAPI system = spawnLocation.getMarket().getStarSystem();
         final List<SectorEntityToken> objectives = spawnLocation.getStarSystem().getEntitiesWithTag(Tags.OBJECTIVE);

@@ -105,7 +105,7 @@ public class DescriptionUtils {
             //info.setTextWidthOverride(width);
             int enemyFP = fleet.getFleetPoints();
             int playerFP = Global.getSector().getPlayerFleet().getFleetPoints();
-            info.addPara("ENEMY FP: " + enemyFP, 0f, fleet.getFaction().getBaseUIColor(), String.valueOf(enemyFP));
+            info.addPara("ENEMY FP: " + enemyFP, padding, fleet.getFaction().getBaseUIColor(), String.valueOf(enemyFP));
             info.addPara("PLAYER FP: " + playerFP, 0f, Misc.getHighlightColor(), String.valueOf(playerFP));
             info.addPara(String.format("LOCATION: %s", fleet.getContainingLocation()), 0f);
             if (!fleet.getAssignmentsCopy().isEmpty()) {
@@ -275,7 +275,7 @@ public class DescriptionUtils {
                         picker.add("enhanced reflexes via gunnery implants");
                         break;
                     case Skills.ENERGY_WEAPON_MASTERY:
-                        picker.add("their mastery of energy-based weapons");
+                        picker.add("having mastery of energy-based weapons");
                         break;
                     case Skills.CYBERNETIC_AUGMENTATION:
                         picker.add("utilization of advanced cybernetic enhancements");
@@ -293,7 +293,7 @@ public class DescriptionUtils {
                         picker.add("expert salvaging and resource reclamation");
                         break;
                     case Skills.POLARIZED_ARMOR:
-                        picker.add("polarizing their flagship's armor plating");
+                        picker.add("using polarized armor plating");
                         break;
                     case Skills.ORDNANCE_EXPERTISE:
                         picker.add("expertise in ordnance selection and handling");
@@ -302,7 +302,7 @@ public class DescriptionUtils {
                         picker.add("having knowledge of hazardous containment procedures");
                         break;
                     case Skills.MAKESHIFT_EQUIPMENT:
-                        picker.add("their ingenuity in crafting makeshift ship equipment");
+                        picker.add("ingenuity in crafting makeshift ship equipment");
                         break;
                     case Skills.INDUSTRIAL_PLANNING:
                         picker.add("strategic industrial resource planning");

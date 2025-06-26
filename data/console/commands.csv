@@ -6,4 +6,3 @@ SpawnPirateBounty,de.schafunschaf.bountiesexpanded.scripts.console.commands.Boun
 SpawnWarCriminalBounty,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedSpawnWarCriminalBounty,campaign,bountiesExpandedSpawnWarCriminalBounty,"Forces a WarCriminalBounty to spawn."
 SpawnBountyHunter,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedSpawnBountyHunter,campaign,bountiesExpandedSpawnBountyHunter,"Forces a BountyHunter to spawn."
 BountiesExpandedPrepareUpdate,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedPrepareUpdate,campaign,bountiesExpanded_PrepareUpdate,"Prepares the mod for an update."
-BountiesExpandedRemoveFaultyBounties,de.schafunschaf.bountiesexpanded.scripts.console.commands.BountiesExpandedRemoveFaultyBounties,campaign,bountiesExpanded_RemoveFaultyBounties,"Removes faulty Skirmish-Fleets that happened with 0.3.1"

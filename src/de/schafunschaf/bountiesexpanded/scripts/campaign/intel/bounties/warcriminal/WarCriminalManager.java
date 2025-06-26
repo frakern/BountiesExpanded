@@ -2,17 +2,17 @@ package de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.warcrim
 
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.Script;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
-import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetGenerator;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetUpgradeHelper;
@@ -85,43 +85,38 @@ public class WarCriminalManager extends BaseEventManager {
         PersonAPI person = warCriminalEntity.getTargetedPerson();
         Difficulty difficulty = warCriminalEntity.getDifficulty();
 
-        FleetGenerator.spawnFleet(fleet, spawnLocation);
-
-        final WarCriminalIntel warCriminalIntel = new WarCriminalIntel(warCriminalEntity, fleet, person, spawnLocation, warCriminalEntity.getDropOffLocation());
-
-        fleet.getAI().clearAssignments();
         fleet.setNoFactionInName(true);
+        FleetGenerator.spawnFleet(fleet, spawnLocation);
         fleet.setTransponderOn(true);
 
-        final List<SectorEntityToken> objectives = spawnLocation.getStarSystem().getEntitiesWithTag(Tags.OBJECTIVE);
-        //objectives.add(spawnLocation.getStarSystem().getJumpPoints().get(0));
-        objectives.addAll(spawnLocation.getStarSystem().getEntitiesWithTag(Tags.JUMP_POINT));
-
-        final Script assignment = new Script() {
-            @Override
-            public void run() {
-                if (fleet.isInCurrentLocation() || warCriminalIntel.getRemainingDuration() > 0) {
-                    SectorEntityToken nextObj = objectives.get(randomBase.nextInt(objectives.size()));
-                    float speed = Misc.getSpeedForBurnLevel(8);
-                    float dist = Misc.getDistance(fleet.getLocation(), nextObj.getLocation());
-                    float seconds = dist / speed;
-                    float days = seconds / Global.getSector().getClock().getSecondsPerDay();
-                    days += 5f + 5f * (float) Math.random();
-                    fleet.getAI().addAssignment(FleetAssignment.PATROL_SYSTEM, nextObj, days, this);
-                }
-                else {
-                    fleet.despawn();
-                }
-            }
-        };
-
-        fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, spawnLocation, 1f, "preparing for patrol", assignment);
+        final WarCriminalIntel warCriminalIntel = new WarCriminalIntel(warCriminalEntity, fleet, person, spawnLocation, warCriminalEntity.getDropOffLocation());
 
         MemoryAPI fleetMemory = fleet.getMemoryWithoutUpdate();
         fleetMemory.set(EntityProvider.FLEET_IDENTIFIER_KEY, WAR_CRIMINAL_BOUNTY_FLEET_KEY);
         fleetMemory.set(WAR_CRIMINAL_BOUNTY_FLEET_KEY, warCriminalEntity);
         fleetMemory.set(MemFlags.MEMORY_KEY_PATROL_FLEET, true);
-        fleetMemory.set(MemFlags.MEMORY_KEY_ALLOW_LONG_PURSUIT, true);
+
+        fleet.getAI().clearAssignments();
+        fleet.addAssignment(FleetAssignment.ORBIT_PASSIVE, spawnLocation, 1f, "preparing for patrol duty");
+
+        StarSystemAPI system = spawnLocation.getMarket().getStarSystem();
+        final List<SectorEntityToken> objectives = spawnLocation.getStarSystem().getEntitiesWithTag(Tags.OBJECTIVE);
+        WeightedRandomPicker<SectorEntityToken> defenseTargets = new WeightedRandomPicker<SectorEntityToken>();
+        //objectives.add(spawnLocation.getStarSystem().getJumpPoints().get(0));
+        objectives.addAll(spawnLocation.getStarSystem().getEntitiesWithTag(Tags.JUMP_POINT));
+        defenseTargets.addAll(objectives);
+        SectorEntityToken generalPatrol = spawnLocation.getContainingLocation().createToken(0, 0);
+        defenseTargets.add(generalPatrol, 10f);
+
+        SectorEntityToken pick = defenseTargets.pick();
+
+        if (pick == generalPatrol) {
+            fleet.addAssignment(FleetAssignment.PATROL_SYSTEM, system.getStar(), warCriminalIntel.getRemainingDuration(),
+                    "patrolling the " + system.getBaseName() + " star system");
+        } else {
+            fleet.addAssignment(FleetAssignment.DEFEND_LOCATION, pick, warCriminalIntel.getRemainingDuration(),
+                    "patrolling around " + pick.getName());
+        }
 
         FleetMemberAPI flagship = fleet.getFlagship();
         switch (warCriminalEntity.getMissionHandler().getMissionType()) {
