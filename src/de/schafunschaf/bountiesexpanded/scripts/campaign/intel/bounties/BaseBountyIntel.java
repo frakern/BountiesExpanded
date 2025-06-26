@@ -198,6 +198,10 @@ public abstract class BaseBountyIntel extends BaseIntelPlugin implements FleetEv
 
             if (!Settings.prepareUpdate && isNotNull(spawnLocation)) {
                 SectorEntityToken despawnLocation = Misc.findNearestPlanetTo(fleet, false, false);
+                MarketAPI nearestMarket = Misc.findNearestLocalMarket(fleet, 1000000, market -> true);
+                if (isNotNull(nearestMarket)) {
+                    despawnLocation = nearestMarket.getPrimaryEntity();
+                }
                 fleet.getAI().addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, despawnLocation, 30f, new Script() {
                     @Override
                     public void run() {
