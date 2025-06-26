@@ -183,7 +183,7 @@ public class BountyHunterEntity implements BountyEntity {
 
         if (!offeringFaction.getRelToPlayer().isHostile()) {
             info.addSpacer(opad);
-            info.addPara("This contract is being issued without the official sanction of its governing faction. Any action is unlikely to cause reductions in reputations.", opad);
+            info.addPara("This bounty is being issued without the official sanction of its governing faction. Any action is unlikely to cause reductions in reputations.", opad);
         }
 
         info.addSectionHeading("Status",

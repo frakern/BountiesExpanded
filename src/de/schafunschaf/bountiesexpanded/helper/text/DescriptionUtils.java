@@ -17,7 +17,6 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetGenerator;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetUtils;
-import de.schafunschaf.bountiesexpanded.helper.location.LocationUtils;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.RareFlagshipManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
@@ -152,10 +151,10 @@ public class DescriptionUtils {
                         picker.add("having a very courageous crew");
                         break;
                     case "sc_smallcraft":
-                        picker.add("highly coordinated frigate attacks");
+                        picker.add("favoring highly coordinated frigate attacks");
                         break;
                     case "sc_strikecraft":
-                        picker.add("a noteworthy level of skill in running carrier operations");
+                        picker.add("favoring carrier operations");
                         break;
                     case "sc_technology":
                         picker.add("using overclocked flux coils");
@@ -190,65 +189,24 @@ public class DescriptionUtils {
             for (MutableCharacterStatsAPI.SkillLevelAPI skill : knownSkills) {
                 String skillName = skill.getSkill().getId();
                 switch (skillName) {
-                    case Skills.COORDINATED_MANEUVERS:
-                        picker.add("a high effectiveness in coordinating the maneuvers of ships during combat");
-                        break;
-                    case Skills.WOLFPACK_TACTICS:
-                        picker.add("using highly coordinated frigate attacks");
-                        break;
-                    case Skills.CREW_TRAINING:
-                        picker.add("having a very courageous crew");
-                        break;
-                    case Skills.CARRIER_GROUP:
-                        picker.add("an exceptional level of skill in running carrier operations");
-                        break;
-                    case Skills.OFFICER_TRAINING:
-                        picker.add("having extremely skilled subordinates");
-                        break;
-                    case Skills.OFFICER_MANAGEMENT:
-                        picker.add("having a high number of skilled subordinates");
-                        break;
-                    case Skills.NAVIGATION:
-                        picker.add("having highly skilled navigators");
-                        break;
-                    case Skills.SENSORS:
-                        picker.add("having overclocked sensory equipment");
-                        break;
-                    case Skills.ELECTRONIC_WARFARE:
-                        picker.add("being proficient in electronic warfare");
-                        break;
-                    case Skills.FIGHTER_UPLINK:
-                        picker.add("using customized fighter targeting algorithms");
-                        break;
-                    case Skills.FLUX_REGULATION:
-                        picker.add("using overclocked flux coils");
-                        break;
-                    case Skills.PHASE_CORPS:
-                        picker.add("using experimental phase coils");
-                        break;
-                    case Skills.FIELD_REPAIRS:
-                        picker.add("having highly skilled mechanics");
-                        break;
-                    case Skills.DERELICT_CONTINGENT:
-                        picker.add("using military-grade duct tape");
-                        break;
+                    // He/she is known for ...
                     case Skills.HELMSMANSHIP:
-                        picker.add("meticulous ship engine maintenance");
+                        picker.add("meticulous engine maintenance");
                         break;
                     case Skills.TARGET_ANALYSIS:
-                        picker.add("precise targeting analysis of enemy vessels");
+                        picker.add("precise target analysis");
                         break;
                     case Skills.COMBAT_ENDURANCE:
                         picker.add("having impressive endurance under sustained fire");
                         break;
                     case Skills.POINT_DEFENSE:
-                        picker.add("having exceptional point-defense");
+                        picker.add("an obsession with point defense systems");
                         break;
                     case Skills.IMPACT_MITIGATION:
-                        picker.add("making quick reactions to mitigate impact damage");
+                        picker.add("making well-timed maneuvers to mitigate impact damage");
                         break;
                     case Skills.BALLISTIC_MASTERY:
-                        picker.add("having mastery of ballistic weaponry");
+                        picker.add("favoring ballistic weapons");
                         break;
                     case Skills.FIELD_MODULATION:
                         picker.add("active tuning of energy field modulation");
@@ -257,28 +215,78 @@ public class DescriptionUtils {
                         picker.add("having rapid damage control procedures");
                         break;
                     case Skills.SYSTEMS_EXPERTISE:
-                        picker.add("expert knowledge of ship systems");
+                        picker.add("keen knowledge of ship systems");
                         break;
                     case Skills.MISSILE_SPECIALIZATION:
-                        picker.add("using specialized missile loaders");
+                        picker.add("favoring missile weapons");
+                        break;
+                    case Skills.GUNNERY_IMPLANTS:
+                        picker.add("having enhanced reflexes via gunnery implants");
+                        break;
+                    case Skills.ENERGY_WEAPON_MASTERY:
+                        picker.add("favoring energy weapons");
+                        break;
+                    case Skills.POLARIZED_ARMOR:
+                        picker.add("using polarized armor plating");
+                        break;
+                    case Skills.ORDNANCE_EXPERTISE:
+                        picker.add("maximizing ship ordnance");
+                        break;
+                    // Admiral skills.
+                    case Skills.COORDINATED_MANEUVERS:
+                        picker.add("overwhelming defences with deftly coordinated maneuvers");
+                        break;
+                    case Skills.WOLFPACK_TACTICS:
+                        picker.add("favoring highly coordinated frigate attacks");
+                        break;
+                    case Skills.CREW_TRAINING:
+                        picker.add("having a very courageous crew");
+                        break;
+                    case Skills.CARRIER_GROUP:
+                        picker.add("favoring carrier operations");
+                        break;
+                    case Skills.OFFICER_TRAINING:
+                        picker.add("having extremely skilled subordinates");
+                        break;
+                    case Skills.OFFICER_MANAGEMENT:
+                        picker.add("having a high number of skilled subordinates");
+                        break;
+                    case Skills.ELECTRONIC_WARFARE:
+                        picker.add("deploying ECM packages");
+                        break;
+                    case Skills.FIGHTER_UPLINK:
+                        picker.add("using customized fighter targeting algorithms");
+                        break;
+                    case Skills.FLUX_REGULATION:
+                        picker.add("using overclocked flux coils");
+                        break;
+                    case Skills.PHASE_CORPS:
+                        picker.add("favoring phase ships");
                         break;
                     case Skills.TACTICAL_DRILLS:
                         picker.add("practicing rigorous tactical combat drills");
                         break;
-                    case Skills.BEST_OF_THE_BEST:
-                        picker.add("exceptional officer prowess");
-                        break;
                     case Skills.SUPPORT_DOCTRINE:
                         picker.add("profound understanding of support doctrines");
                         break;
-                    case Skills.GUNNERY_IMPLANTS:
-                        picker.add("enhanced reflexes via gunnery implants");
-                        break;
-                    case Skills.ENERGY_WEAPON_MASTERY:
-                        picker.add("having mastery of energy-based weapons");
-                        break;
                     case Skills.CYBERNETIC_AUGMENTATION:
                         picker.add("utilization of advanced cybernetic enhancements");
+                        break;
+                    // campaign skills?
+                    case Skills.NAVIGATION:
+                        picker.add("having highly skilled navigators");
+                        break;
+                    case Skills.SENSORS:
+                        picker.add("having overclocked sensory equipment");
+                        break;
+                    case Skills.FIELD_REPAIRS:
+                        picker.add("having highly skilled mechanics");
+                        break;
+                    case Skills.DERELICT_CONTINGENT:
+                        picker.add("using military-grade duct tape");
+                        break;
+                    case Skills.BEST_OF_THE_BEST:
+                        picker.add("exceptional officer prowess");
                         break;
                     case Skills.NEURAL_LINK:
                         picker.add("using an experimental direct neural interface for instantaneous command");
@@ -291,12 +299,6 @@ public class DescriptionUtils {
                         break;
                     case Skills.SALVAGING:
                         picker.add("expert salvaging and resource reclamation");
-                        break;
-                    case Skills.POLARIZED_ARMOR:
-                        picker.add("using polarized armor plating");
-                        break;
-                    case Skills.ORDNANCE_EXPERTISE:
-                        picker.add("expertise in ordnance selection and handling");
                         break;
                     case Skills.CONTAINMENT_PROCEDURES:
                         picker.add("having knowledge of hazardous containment procedures");
