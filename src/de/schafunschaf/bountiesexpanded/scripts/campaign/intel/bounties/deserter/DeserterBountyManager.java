@@ -87,6 +87,7 @@ public class DeserterBountyManager extends BaseEventManager {
 
         MemoryAPI fleetMemory = fleet.getMemoryWithoutUpdate();
         fleetMemory.set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);
+        fleetMemory.set(MemFlags.MEMORY_KEY_LOW_REP_IMPACT, true);
         fleetMemory.set(MemFlags.MEMORY_KEY_NO_REP_IMPACT, true);
         fleetMemory.set(EntityProvider.FLEET_IDENTIFIER_KEY, DESERTER_BOUNTY_FLEET_KEY);
         fleetMemory.set(DESERTER_BOUNTY_FLEET_KEY, bountyEntity);
