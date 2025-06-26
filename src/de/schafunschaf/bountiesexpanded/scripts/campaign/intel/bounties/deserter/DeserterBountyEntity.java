@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.CoreReputationPlugin;
+import com.fs.starfarer.api.impl.campaign.ids.Ranks;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -19,6 +20,7 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BountyRe
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.BountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler;
+import de.schafunschaf.bountiesexpanded.util.FormattingTools;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -68,8 +70,8 @@ public class DeserterBountyEntity implements BountyEntity {
         this.deserterBountyIcon = "bountiesExpanded_deserter_crest";
         ArrayList<String> crimeReasonsCopy = new ArrayList<>(NameStringCollection.deserterMisdeeds);
         Collections.shuffle(crimeReasonsCopy);
-        this.misdeed1 = crimeReasonsCopy.get(0);
-        this.misdeed2 = crimeReasonsCopy.get(1);
+        this.misdeed1 = buildMisdeedsString(crimeReasonsCopy.get(0));
+        this.misdeed2 = buildMisdeedsString(crimeReasonsCopy.get(1));
     }
 
     @Override
@@ -142,7 +144,7 @@ public class DeserterBountyEntity implements BountyEntity {
                     offeringFaction.getLogo(), offeringFaction.getRelToPlayer().getRel());
             Color[] highlightColors = new Color[]{factionColor, highlightColor, highlightColor, highlightColor, factionColor, factionColor};
             info.addSectionHeading("Briefing", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
-            info.addPara(briefingText, opad, highlightColors, targetedPerson.getNameString(), misdeed1, misdeed2, "betrayal of", offeringFaction.getDisplayNameWithArticle(), flagship.getShipName());
+            info.addPara(briefingText, opad, highlightColors, targetedPerson.getNameString(), misdeed1, misdeed2, "betrayal", offeringFaction.getDisplayNameWithArticle(), flagship.getShipName());
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
@@ -210,4 +212,17 @@ public class DeserterBountyEntity implements BountyEntity {
         }
         return String.format("Deserter Bounty - %s", targetedPerson.getNameString());
     }
+
+    private String buildMisdeedsString(String misdeed) {
+        String returnString = misdeed;
+
+        returnString = returnString.replace("$faction", offeringFaction.getDisplayName());
+        returnString = returnString.replace("$market", spawnLocation.getMarket().getName());
+        returnString = returnString.replace("$facLeader", offeringFaction.getPost(Ranks.FACTION_LEADER));
+        returnString = returnString.replace("$aOrAnFaction", FormattingTools.aOrAn(offeringFaction.getDisplayName()) + " " + offeringFaction.getDisplayName());
+
+        return returnString;
+    }
+
+
 }

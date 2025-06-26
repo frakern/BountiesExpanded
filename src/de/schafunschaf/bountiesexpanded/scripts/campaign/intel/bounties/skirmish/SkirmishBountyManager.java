@@ -87,12 +87,12 @@ public class SkirmishBountyManager extends BaseEventManager {
         PersonAPI person = skirmishBountyEntity.getTargetedPerson();
         Difficulty difficulty = skirmishBountyEntity.getDifficulty();
 
-        fleet.setName(FLEET_NAME);
         FleetGenerator.spawnFleet(fleet, spawnLocation);
 
         final SkirmishBountyIntel skirmishBountyIntel = new SkirmishBountyIntel(skirmishBountyEntity, fleet, person, spawnLocation, null);
 
         fleet.getAI().clearAssignments();
+        fleet.setName(FLEET_NAME);
         fleet.setTransponderOn(true);
 
         final List<SectorEntityToken> objectives = spawnLocation.getStarSystem().getEntitiesWithTag(Tags.OBJECTIVE);

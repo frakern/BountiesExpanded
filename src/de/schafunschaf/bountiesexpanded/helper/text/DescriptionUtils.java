@@ -30,8 +30,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Random;
 
-import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
-import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNullOrEmpty;
+import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.*;
 
 public class DescriptionUtils {
     public static final float DEFAULT_IMAGE_HEIGHT = 100f;
@@ -101,7 +100,7 @@ public class DescriptionUtils {
         if (showThreatDesc) DescriptionUtils.generateThreatDescription(info, fleet, padding);
 
         if (Settings.isDebugActive()) {
-            info.addSectionHeading("DEBUG INFO", Alignment.MID, 0f);
+            info.addSectionHeading("DEBUG INFO", Alignment.MID, padding);
             info.setBulletedListMode("  - ");
             //info.setTextWidthOverride(width);
             int enemyFP = fleet.getFleetPoints();
@@ -113,7 +112,7 @@ public class DescriptionUtils {
                 FleetAssignmentDataAPI assign = fleet.getAssignmentsCopy().get(0);
                 info.addPara(String.format("ASSIGNMENT: %s, %s", assign.getAssignment(),
                         assign.getActionText()), 0f);
-                info.addPara(String.format("TARGET: %s", assign.getTarget()), 0f);
+                info.addPara(String.format("TARGET: %s", assign.getTarget().getName()), 0f);
             }
         }
     }
@@ -246,7 +245,7 @@ public class DescriptionUtils {
                         picker.add("having exceptional point-defense");
                         break;
                     case Skills.IMPACT_MITIGATION:
-                        picker.add("quick reactions to mitigate hull damage");
+                        picker.add("making quick reactions to mitigate impact damage");
                         break;
                     case Skills.BALLISTIC_MASTERY:
                         picker.add("having mastery of ballistic weaponry");
@@ -320,10 +319,13 @@ public class DescriptionUtils {
             skillDesc = picker.isEmpty() ? "nothing, really" : picker.pick();
         }
 
-        if (levelDesc.contains("unremarkable"))
-            levelDesc = "an otherwise unremarkable officer";
+        if (levelDesc.contains("unremarkable")) {
+            info.addPara(String.format("%s is known for %s and is an otherwise unremarkable officer.", Misc.ucFirst(heOrShe), skillDesc), padding);
+        }
+        else {
+            info.addPara(String.format("%s is %s known for %s.", Misc.ucFirst(heOrShe), levelDesc, skillDesc), padding);
+        }
 
-        info.addPara(Misc.ucFirst(heOrShe) + " is %s known for %s.", padding, Misc.getHighlightColor(), levelDesc, skillDesc);
     }
 
     public static void generateFancyFleetDescription(TooltipMakerAPI info, float padding, CampaignFleetAPI fleet, PersonAPI person) {
@@ -463,7 +465,7 @@ public class DescriptionUtils {
         fakeLocation.setOrbit(Global.getFactory().createCircularOrbit(travelDestination, 0.0F, 1000.0F, 100.0F));
         String loc = BreadcrumbSpecial.getLocatedString(fakeLocation);
         loc = loc.replaceAll("orbiting", "patrolling near");
-        loc = loc.replaceAll("located in", "hiding out in");
+        loc = loc.replaceAll("located in", "hiding in");
 
         info.addPara(heOrShe + " was last seen " + loc + ".", padding);
     }
@@ -471,18 +473,23 @@ public class DescriptionUtils {
     public static void generatePatrolDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding) {
         CampaignFleetAPI fleet = baseBountyIntel.getFleet();
 
-        String loc = BreadcrumbSpecial.getLocatedString(LocationUtils.getNearestLocation(fleet));
-        loc = loc.replaceAll("orbiting", "patrolling near");
-        loc = loc.replaceAll("located in", "patrolling in");
-
-        info.addPara("The fleet was last seen " + loc + ".", padding);
-
+//        String loc;
 //        String terrainString = BreadcrumbSpecial.getTerrainString(fleet);
 //        if (isNotNull(terrainString)) {
 //            String systemDescription = BreadcrumbSpecial.getLocationDescription(fleet, true);
 //            loc = String.format("The fleet was last seen flying through %s in %s.", terrainString, systemDescription);
 //            info.addPara(loc, padding);
 //        }
+//        else {
+//            loc = BreadcrumbSpecial.getLocatedString(LocationUtils.getNearestLocation(fleet));
+//            loc = loc.replaceAll("orbiting", "patrolling near");
+//            loc = loc.replaceAll("located", "patrolling");
+//            info.addPara("The fleet was last seen " + loc + ".", padding);
+//        }
+
+        info.addPara("The fleet is located in " + baseBountyIntel.getSpawnLocation().getStarSystem().getName() + " and will most likely be found either in orbit around " +
+                baseBountyIntel.getSpawnLocation().getMarket().getName() + ", or patrolling one of the system's objectives "
+                + "(such as a comm relay) or jump-points.", padding);
     }
 
     public static void generateFakeTravelDescription(TooltipMakerAPI info, BaseBountyIntel baseBountyIntel, float padding) {
@@ -492,7 +499,7 @@ public class DescriptionUtils {
 
         fakeLocation.setOrbit(Global.getFactory().createCircularOrbit(travelDestination, 0.0F, 1000.0F, 100.0F));
         String obfuscatedLocation = BreadcrumbSpecial.getLocationDescription(travelDestination, false);
-        String travelDescription = String.format("%s was last seen traveling to %s.", heOrShe, obfuscatedLocation);
+        String travelDescription = String.format("%s was last seen fleeing to %s.", heOrShe, obfuscatedLocation);
 
         info.addPara(travelDescription, padding);
     }

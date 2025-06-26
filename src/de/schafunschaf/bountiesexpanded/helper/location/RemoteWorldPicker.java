@@ -3,15 +3,11 @@ package de.schafunschaf.bountiesexpanded.helper.location;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.characters.FullName;
-import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.ids.Terrain;
-import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BreadcrumbSpecial;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import de.schafunschaf.bountiesexpanded.Settings;
@@ -110,7 +106,7 @@ public class RemoteWorldPicker {
 
     private static float computeDistanceMult(float distLY, float targetMaxLY) {
         // How gently it falls off beyond targetMaxLY
-        float softness = 4f;
+        float softness = 2f;
         // Check if beyond targetMaxLY and by how much.
         float excess = distLY - targetMaxLY;
         // Soft exponential falloff after targetMaxLY
@@ -150,6 +146,8 @@ public class RemoteWorldPicker {
         for (SectorEntityToken entity : entities) {
             // Skip small asteroids
             if (entity instanceof AsteroidAPI) continue;
+            // Skip anything without a name (not sure what these are but they exist)
+            if (isNull(entity.getName())) continue;
             // skip derelict ships etc that will expire
             if (entity.hasTag(Tags.EXPIRES)) continue;
             // copied other skipped entities from AnalyzeEntityIntelCreator
@@ -157,9 +155,6 @@ public class RemoteWorldPicker {
             if (Misc.isImportantForReason(entity.getMemoryWithoutUpdate(), "aem")) continue;
             if (entity.getMemoryWithoutUpdate() != null && entity.getMemoryWithoutUpdate().getBoolean("$ttWeaponsCache")) continue;
             if (entity.getCircularOrbitRadius() > 10000f) continue;
-
-            float distance = Misc.getDistance(entity.getLocation(), system.getCenter().getLocation());
-            float distanceWeight = 1f / (0.25f + distance);
 
             if (entity instanceof PlanetAPI) {
                 if (entity.isStar()) continue;
@@ -187,9 +182,7 @@ public class RemoteWorldPicker {
                         ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_FIELD) ||
                         ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_BELT)
                 ) {
-                    if (!entity.getName().equals("Null")) {
-                        picker.add(entity, 5.0f);
-                    }
+                    picker.add(entity, 5.0f);
                 }
             }
             else if (entity.getCustomPlugin() instanceof DerelictShipEntityPlugin) {

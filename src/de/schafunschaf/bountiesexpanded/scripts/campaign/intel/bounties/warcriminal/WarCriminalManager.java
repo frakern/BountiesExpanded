@@ -90,6 +90,7 @@ public class WarCriminalManager extends BaseEventManager {
         final WarCriminalIntel warCriminalIntel = new WarCriminalIntel(warCriminalEntity, fleet, person, spawnLocation, warCriminalEntity.getDropOffLocation());
 
         fleet.getAI().clearAssignments();
+        fleet.setNoFactionInName(true);
         fleet.setTransponderOn(true);
 
         final List<SectorEntityToken> objectives = spawnLocation.getStarSystem().getEntitiesWithTag(Tags.OBJECTIVE);
