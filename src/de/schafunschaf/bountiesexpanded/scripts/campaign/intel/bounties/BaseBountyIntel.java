@@ -196,7 +196,7 @@ public abstract class BaseBountyIntel extends BaseIntelPlugin implements FleetEv
             Misc.makeUnimportant(fleet, "pbe");
             fleet.clearAssignments();
 
-            if (!Settings.prepareUpdate && isNotNull(spawnLocation)) {
+            if (!Settings.prepareUpdate && isNotNull(fleet.getContainingLocation())) {
                 SectorEntityToken despawnLocation = Misc.findNearestPlanetTo(fleet, false, false);
                 MarketAPI nearestMarket = Misc.findNearestLocalMarket(fleet, 1000000, market -> true);
                 if (isNotNull(nearestMarket)) {

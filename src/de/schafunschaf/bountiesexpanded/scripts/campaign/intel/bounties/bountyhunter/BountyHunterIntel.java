@@ -274,13 +274,13 @@ public class BountyHunterIntel extends BaseBountyIntel {
 
         if (assembling) {
             if (!market.getFactionId().equals(factionId)) {
-                result = new BountyResult(BountyResultType.END_OTHER, 0, 0, 0);
+                result = new BountyResult(BountyResultType.END_PLAYER_NO_BOUNTY, 0, 0, 0);
                 cleanUp(false);
                 return;
             }
 
             if (!hasWorkingSpaceport(market)) {
-                result = new BountyResult(BountyResultType.END_OTHER, 0, 0, 0);
+                result = new BountyResult(BountyResultType.END_PLAYER_NO_BOUNTY, 0, 0, 0);
                 cleanUp(false);
                 return;
             }
@@ -344,6 +344,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
 
     public void activateFleet() {
         FleetGenerator.spawnFleet(fleet, market.getPrimaryEntity());
+        fleet.setNoFactionInName(true);
         sendUpdateIfPlayerHasIntel(null, false);
         fleet.getAI().clearAssignments();
 
@@ -362,6 +363,7 @@ public class BountyHunterIntel extends BaseBountyIntel {
         fleetMemory.set(MemFlags.MEMORY_KEY_SAW_PLAYER_WITH_TRANSPONDER_ON, true);
         fleetMemory.set(MemFlags.MEMORY_KEY_LOW_REP_IMPACT, true);
         //fleetMemory.set(MemFlags.MEMORY_KEY_PATROL_FLEET, true);
+        // TODO Make hostile?
         fleetMemory.set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
 
         if (!fleet.getFaction().getRelToPlayer().isHostile()) {

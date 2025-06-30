@@ -443,6 +443,17 @@ public class DescriptionUtils {
                 loc = loc.replaceAll("orbiting", "flying through");
                 loc = loc.replaceAll("located in", "hiding in");
             }
+            else if (
+                    spawnLocation.getCustomEntityType().equals(Entities.COMM_RELAY) ||
+                    spawnLocation.getCustomEntityType().equals(Entities.COMM_RELAY_MAKESHIFT) ||
+                    spawnLocation.getCustomEntityType().equals(Entities.SENSOR_ARRAY) ||
+                    spawnLocation.getCustomEntityType().equals(Entities.SENSOR_ARRAY_MAKESHIFT) ||
+                    spawnLocation.getCustomEntityType().equals(Entities.NAV_BUOY) ||
+                    spawnLocation.getCustomEntityType().equals(Entities.NAV_BUOY_MAKESHIFT)
+            ) {
+                loc = loc.replaceAll("orbiting", "near");
+                loc = loc.replaceAll("located in", "hiding in");
+            }
             else {
                 loc = loc.replaceAll("orbiting", "looting");
                 loc = loc.replaceAll("located in", "hiding in");

@@ -148,6 +148,7 @@ public class RemoteWorldPicker {
             if (entity instanceof AsteroidAPI) continue;
             // Skip anything without a name (not sure what these are but they exist)
             if (isNull(entity.getName())) continue;
+            if (entity.getFullName().equals("Null")) continue;
             // skip derelict ships etc that will expire
             if (entity.hasTag(Tags.EXPIRES)) continue;
             // copied other skipped entities from AnalyzeEntityIntelCreator
@@ -179,10 +180,10 @@ public class RemoteWorldPicker {
                 }
                 else if (
                         // ((CampaignTerrainAPI) entity).getType().equals(Terrain.MAGNETIC_FIELD) || // caused fleets to fly into sun
-                        ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_FIELD) ||
-                        ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_BELT)
+                        // ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_BELT) ||  // caused fleets to fly into sun
+                        ((CampaignTerrainAPI) entity).getType().equals(Terrain.ASTEROID_FIELD)
                 ) {
-                    picker.add(entity, 5.0f);
+                    picker.add(entity, 10.0f);
                 }
             }
             else if (entity.getCustomPlugin() instanceof DerelictShipEntityPlugin) {

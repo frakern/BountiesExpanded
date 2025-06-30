@@ -132,8 +132,6 @@ public class BountyHunterEntity implements BountyEntity {
         if (!isNull(result)) {
             switch (result.type) {
                 case END_OTHER:
-                    bullet = "Contract canceled";
-                    break;
                 case END_PLAYER_NO_REWARD:
                     bullet = "Bounty hunter fleet defeated";
                     break;
@@ -141,7 +139,7 @@ public class BountyHunterEntity implements BountyEntity {
                     bullet = "Contract expired";
                     break;
                 case END_PLAYER_NO_BOUNTY:
-                    bullet = "Cancelled: No longer hostile";
+                    bullet = "Contract cancelled";
                     break;
             }
             info.addPara(bullet, bulletPadding, bulletColor, Misc.getGrayColor());
@@ -197,8 +195,6 @@ public class BountyHunterEntity implements BountyEntity {
         if (!isNull(result)) {
             switch (result.type) {
                 case END_OTHER:
-                    text = "The contract was not claimed.";
-                    break;
                 case END_PLAYER_NO_REWARD:
                     text = "The bounty hunter fleet has been defeated.";
                     break;
@@ -206,7 +202,7 @@ public class BountyHunterEntity implements BountyEntity {
                     text = "The contract has expired and the bounty hunter fleet has given up.";
                     break;
                 case END_PLAYER_NO_BOUNTY:
-                    text = offeringFaction.getDisplayNameWithArticle() + " " + offeringFaction.getDisplayNameIsOrAre() + " no longer hostile. The bounty has been terminated.";
+                    text = "The contract was not claimed.";
                     break;
             }
 
@@ -224,7 +220,7 @@ public class BountyHunterEntity implements BountyEntity {
             text = String.format("The contract has been claimed by the %s bounty hunter %s %s.", personality, fleet.getCommander().getFaction().getRank(fleet.getCommander().getRankId()), fleet.getCommander().getNameString());
             info.addPara(text, opad, Misc.getTextColor(), fleet.getCommander().getFaction().getColor(), fleet.getCommander().getFaction().getRank(fleet.getCommander().getRankId()), fleet.getCommander().getNameString());
 
-            String durStr = Misc.getStringForDays((int) intel.getDuration());
+            String durStr = DescriptionUtils.getStringForMoreDays((int) intel.getDaysLeft());
             text = String.format("%s fleet has departed from %s and will pursue you for around %s.", Misc.ucFirst(fleet.getCommander().getHisOrHer()), spawnLocation.getMarket().getName(), durStr);
             info.addPara(text, opad, Misc.getTextColor(), Misc.getHighlightColor(), spawnLocation.getMarket().getName(), durStr);
 
