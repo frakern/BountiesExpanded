@@ -74,47 +74,13 @@ public class ModInitHelper {
     }
 
     public static void initManagerAndPlugins() {
-        if (Settings.pirateBountyActive) addPirateBountyManager();
-        else {
-            uninstallManager(PirateBountyManager.getInstance());
-            Global.getSector().getMemoryWithoutUpdate().unset(PirateBountyManager.KEY);
-        }
-
-        if (Settings.warCriminalActive) addWarCriminalManager();
-        else {
-            uninstallManager(WarCriminalManager.getInstance());
-            Global.getSector().getMemoryWithoutUpdate().unset(WarCriminalManager.KEY);
-        }
-
-        if (Settings.deserterBountyActive) addDeserterBountyManager();
-        else {
-            uninstallManager(DeserterBountyManager.getInstance());
-            Global.getSector().getMemoryWithoutUpdate().unset(DeserterBountyManager.KEY);
-        }
-
-        if (Settings.skirmishActive) addSkirmishManager();
-        else {
-            uninstallManager(SkirmishBountyManager.getInstance());
-            Global.getSector().getMemoryWithoutUpdate().unset(SkirmishBountyManager.KEY);
-        }
-
-        if (Settings.assassinationActive) addAssassinationManager();
-        else {
-            uninstallManager(AssassinationBountyManager.getInstance());
-            Global.getSector().getMemoryWithoutUpdate().unset(AssassinationBountyManager.KEY);
-        }
-
-        if (Settings.bountyHunterActive) addBountyHunterManager();
-        else {
-            uninstallManager(BountyHunterManager.getInstance());
-            Global.getSector().getMemoryWithoutUpdate().unset(BountyHunterManager.KEY);
-        }
-
-        if (Settings.triggeredEventsActive) addTriggeredMissionManager();
-        else {
-            uninstallManager(TriggeredMissionManager.getInstance());
-            Global.getSector().getMemoryWithoutUpdate().unset(TriggeredMissionManager.KEY);
-        }
+        addPirateBountyManager();
+        addWarCriminalManager();
+        addDeserterBountyManager();
+        addSkirmishManager();
+        addAssassinationManager();
+        addBountyHunterManager();
+        addTriggeredMissionManager();
 
         disableVanillaAndModdedBounties();
 

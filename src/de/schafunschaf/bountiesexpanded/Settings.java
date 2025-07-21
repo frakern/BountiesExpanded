@@ -1,5 +1,6 @@
 package de.schafunschaf.bountiesexpanded;
 
+import de.schafunschaf.bountiesexpanded.helper.ModInitHelper;
 import lunalib.lunaSettings.LunaSettings;
 import lunalib.lunaSettings.LunaSettingsListener;
 
@@ -117,7 +118,7 @@ public class Settings implements LunaSettingsListener {
         pirateBountyMaxBounties = LunaSettings.getInt(modId, "pirateBountyMaxBounties");
         pirateBountyMinDuration = LunaSettings.getInt(modId, "pirateBountyMinDuration");
         pirateBountyMaxDuration = LunaSettings.getInt(modId, "pirateBountyMaxDuration");
-        pirateMinFP = LunaSettings.getFloat(modId, "pirateMinFP");
+        pirateMinFP = LunaSettings.getFloat(modId, "pirateBountyMinFP");
 
         deserterBountyActive = LunaSettings.getBoolean(modId, "deserterBountyActive");
         deserterBountySpawnChance = LunaSettings.getDouble(modId, "deserterBountySpawnChance");
