@@ -69,7 +69,7 @@ public class PirateBountyManager extends BaseEventManager {
         do {
             EveryFrameScript pirateBountyEvent = createPirateBountyEvent();
             addActive(pirateBountyEvent);
-        } while (getActiveCount() < 3);
+        } while (getActiveCount() < getMinConcurrent());
     }
 
     public PirateBountyIntel createPirateBountyEvent() {

@@ -48,6 +48,11 @@ public class BountyHunterManager extends BaseEventManager {
     }
 
     @Override
+    protected float getBaseInterval() {
+        return 4f;
+    }
+
+    @Override
     protected EveryFrameScript createEvent() {
         if (Settings.bountyHunterActive) {
             if (Settings.isDebugActive())
