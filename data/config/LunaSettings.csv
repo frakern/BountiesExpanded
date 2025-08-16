@@ -65,6 +65,6 @@ bountyHunterMinFP,Min Fleet Points,Int,22,,Minimum fleet points. Spawned fleet w
 
 debug,Debug-Settings,Header,Debug-Settings,,,,,Debug
 debug,Enable Debugging,Boolean,false,,,,,Debug
-disableVanillaBounties,Disable Vanilla Bounties,Boolean,true,,Disables Vanilla pirate bounties.,,,Debug
+disableVanillaBounties,Disable Vanilla Bounties,Boolean,true,,Disables Vanilla pirate/deserter person bounties. (Changing this setting requires quitting and restarting Starsector),,,Debug
 retrievalEventActive,Enable Retrieval Missions,Boolean,false,,(EXPERIMENTAL) May contain some bugs.,,,Debug
-retrievalEventDuration,Disable Vanilla Bounties,Int,30,,Time given to return ship (in days).,10,60,Debug
+retrievalEventDuration,Retrieval Missions Duration,Int,30,,Time given to return ship (in days).,10,60,Debug
