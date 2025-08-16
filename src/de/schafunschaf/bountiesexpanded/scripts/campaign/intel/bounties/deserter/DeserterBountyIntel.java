@@ -50,6 +50,7 @@ public class DeserterBountyIntel extends BaseBountyIntel {
 
         float targetRepAfterBattle = getUpdatedRep(deserterBountyEntity.getTargetedFaction());
 
+        // @TODO Add check for offering faction rep and skip payment if too low.
         Global.getSector().getPlayerFleet().getCargo().getCredits().add(payment);
 
         ReputationActionResponsePlugin.ReputationAdjustmentResult rep = Global.getSector().adjustPlayerReputation(

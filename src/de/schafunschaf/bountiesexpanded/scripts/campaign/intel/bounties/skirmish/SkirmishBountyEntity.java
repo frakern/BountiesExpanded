@@ -62,6 +62,7 @@ public class SkirmishBountyEntity implements BountyEntity {
     private float targetRepBeforeBattle = 0;
     private SkirmishBountyIntel bountyIntel;
 
+    // @todo rework skirmish bounty to be more like system bounty.
     public SkirmishBountyEntity(int baseReward, FactionAPI offeringFaction, FactionAPI targetedFaction, CampaignFleetAPI fleet, PersonAPI targetedPerson, SectorEntityToken spawnLocation, float fractionToKill, Difficulty difficulty, int level, float fleetQuality) {
         this.baseReward = baseReward;
         this.fractionToKill = fractionToKill;

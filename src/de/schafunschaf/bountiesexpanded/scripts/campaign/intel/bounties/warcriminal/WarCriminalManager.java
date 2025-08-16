@@ -149,7 +149,6 @@ public class WarCriminalManager extends BaseEventManager {
 
         Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
         WarCriminalEntity warCriminalEntity = (WarCriminalEntity) bountyFleet.getMemoryWithoutUpdate().get(WarCriminalManager.WAR_CRIMINAL_BOUNTY_FLEET_KEY);
-        int modValue = warCriminalEntity.getDifficulty().getFlatModifier();
         boolean isRareShip = bountyFleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY);
         int numSMods = isRareShip ? 3 : 2;
         FleetMemberAPI flagship = bountyFleet.getFlagship();
@@ -166,6 +165,7 @@ public class WarCriminalManager extends BaseEventManager {
 
         flagship.updateStats();
 
-        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, modValue, modValue * 0.1f, true, random);
+        numSMods = Math.min(0, warCriminalEntity.getDifficulty().getModifier());
+        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, warCriminalEntity.getDifficulty().getMultiplier(), true, random);
     }
 }

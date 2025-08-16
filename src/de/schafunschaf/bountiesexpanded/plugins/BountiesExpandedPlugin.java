@@ -145,6 +145,7 @@ public class BountiesExpandedPlugin extends BaseModPlugin {
             CampaignFleetAPI fleet = bountyIntel.getFleet();
             float fleetQuality = ((BountyEntity) fleet.getMemoryWithoutUpdate().get(DeserterBountyManager.DESERTER_BOUNTY_FLEET_KEY)).getFleetQuality();
             HullModUtils.addDMods(fleet, fleetQuality);
+            bountyManager.upgradeShips(fleet);
         }
     }
 

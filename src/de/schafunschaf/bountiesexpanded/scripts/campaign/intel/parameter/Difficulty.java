@@ -10,34 +10,34 @@ import java.awt.*;
 public final class Difficulty {
 
     public static final Difficulty EASY = new Difficulty(
-            "easy", "an", Settings.multiplierEasy, 0, Color.GREEN
+            "easy", "an", 0f, -1, Color.GREEN
     );
     public static final Difficulty MEDIUM = new Difficulty(
-            "fair", "a", Settings.multiplierMedium, 1, Color.CYAN
+            "fair", "a", 0.1f, 0, Color.CYAN
     );
     public static final Difficulty CHALLENGING = new Difficulty(
-            "challenging", "a", Settings.multiplierChallenging, 2, Color.ORANGE
+            "challenging", "a", 0.2f, 1, Color.ORANGE
     );
     public static final Difficulty HARD = new Difficulty(
-            "difficult", "a", Settings.multiplierHard, 3, Color.RED
+            "difficult", "a", 0.3f, 2, Color.RED
     );
     public static final Difficulty BOSS = new Difficulty(
-            "BOSS", "a", (float) (Settings.multiplierHard * 1.5), 4, Color.MAGENTA
+            "BOSS", "a", 0.4f, 3, Color.MAGENTA
     );
     private static final Difficulty[] VALUES = {
             EASY, MEDIUM, HARD, CHALLENGING, BOSS
     };
     private final String shortDescription;
     private final String shortDescriptionAnOrA;
-    private final float modifier;
-    private final int flatModifier;
+    private final float multiplier;
+    private final int modifier;
     private final Color color;
 
-    private Difficulty(String shortDescription, String shortDescriptionAnOrA, float modifier, int flatModifier, Color color) {
+    private Difficulty(String shortDescription, String shortDescriptionAnOrA, float multiplier, int modifier, Color color) {
         this.shortDescriptionAnOrA = shortDescriptionAnOrA;
         this.shortDescription = shortDescription;
+        this.multiplier = multiplier;
         this.modifier = modifier;
-        this.flatModifier = flatModifier;
         this.color = color;
     }
 

@@ -16,6 +16,8 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetGenerator;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetUpgradeHelper;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.bountyhunter.BountyHunterEntity;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.bountyhunter.BountyHunterManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.EntityProvider;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import lombok.extern.log4j.Log4j;
@@ -146,8 +148,9 @@ public class SkirmishBountyManager extends BaseEventManager {
             return;
 
         Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
-        int modValue = ((SkirmishBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(SkirmishBountyManager.SKIRMISH_BOUNTY_FLEET_KEY)).getDifficulty().getFlatModifier();
-        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, modValue, modValue * 0.1f, false, random);
+        SkirmishBountyEntity skirmishBountyEntity = (SkirmishBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(SkirmishBountyManager.SKIRMISH_BOUNTY_FLEET_KEY);
+        int numSMods = Math.min(0, skirmishBountyEntity.getDifficulty().getModifier());
+        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, skirmishBountyEntity.getDifficulty().getMultiplier(), false, random);
     }
 
     public void registerBounty(SkirmishBountyEntity bountyEntity) {

@@ -8,12 +8,17 @@ import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetGenerator;
+import de.schafunschaf.bountiesexpanded.helper.fleet.FleetUpgradeHelper;
 import de.schafunschaf.bountiesexpanded.helper.location.LocationUtils;
+import de.schafunschaf.bountiesexpanded.helper.ship.ShipUtils;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.assassination.AssassinationBountyEntity;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.assassination.AssassinationBountyManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.EntityProvider;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import lombok.extern.log4j.Log4j;
@@ -124,6 +129,27 @@ public class DeserterBountyManager extends BaseEventManager {
         log.info(String.format("Enemy-FP at  creation: %d", bountyEntity.getFleet().getFleetPoints()));
         log.info(String.format("Difficulty: %s", difficulty.getShortDescription()));
 
+        upgradeShips(fleet);
+
         return bountyIntel;
+    }
+
+    public void upgradeShips(CampaignFleetAPI bountyFleet) {
+        if (isNull(bountyFleet))
+            return;
+
+        Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
+        DeserterBountyEntity deserterBountyEntity = (DeserterBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(DeserterBountyManager.DESERTER_BOUNTY_FLEET_KEY);
+        int numSMods = Math.min(0, deserterBountyEntity.getDifficulty().getModifier());
+        FleetMemberAPI flagship = bountyFleet.getFlagship();
+        if (isNull(flagship))
+            return;
+
+        if (flagship.getVariant().getSMods().isEmpty()) {
+            ShipUtils.upgradeShip(flagship, numSMods + 1, random);
+            ShipUtils.addMinorUpgrades(flagship, random);
+        }
+
+        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, deserterBountyEntity.getDifficulty().getMultiplier(), true, random);
     }
 }

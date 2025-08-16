@@ -164,7 +164,7 @@ public class BountyHunterEntity implements BountyEntity {
         List<FleetMemberAPI> flagshipCopy = getFlagshipCopy();
         BountyResult result = baseBountyIntel.getResult();
         float opad = 10f;
-        String bountyCredits = Misc.getDGSCredits(CreditCalculator.getRewardByFP(Global.getSector().getPlayerFleet().getFleetPoints(), difficulty.getModifier() * 5f));
+        String bountyCredits = Misc.getDGSCredits(CreditCalculator.vanillaCalculation(level, difficulty.getMultiplier()));
 
         if (isNotNull(offeringPerson)) {
             info.addImage(offeringFaction.getLogo(), width, 128f, opad);

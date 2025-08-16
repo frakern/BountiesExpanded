@@ -9,6 +9,8 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetUpgradeHelper;
 import de.schafunschaf.bountiesexpanded.helper.ship.ShipUtils;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.assassination.AssassinationBountyEntity;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.assassination.AssassinationBountyManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.EntityProvider;
 import lombok.extern.log4j.Log4j;
 
@@ -100,20 +102,20 @@ public class BountyHunterManager extends BaseEventManager {
             return;
 
         Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
-        float modValue = ((BountyHunterEntity) bountyFleet.getMemoryWithoutUpdate().get(BountyHunterManager.BOUNTY_HUNTER_FLEET_KEY)).getDifficulty().getModifier();
-        int flatModValue = ((BountyHunterEntity) bountyFleet.getMemoryWithoutUpdate().get(BountyHunterManager.BOUNTY_HUNTER_FLEET_KEY)).getDifficulty().getFlatModifier();
+        BountyHunterEntity bountyHunterEntity = (BountyHunterEntity) bountyFleet.getMemoryWithoutUpdate().get(BountyHunterManager.BOUNTY_HUNTER_FLEET_KEY);
+        int numSMods = Math.min(0, bountyHunterEntity.getDifficulty().getModifier());
         FleetMemberAPI flagship = bountyFleet.getFlagship();
         if (isNull(flagship))
             return;
 
         // Always give flagship smods.
         if (flagship.getVariant().getSMods().isEmpty()) {
-            ShipUtils.upgradeShip(flagship, (int) Math.ceil(modValue), random);
+            ShipUtils.upgradeShip(flagship, numSMods + 1, random);
             ShipUtils.addMinorUpgrades(flagship, random);
         }
 
         flagship.updateStats();
 
-        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, flatModValue, flatModValue * 0.1f, true, random);
+        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, bountyHunterEntity.getDifficulty().getMultiplier(), true, random);
     }
 }

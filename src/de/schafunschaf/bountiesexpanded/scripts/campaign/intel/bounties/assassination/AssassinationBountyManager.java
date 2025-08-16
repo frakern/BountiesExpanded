@@ -142,16 +142,17 @@ public class AssassinationBountyManager extends BaseEventManager {
             return;
 
         Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
-        int modValue = ((AssassinationBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(AssassinationBountyManager.ASSASSINATION_BOUNTY_FLEET_KEY)).getDifficulty().getFlatModifier();
+        AssassinationBountyEntity assassinationBountyEntity = (AssassinationBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(AssassinationBountyManager.ASSASSINATION_BOUNTY_FLEET_KEY);
+        int numSMods = Math.min(0, assassinationBountyEntity.getDifficulty().getModifier());
         FleetMemberAPI flagship = bountyFleet.getFlagship();
         if (isNull(flagship))
             return;
 
         if (flagship.getVariant().getSMods().isEmpty()) {
-            ShipUtils.upgradeShip(flagship, 2, random);
+            ShipUtils.upgradeShip(flagship, numSMods + 1, random);
             ShipUtils.addMinorUpgrades(flagship, random);
         }
 
-        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, modValue, modValue * 0.1f, true, random);
+        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, assassinationBountyEntity.getDifficulty().getMultiplier(), true, random);
     }
 }

@@ -7,15 +7,12 @@ import lunalib.lunaSettings.LunaSettingsListener;
 public class Settings implements LunaSettingsListener {
     private static final String modId = "bountiesexpanded";
 
-    public static int baseRewardPerFP = LunaSettings.getInt(modId, "baseRewardPerFP");
+    public static int baseReward = LunaSettings.getInt(modId, "baseReward");
+    public static int rewardPerTier = LunaSettings.getInt(modId, "rewardPerTier");
     public static float chanceEasy = LunaSettings.getFloat(modId, "chanceEasy");
     public static float chanceMedium = LunaSettings.getFloat(modId, "chanceMedium");
     public static float chanceChallenging = LunaSettings.getFloat(modId, "chanceChallenging");
     public static float chanceHard = LunaSettings.getFloat(modId, "chanceHard");
-    public static float multiplierEasy = LunaSettings.getFloat(modId, "multiplierEasy");
-    public static float multiplierMedium = LunaSettings.getFloat(modId, "multiplierMedium");
-    public static float multiplierChallenging = LunaSettings.getFloat(modId, "multiplierChallenging");
-    public static float multiplierHard = LunaSettings.getFloat(modId, "multiplierHard");
 
     public static boolean skirmishActive = LunaSettings.getBoolean(modId, "skirmishActive");
     public static double skirmishSpawnChance = LunaSettings.getDouble(modId, "skirmishSpawnChance");
@@ -24,7 +21,7 @@ public class Settings implements LunaSettingsListener {
     public static int skirmishMinDuration = LunaSettings.getInt(modId, "skirmishMinDuration");
     public static int skirmishMaxDuration = LunaSettings.getInt(modId, "skirmishMaxDuration");
     public static int skirmishBaseShipBounty = LunaSettings.getInt(modId, "skirmishBaseShipBounty");
-    public static float skirmishMinFP = LunaSettings.getFloat(modId, "skirmishMinFP");
+    public static int skirmishMinTier = LunaSettings.getInt(modId, "skirmishMinTier");
 
     public static boolean assassinationActive = LunaSettings.getBoolean(modId, "assassinationActive");
     public static double assassinationSpawnChance = LunaSettings.getDouble(modId, "assassinationSpawnChance");
@@ -33,7 +30,7 @@ public class Settings implements LunaSettingsListener {
     public static double assassinationMinTravelDistance = LunaSettings.getDouble(modId, "assassinationMinTravelDistance");
     public static double assassinationBaseRewardMultiplier = LunaSettings.getDouble(modId, "assassinationBaseRewardMultiplier");
     public static double assassinationBonusRewardMultiplier = LunaSettings.getDouble(modId, "assassinationBonusRewardMultiplier");
-    public static float assassinationMinFP = LunaSettings.getFloat(modId, "assassinationMinFP");
+    public static int assassinationMinTier = LunaSettings.getInt(modId, "assassinationMinTier");
 
     public static boolean warCriminalActive = LunaSettings.getBoolean(modId, "warCriminalActive");
     public static double warCriminalSpawnChance = LunaSettings.getDouble(modId, "warCriminalSpawnChance");
@@ -41,7 +38,7 @@ public class Settings implements LunaSettingsListener {
     public static int warCriminalMaxBounties = LunaSettings.getInt(modId, "warCriminalMaxBounties");
     public static int warCriminalMinDuration = LunaSettings.getInt(modId, "warCriminalMinDuration");
     public static int warCriminalMaxDuration = LunaSettings.getInt(modId, "warCriminalMaxDuration");
-    public static float warCriminalMinFP = LunaSettings.getFloat(modId, "warCriminalMinFP");
+    public static int warCriminalMinTier = LunaSettings.getInt(modId, "warCriminalMinTier");
 
     public static boolean pirateBountyActive = LunaSettings.getBoolean(modId, "pirateBountyActive");
     public static double pirateBountySpawnChance = LunaSettings.getDouble(modId, "pirateBountySpawnChance");
@@ -49,7 +46,7 @@ public class Settings implements LunaSettingsListener {
     public static int pirateBountyMaxBounties = LunaSettings.getInt(modId, "pirateBountyMaxBounties");
     public static int pirateBountyMinDuration = LunaSettings.getInt(modId, "pirateBountyMinDuration");
     public static int pirateBountyMaxDuration = LunaSettings.getInt(modId, "pirateBountyMaxDuration");
-    public static float pirateMinFP = LunaSettings.getFloat(modId, "pirateBountyMinFP");
+    public static int pirateMinTier = LunaSettings.getInt(modId, "pirateBountyMinTier");
 
     public static boolean deserterBountyActive = LunaSettings.getBoolean(modId, "deserterBountyActive");
     public static double deserterBountySpawnChance = LunaSettings.getDouble(modId, "deserterBountySpawnChance");
@@ -57,13 +54,13 @@ public class Settings implements LunaSettingsListener {
     public static int deserterBountyMaxBounties = LunaSettings.getInt(modId, "deserterBountyMaxBounties");
     public static int deserterBountyMinDuration = LunaSettings.getInt(modId, "deserterBountyMinDuration");
     public static int deserterBountyMaxDuration = LunaSettings.getInt(modId, "deserterBountyMaxDuration");
-    public static float deserterMinFP = LunaSettings.getFloat(modId, "deserterBountyMinFP");
+    public static int deserterMinTier = LunaSettings.getInt(modId, "deserterBountyMinTier");
 
     public static boolean bountyHunterActive = LunaSettings.getBoolean(modId, "bountyHunterActive");
     public static double bountyHunterSpawnChance = LunaSettings.getDouble(modId, "bountyHunterSpawnChance");
     public static int bountyHunterMinBounties = LunaSettings.getInt(modId, "bountyHunterMinBounties");
     public static int bountyHunterMaxBounties = LunaSettings.getInt(modId, "bountyHunterMaxBounties");
-    public static float bountyHunterMinFP = LunaSettings.getFloat(modId, "bountyHunterMinFP");
+    public static int bountyHunterMinTier = LunaSettings.getInt(modId, "bountyHunterMinTier");
 
     public static boolean debug = LunaSettings.getBoolean(modId, "debug");
     public static boolean disableVanillaBounties = LunaSettings.getBoolean(modId, "disableVanillaBounties");
@@ -76,15 +73,12 @@ public class Settings implements LunaSettingsListener {
 
     @Override
     public void settingsChanged(String modID) {
-        baseRewardPerFP = LunaSettings.getInt(modId, "baseRewardPerFP");
+        baseReward = LunaSettings.getInt(modId, "baseReward");
+        rewardPerTier = LunaSettings.getInt(modId, "rewardPerTier");
         chanceEasy = LunaSettings.getFloat(modId, "chanceEasy");
         chanceMedium = LunaSettings.getFloat(modId, "chanceMedium");
         chanceChallenging = LunaSettings.getFloat(modId, "chanceChallenging");
         chanceHard = LunaSettings.getFloat(modId, "chanceHard");
-        multiplierEasy = LunaSettings.getFloat(modId, "multiplierEasy");
-        multiplierMedium = LunaSettings.getFloat(modId, "multiplierMedium");
-        multiplierChallenging = LunaSettings.getFloat(modId, "multiplierChallenging");
-        multiplierHard = LunaSettings.getFloat(modId, "multiplierHard");
 
         skirmishActive = LunaSettings.getBoolean(modId, "skirmishActive");
         skirmishSpawnChance = LunaSettings.getDouble(modId, "skirmishSpawnChance");
@@ -93,7 +87,7 @@ public class Settings implements LunaSettingsListener {
         skirmishMinDuration = LunaSettings.getInt(modId, "skirmishMinDuration");
         skirmishMaxDuration = LunaSettings.getInt(modId, "skirmishMaxDuration");
         skirmishBaseShipBounty = LunaSettings.getInt(modId, "skirmishBaseShipBounty");
-        skirmishMinFP = LunaSettings.getFloat(modId, "skirmishMinFP");
+        skirmishMinTier = LunaSettings.getInt(modId, "skirmishMinTier");
 
         assassinationActive = LunaSettings.getBoolean(modId, "assassinationActive");
         assassinationSpawnChance = LunaSettings.getDouble(modId, "assassinationSpawnChance");
@@ -102,7 +96,7 @@ public class Settings implements LunaSettingsListener {
         assassinationMinTravelDistance = LunaSettings.getDouble(modId, "assassinationMinTravelDistance");
         assassinationBaseRewardMultiplier = LunaSettings.getDouble(modId, "assassinationBaseRewardMultiplier");
         assassinationBonusRewardMultiplier = LunaSettings.getDouble(modId, "assassinationBonusRewardMultiplier");
-        assassinationMinFP = LunaSettings.getFloat(modId, "assassinationMinFP");
+        assassinationMinTier = LunaSettings.getInt(modId, "assassinationMinTier");
 
         warCriminalActive = LunaSettings.getBoolean(modId, "warCriminalActive");
         warCriminalSpawnChance = LunaSettings.getDouble(modId, "warCriminalSpawnChance");
@@ -110,7 +104,7 @@ public class Settings implements LunaSettingsListener {
         warCriminalMaxBounties = LunaSettings.getInt(modId, "warCriminalMaxBounties");
         warCriminalMinDuration = LunaSettings.getInt(modId, "warCriminalMinDuration");
         warCriminalMaxDuration = LunaSettings.getInt(modId, "warCriminalMaxDuration");
-        warCriminalMinFP = LunaSettings.getFloat(modId, "warCriminalMinFP");
+        warCriminalMinTier = LunaSettings.getInt(modId, "warCriminalMinTier");
 
         pirateBountyActive = LunaSettings.getBoolean(modId, "pirateBountyActive");
         pirateBountySpawnChance = LunaSettings.getDouble(modId, "pirateBountySpawnChance");
@@ -118,7 +112,7 @@ public class Settings implements LunaSettingsListener {
         pirateBountyMaxBounties = LunaSettings.getInt(modId, "pirateBountyMaxBounties");
         pirateBountyMinDuration = LunaSettings.getInt(modId, "pirateBountyMinDuration");
         pirateBountyMaxDuration = LunaSettings.getInt(modId, "pirateBountyMaxDuration");
-        pirateMinFP = LunaSettings.getFloat(modId, "pirateBountyMinFP");
+        pirateMinTier = LunaSettings.getInt(modId, "pirateBountyMinTier");
 
         deserterBountyActive = LunaSettings.getBoolean(modId, "deserterBountyActive");
         deserterBountySpawnChance = LunaSettings.getDouble(modId, "deserterBountySpawnChance");
@@ -126,13 +120,13 @@ public class Settings implements LunaSettingsListener {
         deserterBountyMaxBounties = LunaSettings.getInt(modId, "deserterBountyMaxBounties");
         deserterBountyMinDuration = LunaSettings.getInt(modId, "deserterBountyMinDuration");
         deserterBountyMaxDuration = LunaSettings.getInt(modId, "deserterBountyMaxDuration");
-        deserterMinFP = LunaSettings.getFloat(modId, "deserterMinFP");
+        deserterMinTier = LunaSettings.getInt(modId, "deserterMinTier");
 
         bountyHunterActive = LunaSettings.getBoolean(modId, "bountyHunterActive");
         bountyHunterSpawnChance = LunaSettings.getDouble(modId, "bountyHunterSpawnChance");
         bountyHunterMinBounties = LunaSettings.getInt(modId, "bountyHunterMinBounties");
         bountyHunterMaxBounties = LunaSettings.getInt(modId, "bountyHunterMaxBounties");
-        bountyHunterMinFP = LunaSettings.getFloat(modId, "bountyHunterMinFP");
+        bountyHunterMinTier = LunaSettings.getInt(modId, "bountyHunterMinTier");
 
         debug = LunaSettings.getBoolean(modId, "debug");
         disableVanillaBounties = LunaSettings.getBoolean(modId, "disableVanillaBounties");
