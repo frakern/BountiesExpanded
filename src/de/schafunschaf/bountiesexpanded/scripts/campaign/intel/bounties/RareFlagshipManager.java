@@ -107,19 +107,28 @@ public class RareFlagshipManager {
     }
 
     public static boolean replaceFlagship(CampaignFleetAPI fleet) {
-        String factionID = fleet.getFaction().getId();
-        PersonAPI fleetCommander = fleet.getCommander();
+        return replaceFlagship(fleet, 1f);
+    }
 
-        RareFlagshipData rareFlagshipData = RareFlagshipManager.pickRareFlagship(factionID, fleet.getFlagship());
-        if (isNotNull(rareFlagshipData)) {
-            ShipVariantAPI variant = Global.getSettings().getVariant(rareFlagshipData.getFlagshipVariantID());
-            if (isNotNull(variant)) {
-                FleetMemberAPI rareFlagship = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
-                if (isNotNull(rareFlagship)) {
-                    fleet.getFleetData().addFleetMember(rareFlagship);
-                    fleet.getFleetData().setFlagship(rareFlagship);
-                    fleet.getFlagship().setCaptain(fleetCommander);
-                    return true;
+    public static boolean replaceFlagship(CampaignFleetAPI fleet, float chance) {
+        if (Math.random() < chance) {
+            String factionID = fleet.getFaction().getId();
+            PersonAPI fleetCommander = fleet.getCommander();
+
+            RareFlagshipData rareFlagshipData = RareFlagshipManager.pickRareFlagship(factionID, fleet.getFlagship());
+            if (isNotNull(rareFlagshipData)) {
+                ShipVariantAPI variant = Global.getSettings().getVariant(rareFlagshipData.getFlagshipVariantID());
+                if (isNotNull(variant)) {
+                    FleetMemberAPI rareFlagship = Global.getFactory().createFleetMember(FleetMemberType.SHIP, variant);
+                    if (isNotNull(rareFlagship)) {
+                        fleet.getFleetData().addFleetMember(rareFlagship);
+                        fleet.getFleetData().setFlagship(rareFlagship);
+                        fleet.getFlagship().setCaptain(fleetCommander);
+                        FleetMemberAPI flagship = fleet.getFlagship();
+                        fleet.getMemoryWithoutUpdate().set(RareFlagshipManager.RARE_FLAGSHIP_KEY, flagship);
+                        log.info(String.format("BountiesExpanded: Fleet got lucky! Added '%s' as rare flagship", flagship.getHullSpec().getHullName()));
+                        return true;
+                    }
                 }
             }
         }

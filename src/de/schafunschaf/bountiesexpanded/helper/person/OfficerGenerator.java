@@ -27,25 +27,25 @@ public class OfficerGenerator {
         return generateOfficer(faction, null, LevelPicker.pickLevel(0), personality);
     }
 
-    public static PersonAPI generateOfficer(FactionAPI faction, int personLevel) {
-        return generateOfficer(faction, null, personLevel, null);
+    public static PersonAPI generateOfficer(FactionAPI faction, int level) {
+        return generateOfficer(faction, null, level, null);
     }
 
     public static PersonAPI generateOfficer(FactionAPI faction, FullName name, String personality) {
         return generateOfficer(faction, name, LevelPicker.pickLevel(0), personality);
     }
 
-    public static PersonAPI generateOfficer(FactionAPI faction, String personality, int personLevel) {
-        return generateOfficer(faction, null, personLevel, personality);
+    public static PersonAPI generateOfficer(FactionAPI faction, String personality, int level) {
+        return generateOfficer(faction, null, level, personality);
     }
 
-    public static PersonAPI generateOfficer(FactionAPI faction, FullName name, int personLevel, String personality) {
+    public static PersonAPI generateOfficer(FactionAPI faction, FullName name, int level, String personality) {
         if (isNull(faction)) return null;
 
         List<String> personalities = Arrays.asList(Personalities.RECKLESS, Personalities.AGGRESSIVE,
                 Personalities.STEADY, Personalities.CAUTIOUS, Personalities.TIMID);
 
-        PersonAPI generatedOfficer = OfficerManagerEvent.createOfficer(faction, personLevel);
+        PersonAPI generatedOfficer = OfficerManagerEvent.createOfficer(faction, level);
 
         if (isNotNull(name)) {
             generatedOfficer.setName(name);
@@ -55,12 +55,11 @@ public class OfficerGenerator {
             generatedOfficer.setPersonality(personality);
         }
 
-        // @todo check level here
-        if (personLevel <= 2) {
+        if (level <= 2) {
             generatedOfficer.setRankId(Ranks.SPACE_ENSIGN);
-        } else if (personLevel <= 4) {
+        } else if (level <= 6) {
             generatedOfficer.setRankId(Ranks.SPACE_CAPTAIN);
-        } else if (personLevel <= 12) {
+        } else if (level <= 8) {
             generatedOfficer.setRankId(Ranks.SPACE_COMMANDER);
         } else {
             generatedOfficer.setRankId(Ranks.SPACE_ADMIRAL);

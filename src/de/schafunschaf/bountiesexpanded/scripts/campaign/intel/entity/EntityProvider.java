@@ -36,7 +36,6 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.deserter
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.pirate.PirateBountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.skirmish.SkirmishBountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.warcriminal.WarCriminalEntity;
-import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.warcriminal.WarCriminalManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler;
 import lombok.extern.log4j.Log4j;
@@ -77,7 +76,7 @@ public class EntityProvider {
 
     public static SkirmishBountyEntity skirmishBountyEntity() {
         Difficulty difficulty = Difficulty.randomDifficulty();
-        int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getModifier(), Settings.skirmishMinTier);
+        int level = Math.max(LevelPicker.pickLevel(1) + difficulty.getModifier(), Settings.skirmishMinTier);
         float fractionToKill = (50 - new Random().nextInt(26)) / 100f;
         float fp = FleetPointCalculator.vanillaCalculation(level);
         int bountyCredits = CreditCalculator.vanillaCalculation(level, difficulty.getMultiplier());
@@ -123,21 +122,15 @@ public class EntityProvider {
         // @todo add more mission types. freighter fleet. luddic pilgrims.
         MissionHandler missionHandler = createNewMissionGoal(MissionType.ASSASSINATION);
         Difficulty difficulty = Difficulty.randomDifficulty();
-        int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getModifier(), Settings.assassinationMinTier);
+        int level = Math.max(LevelPicker.pickLevel(1) + difficulty.getModifier(), Settings.assassinationMinTier);
         float fp = FleetPointCalculator.vanillaCalculation(level);
         int bountyCredits = CreditCalculator.vanillaCalculation(level, difficulty.getMultiplier());
-        float rareFlagshipChance = Math.max(0f, (difficulty.getMultiplier()) * 0.5f);
 
         FactionAPI targetedFaction = ParticipatingFactionPicker.pickFaction(Blacklists.getSkirmishBountyBlacklist());
         if (isNull(targetedFaction)) {
             log.warn(NO_TARGETED_FACTION);
             return null;
         }
-
-        MarketAPI homeMarket = MarketUtils.getBestMarketForQuality(targetedFaction);
-        if (isNull(homeMarket))
-            homeMarket = MarketUtils.createFakeMarket(targetedFaction);
-        float fleetQuality = Math.max(homeMarket.getShipQualityFactor() - 0.1f + difficulty.getMultiplier(), 0.2f);
 
         PersonAPI fleetCommander = OfficerGenerator.generateOfficer(targetedFaction, level);
         if (isNull(fleetCommander)) {
@@ -157,21 +150,30 @@ public class EntityProvider {
             return null;
         }
 
+        MarketAPI homeMarket = MarketUtils.getBestMarketForQuality(targetedFaction);
+        if (isNull(homeMarket))
+            homeMarket = MarketUtils.createFakeMarket(targetedFaction);
+        float fleetQuality = Math.max(homeMarket.getShipQualityFactor() - 0.1f + difficulty.getMultiplier(), 0.2f);
+
         CampaignFleetAPI bountyFleet = FleetGenerator.createBountyFleetV2(fp, fleetQuality, homeMarket, spawnLocation.getPrimaryEntity(), fleetCommander);
         if (isNull(bountyFleet)) {
             log.warn(NO_FLEET);
             return null;
         }
 
-        if (Math.random() < rareFlagshipChance) { // 0/5/10/15 % chance to spawn (by difficulty level)
-            boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
-            if (rareFlagshipAdded) {
-                FleetMemberAPI flagship = bountyFleet.getFlagship();
-                bountyFleet.getMemoryWithoutUpdate().set(RareFlagshipManager.RARE_FLAGSHIP_KEY, flagship);
-                int flagshipFP = flagship.getFleetPointCost();
-                bountyCredits += (int) (CreditCalculator.getRewardByFP(flagshipFP, difficulty.getMultiplier()) * Misc.getSizeNum(flagship.getHullSpec().getHullSize()));
-                log.info(String.format("BountiesExpanded: Fleet got lucky! Added '%s' as rare flagship", flagship.getHullSpec().getHullName()));
-            }
+        boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet, Math.max(0f, (difficulty.getMultiplier()) * 0.5f));
+
+        Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
+
+        // level 0-4 = 0 smods; level 5-7 = 0-1 smods; level 8-10 = 0-2 smods;
+        int divisor = Math.max(0, 3 - ((level + 2) / 3));
+        int numSMods = Math.max(0, difficulty.getModifier() - divisor);
+        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, difficulty.getMultiplier(), true, random);
+
+        numSMods = rareFlagshipAdded ? 3 : 2;
+        FleetMemberAPI flagship = bountyFleet.getFlagship();
+        if (!isNull(flagship)) {
+            ShipUtils.upgradeShip(flagship, numSMods, random);
         }
 
         return new AssassinationBountyEntity(bountyCredits, targetedFaction, bountyFleet, fleetCommander, spawnLocation.getPrimaryEntity(), travelDestination.getPrimaryEntity(), missionHandler, difficulty, level, fleetQuality);
@@ -180,7 +182,7 @@ public class EntityProvider {
     public static WarCriminalEntity warCriminalEntity() {
         MissionHandler missionHandler = createNewMissionGoal();
         Difficulty difficulty = Difficulty.randomDifficulty();
-        int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getModifier(), Settings.warCriminalMinTier);
+        int level = Math.max(LevelPicker.pickLevel(1) + difficulty.getModifier(), Settings.warCriminalMinTier);
         float fp = FleetPointCalculator.vanillaCalculation(level);
         float payoutMult = switch (missionHandler.getMissionType()) {
             case RETRIEVAL -> 0f;
@@ -189,7 +191,6 @@ public class EntityProvider {
         };
 
         int bountyCredits = CreditCalculator.vanillaCalculation(level, difficulty.getMultiplier() + payoutMult);
-        float rareFlagshipChance = Math.max(0f, (difficulty.getMultiplier()) * 0.5f);
 
         FactionAPI offeringFaction = ParticipatingFactionPicker.pickFaction(Blacklists.getDefaultBlacklist());
         if (!MiscFactionUtils.canFactionOfferBounties(offeringFaction)) return null;
@@ -233,37 +234,20 @@ public class EntityProvider {
             return null;
         }
 
-        if (Math.random() < rareFlagshipChance) { // 0/5/10/15 % chance to spawn (by difficulty level)
-            boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
-            if (rareFlagshipAdded) {
-                FleetMemberAPI flagship = bountyFleet.getFlagship();
-                bountyFleet.getMemoryWithoutUpdate().set(RareFlagshipManager.RARE_FLAGSHIP_KEY, flagship);
-                int flagshipFP = flagship.getFleetPointCost();
-                bountyCredits += (int) (CreditCalculator.getRewardByFP(flagshipFP, difficulty.getMultiplier()) * Misc.getSizeNum(flagship.getHullSpec().getHullSize()));
-                log.info(String.format("BountiesExpanded: Fleet got lucky! Added '%s' as rare flagship", flagship.getHullSpec().getHullName()));
-            }
-        }
+        boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet, Math.max(0f, (difficulty.getMultiplier()) * 0.5f));
 
         Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
 
-        boolean isRareShip = bountyFleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY);
-        int numSMods = isRareShip ? 3 : 2;
+        // level 0-4 = 0 smods; level 5-7 = 0-1 smods; level 8-10 = 0-2 smods;
+        int divisor = Math.max(0, 3 - ((level + 2) / 3));
+        int numSMods = Math.max(0, difficulty.getModifier() - divisor);
+        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, difficulty.getMultiplier(), true, random);
 
+        numSMods = rareFlagshipAdded ? 3 : 2;
         FleetMemberAPI flagship = bountyFleet.getFlagship();
         if (!isNull(flagship)) {
-            if (missionHandler.getMissionType().equals(MissionHandler.MissionType.RETRIEVAL))
-                HullModUtils.addRandomSMods(flagship, numSMods, random);
-
-            if (flagship.getVariant().getSMods().isEmpty())
-                ShipUtils.upgradeShip(flagship, numSMods, random);
-
-            ShipUtils.addMinorUpgrades(flagship, random);
-
-            flagship.updateStats();
+            ShipUtils.upgradeShip(flagship, numSMods, random);
         }
-
-        numSMods = Math.max(0, difficulty.getModifier());
-        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, difficulty.getMultiplier(), true, random);
 
         return new WarCriminalEntity(bountyCredits, level, fleetQuality, difficulty, targetedFaction, offeringFaction, bountyFleet, fleetCommander, spawnLocation, dropOffLocation.getPrimaryEntity(), missionHandler);
     }
@@ -274,8 +258,6 @@ public class EntityProvider {
         int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getModifier(), Settings.pirateMinTier);
         float fp = FleetPointCalculator.vanillaCalculation(level);
         int bountyCredits = CreditCalculator.vanillaCalculation(level, difficulty.getMultiplier());
-        float rareFlagshipChance = Math.max(0f, (difficulty.getMultiplier()) * 0.5f);
-        float fleetQuality = difficulty.getMultiplier() + 0.1f;
 
         Set<String> defaultBlacklist = Blacklists.getDefaultBlacklist();
         defaultBlacklist.add(Factions.PIRATES);
@@ -315,21 +297,22 @@ public class EntityProvider {
         }
         fleetCommander.setRankId(Ranks.SPACE_CAPTAIN);
 
+        float fleetQuality = difficulty.getMultiplier() + 0.1f;
         CampaignFleetAPI bountyFleet = FleetGenerator.createBountyFleetV2(fp, fleetQuality, null, spawnLocation, fleetCommander);
         if (isNull(bountyFleet)) {
             log.warn(NO_FLEET);
             return null;
         }
 
-        if (Math.random() < rareFlagshipChance) { // 0/5/10/15 % chance to spawn (by difficulty level)
-            boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
-            if (rareFlagshipAdded) {
-                FleetMemberAPI flagship = bountyFleet.getFlagship();
-                bountyFleet.getMemoryWithoutUpdate().set(RareFlagshipManager.RARE_FLAGSHIP_KEY, flagship);
-                int flagshipFP = flagship.getFleetPointCost();
-                bountyCredits += (int) (CreditCalculator.getRewardByFP(flagshipFP, difficulty.getMultiplier()) * Misc.getSizeNum(flagship.getHullSpec().getHullSize()));
-                log.info(String.format("BountiesExpanded: Fleet got lucky! Added '%s' as rare flagship", flagship.getHullSpec().getHullName()));
-            }
+        boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet, Math.max(0f, (difficulty.getMultiplier()) * 0.5f));
+
+        Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
+
+        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, 0, difficulty.getMultiplier(), true, random);
+
+        FleetMemberAPI flagship = bountyFleet.getFlagship();
+        if (rareFlagshipAdded && !isNull(flagship)) {
+            ShipUtils.upgradeShip(flagship, 2, random);
         }
 
         return new PirateBountyEntity(bountyCredits, level, fleetQuality, difficulty, offeringFaction, bountyFleet, fleetCommander, spawnLocation, missionHandler);
@@ -341,7 +324,6 @@ public class EntityProvider {
         int level = Math.max(LevelPicker.pickLevel(0) + difficulty.getModifier(), Settings.deserterMinTier);
         float fp = FleetPointCalculator.vanillaCalculation(level);
         int bountyCredits = CreditCalculator.vanillaCalculation(level, difficulty.getMultiplier());
-        float rareFlagshipChance = Math.max(0f, (difficulty.getMultiplier()) * 0.5f);
 
         FactionAPI offeringFaction = ParticipatingFactionPicker.pickFaction(Blacklists.getDefaultBlacklist());
         if (!MiscFactionUtils.canFactionOfferBounties(offeringFaction))
@@ -352,11 +334,6 @@ public class EntityProvider {
             log.warn(NO_HIDEOUT);
             return null;
         }
-
-        MarketAPI homeMarket = MarketUtils.getBestMarketForQuality(offeringFaction);
-        if (isNull(homeMarket))
-            homeMarket = MarketUtils.createFakeMarket(offeringFaction);
-        float fleetQuality = Math.max(homeMarket.getShipQualityFactor() - 0.1f + difficulty.getMultiplier(), 0.2f);
 
         SectorEntityToken travelDestination;
         if (fp > 140) {
@@ -379,21 +356,30 @@ public class EntityProvider {
             return null;
         }
 
+        MarketAPI homeMarket = MarketUtils.getBestMarketForQuality(offeringFaction);
+        if (isNull(homeMarket))
+            homeMarket = MarketUtils.createFakeMarket(offeringFaction);
+        float fleetQuality = Math.max(homeMarket.getShipQualityFactor() - 0.1f + difficulty.getMultiplier(), 0.2f);
+
         CampaignFleetAPI bountyFleet = FleetGenerator.createBountyFleetV2(fp, fleetQuality, null, spawnLocation, fleetCommander, offeringFaction, true);
         if (isNull(bountyFleet)) {
             log.warn(NO_FLEET);
             return null;
         }
 
-        if (Math.random() < rareFlagshipChance) { // 0/5/10/15 % chance to spawn (by difficulty level)
-            boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
-            if (rareFlagshipAdded) {
-                FleetMemberAPI flagship = bountyFleet.getFlagship();
-                bountyFleet.getMemoryWithoutUpdate().set(RareFlagshipManager.RARE_FLAGSHIP_KEY, flagship);
-                int flagshipFP = flagship.getFleetPointCost();
-                bountyCredits += (int) (CreditCalculator.getRewardByFP(flagshipFP, difficulty.getMultiplier()) * Misc.getSizeNum(flagship.getHullSpec().getHullSize()));
-                log.info(String.format("BountiesExpanded: Fleet got lucky! Added '%s' as rare flagship", flagship.getHullSpec().getHullName()));
-            }
+        boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet, Math.max(0f, (difficulty.getMultiplier()) * 0.5f));
+
+        Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
+
+        // level 0-4 = 0 smods; level 5-7 = 0-1 smods; level 8-10 = 0-2 smods;
+        int divisor = Math.max(0, 3 - ((level + 2) / 3));
+        int numSMods = Math.max(0, difficulty.getModifier() - divisor);
+        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, difficulty.getMultiplier(), true, random);
+
+        numSMods = rareFlagshipAdded ? 3 : Math.min(numSMods + 1, 2);
+        FleetMemberAPI flagship = bountyFleet.getFlagship();
+        if (!isNull(flagship)) {
+            ShipUtils.upgradeShip(flagship, numSMods, random);
         }
 
         return new DeserterBountyEntity(bountyCredits, level, fleetQuality, difficulty, offeringFaction, bountyFleet, fleetCommander, spawnLocation, travelDestination, missionHandler);
@@ -402,10 +388,11 @@ public class EntityProvider {
     public static BountyHunterEntity bountyHunterEntity() {
         MissionHandler missionHandler = createNewMissionGoal(MissionType.DESTRUCTION);
         Difficulty difficulty = Difficulty.randomDifficulty();
-        int level = Math.max(LevelPicker.pickLevel(1) + difficulty.getModifier(), Settings.bountyHunterMinTier);
+        int level = LevelPicker.pickLevel(1);
+        if (level < Settings.bountyHunterMinTier) {
+            return null;
+        }
         float fp = FleetPointCalculator.vanillaCalculation(level);
-        float rareFlagshipChance = Math.max(0f, (difficulty.getMultiplier()) * 0.5f);
-        float fleetQuality = difficulty.getModifier() + 0.7f;
 
         // Check if player is within 16 light years of a market.
         float rangeToShowBounties = 16f;
@@ -471,6 +458,7 @@ public class EntityProvider {
             return null;
         }
 
+        float fleetQuality = difficulty.getModifier() + 0.7f;
         CampaignFleetAPI bountyFleet = FleetGenerator.createBountyFleetV2(fp, fleetQuality, null, spawnLocation, fleetCommander, fleetCommander.getFaction(), FleetTypes.MERC_BOUNTY_HUNTER);
         if (isNull(bountyFleet)) {
             log.warn(NO_FLEET);
@@ -483,13 +471,19 @@ public class EntityProvider {
             bountyFleet.setName("Bounty Hunter");
         }
 
-        if (Math.random() < rareFlagshipChance) { // 0/5/10/15 % chance to spawn (by difficulty level)
-            boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet);
-            if (rareFlagshipAdded) {
-                FleetMemberAPI flagship = bountyFleet.getFlagship();
-                bountyFleet.getMemoryWithoutUpdate().set(RareFlagshipManager.RARE_FLAGSHIP_KEY, flagship);
-                log.info(String.format("BountiesExpanded: Fleet got lucky! Added '%s' as rare flagship", flagship.getHullSpec().getHullName()));
-            }
+        boolean rareFlagshipAdded = RareFlagshipManager.replaceFlagship(bountyFleet, Math.max(0f, (difficulty.getMultiplier()) * 0.5f));
+
+        Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
+
+        // level 0-4 = 0 smods; level 5-7 = 0-1 smods; level 8-10 = 0-2 smods;
+        int divisor = Math.max(0, 3 - ((level + 2) / 3));
+        int numSMods = Math.max(0, difficulty.getModifier() - divisor);
+        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, difficulty.getMultiplier(), true, random);
+
+        numSMods = rareFlagshipAdded ? 3 : Math.min(numSMods + 1, 2);
+        FleetMemberAPI flagship = bountyFleet.getFlagship();
+        if (!isNull(flagship)) {
+            ShipUtils.upgradeShip(flagship, numSMods, random);
         }
 
         log.info("BountiesExpanded: got to end");

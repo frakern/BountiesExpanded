@@ -13,6 +13,7 @@ public class LevelPicker {
     }
 
     public static int pickLevel(int variation) {
+        // @TODO add higher levels than 10.
         float fleetPoints = Global.getSector().getPlayerFleet().getFleetPoints();
         int level = (int) Math.max(0, Math.min(10, Math.floor(fleetPoints / 24)));
         float timeFactor = (PirateBaseManager.getInstance().getDaysSinceStart() - 180f) / (365f * 2f);

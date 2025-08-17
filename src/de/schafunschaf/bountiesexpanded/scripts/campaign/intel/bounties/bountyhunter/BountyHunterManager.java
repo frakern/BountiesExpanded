@@ -89,8 +89,6 @@ public class BountyHunterManager extends BaseEventManager {
         log.info("Enemy-FP at creation: " + bountyHunterEntity.getFleet().getFleetPoints());
         log.info("Difficulty: " + bountyHunterEntity.getDifficulty().getShortDescription());
 
-        upgradeShips(bountyFleet);
-
         BountyHunterIntel intel = new BountyHunterIntel(bountyHunterEntity, bountyHunterEntity.getFleet(), bountyHunterEntity.getFleet().getCommander(), bountyHunterEntity.getSpawnLocation(), null);
         intel.updateLocationToken();
 
@@ -111,7 +109,6 @@ public class BountyHunterManager extends BaseEventManager {
         // Always give flagship smods.
         if (flagship.getVariant().getSMods().isEmpty()) {
             ShipUtils.upgradeShip(flagship, numSMods + 1, random);
-            ShipUtils.addMinorUpgrades(flagship, random);
         }
 
         flagship.updateStats();

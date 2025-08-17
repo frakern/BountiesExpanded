@@ -43,6 +43,7 @@ public class DescriptionUtils {
     }
 
     public static void generateShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, int maxShipsToDisplay, boolean showThreatDesc, boolean patrial, boolean showShipsRemaining) {
+        // @TODO Revert changes here? Adjust debug output
         Random random = new Random(fleet.getCommander().getNameString().hashCode() * 170000L);
 
         List<FleetMemberAPI> shipList = new ArrayList<FleetMemberAPI>();
@@ -162,11 +163,10 @@ public class DescriptionUtils {
         String levelDesc;
         String skillDesc;
 
-        // @todo check level here.
         int personLevel = person.getStats().getLevel();
-        if (personLevel <= 4) levelDesc = "an unremarkable officer";
-        else if (personLevel <= 7) levelDesc = "a capable officer";
-        else if (personLevel <= 11) levelDesc = "a highly capable officer";
+        if (personLevel <= 1) levelDesc = "an unremarkable officer";
+        else if (personLevel <= 4) levelDesc = "a capable officer";
+        else if (personLevel <= 7) levelDesc = "a highly capable officer";
         else levelDesc = "an exceptionally capable officer";
 
         boolean hasSIC = Global.getSettings().getModManager().isModEnabled("second_in_command");

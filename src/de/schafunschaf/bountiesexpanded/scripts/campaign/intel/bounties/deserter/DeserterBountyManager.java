@@ -129,27 +129,6 @@ public class DeserterBountyManager extends BaseEventManager {
         log.info(String.format("Enemy-FP at  creation: %d", bountyEntity.getFleet().getFleetPoints()));
         log.info(String.format("Difficulty: %s", difficulty.getShortDescription()));
 
-        upgradeShips(fleet);
-
         return bountyIntel;
-    }
-
-    public void upgradeShips(CampaignFleetAPI bountyFleet) {
-        if (isNull(bountyFleet))
-            return;
-
-        Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
-        DeserterBountyEntity deserterBountyEntity = (DeserterBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(DeserterBountyManager.DESERTER_BOUNTY_FLEET_KEY);
-        int numSMods = Math.max(0, deserterBountyEntity.getDifficulty().getModifier());
-        FleetMemberAPI flagship = bountyFleet.getFlagship();
-        if (isNull(flagship))
-            return;
-
-        if (flagship.getVariant().getSMods().isEmpty()) {
-            ShipUtils.upgradeShip(flagship, numSMods + 1, random);
-            ShipUtils.addMinorUpgrades(flagship, random);
-        }
-
-        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, deserterBountyEntity.getDifficulty().getMultiplier(), true, random);
     }
 }

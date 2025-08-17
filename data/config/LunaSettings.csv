@@ -5,6 +5,7 @@ chanceEasy,Chance (Easy),Double,1.0,,Chance that easy difficulty bounties will b
 chanceMedium,Chance (Medium),Double,2.0,,Chance that medium difficulty bounties will be picked.,0,10.0,
 chanceChallenging,Chance (Challenging),Double,2.0,,Chance that challenging difficulty bounties will be picked.,0,10.0,
 chanceHard,Chance (Hard),Double,1.0,,Chance that hard difficulty bounties will be picked.,0,10.0,
+smods,Add S-Mods,Boolean,true,,Add S-Mods to bounty fleets. Weighted so that flagships and larger fleets get more S-mods.,,,
 
 skirmish,Skirmish-Bounty-Settings,Header,Skirmish-Bounty-Settings,,,,,Skirmish
 skirmishActive,Enable Skirmish Bounties,Boolean,true,,,,,Skirmish

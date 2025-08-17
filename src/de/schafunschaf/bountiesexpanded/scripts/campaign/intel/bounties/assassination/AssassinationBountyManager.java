@@ -132,27 +132,6 @@ public class AssassinationBountyManager extends BaseEventManager {
         log.info("Enemy-FP at creation: " + assassinationBountyEntity.getFleet().getFleetPoints());
         log.info("Difficulty: " + assassinationBountyEntity.getDifficulty().getShortDescription());
 
-        upgradeShips(bountyFleet);
-
         return new AssassinationBountyIntel(assassinationBountyEntity, assassinationBountyEntity.getFleet(), assassinationBountyEntity.getTargetedPerson(), assassinationBountyEntity.getSpawnLocation(), assassinationBountyEntity.getTravelDestination());
-    }
-
-    public void upgradeShips(CampaignFleetAPI bountyFleet) {
-        if (isNull(bountyFleet))
-            return;
-
-        Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
-        AssassinationBountyEntity assassinationBountyEntity = (AssassinationBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(AssassinationBountyManager.ASSASSINATION_BOUNTY_FLEET_KEY);
-        int numSMods = Math.max(0, assassinationBountyEntity.getDifficulty().getModifier());
-        FleetMemberAPI flagship = bountyFleet.getFlagship();
-        if (isNull(flagship))
-            return;
-
-        if (flagship.getVariant().getSMods().isEmpty()) {
-            ShipUtils.upgradeShip(flagship, numSMods + 1, random);
-            ShipUtils.addMinorUpgrades(flagship, random);
-        }
-
-        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, assassinationBountyEntity.getDifficulty().getMultiplier(), true, random);
     }
 }

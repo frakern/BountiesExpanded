@@ -138,19 +138,7 @@ public class SkirmishBountyManager extends BaseEventManager {
 
         registerBounty(skirmishBountyEntity);
 
-        upgradeShips(fleet);
-
         return skirmishBountyIntel;
-    }
-
-    public void upgradeShips(CampaignFleetAPI bountyFleet) {
-        if (isNull(bountyFleet))
-            return;
-
-        Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
-        SkirmishBountyEntity skirmishBountyEntity = (SkirmishBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(SkirmishBountyManager.SKIRMISH_BOUNTY_FLEET_KEY);
-        int numSMods = Math.max(0, skirmishBountyEntity.getDifficulty().getModifier());
-        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, skirmishBountyEntity.getDifficulty().getMultiplier(), false, random);
     }
 
     public void registerBounty(SkirmishBountyEntity bountyEntity) {
