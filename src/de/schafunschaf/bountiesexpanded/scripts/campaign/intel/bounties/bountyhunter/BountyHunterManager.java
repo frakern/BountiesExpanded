@@ -103,7 +103,7 @@ public class BountyHunterManager extends BaseEventManager {
 
         Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
         BountyHunterEntity bountyHunterEntity = (BountyHunterEntity) bountyFleet.getMemoryWithoutUpdate().get(BountyHunterManager.BOUNTY_HUNTER_FLEET_KEY);
-        int numSMods = Math.min(0, bountyHunterEntity.getDifficulty().getModifier());
+        int numSMods = Math.max(0, bountyHunterEntity.getDifficulty().getModifier());
         FleetMemberAPI flagship = bountyFleet.getFlagship();
         if (isNull(flagship))
             return;

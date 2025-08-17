@@ -149,7 +149,7 @@ public class SkirmishBountyManager extends BaseEventManager {
 
         Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
         SkirmishBountyEntity skirmishBountyEntity = (SkirmishBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(SkirmishBountyManager.SKIRMISH_BOUNTY_FLEET_KEY);
-        int numSMods = Math.min(0, skirmishBountyEntity.getDifficulty().getModifier());
+        int numSMods = Math.max(0, skirmishBountyEntity.getDifficulty().getModifier());
         FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, skirmishBountyEntity.getDifficulty().getMultiplier(), false, random);
     }
 

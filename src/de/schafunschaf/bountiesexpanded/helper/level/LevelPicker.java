@@ -14,14 +14,13 @@ public class LevelPicker {
 
     public static int pickLevel(int variation) {
         float fleetPoints = Global.getSector().getPlayerFleet().getFleetPoints();
-        fleetPoints *= 1f + (float) Math.random() * 0.15f;
-        int level = (int) Math.max(1, Math.min(10, fleetPoints / 20));
+        int level = (int) Math.max(0, Math.min(10, Math.floor(fleetPoints / 24)));
         float timeFactor = (PirateBaseManager.getInstance().getDaysSinceStart() - 180f) / (365f * 2f);
         timeFactor = Math.max(timeFactor, 0);
         timeFactor = Math.min(timeFactor, 1);
         level += Math.round(2 * timeFactor);
         level = Math.min(level, 10);
         level = (level - variation) + new Random().nextInt(variation * 2 + 1);
-        return Math.max(level, 2);
+        return Math.max(level, 0);
     }
 }

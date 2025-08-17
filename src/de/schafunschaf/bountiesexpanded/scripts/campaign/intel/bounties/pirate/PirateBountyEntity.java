@@ -12,6 +12,7 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.market.MarketUtils;
 import de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils;
 import de.schafunschaf.bountiesexpanded.helper.ui.TooltipAPIUtils;
@@ -165,7 +166,16 @@ public class PirateBountyEntity implements BountyEntity {
 
             info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
             info.addPara("The bounty posting also contains partial intel on some of the ships under " + targetedPerson.getHisOrHer() + " command.", opad);
-            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, maxShipsOnIntel, true, 1, showShipsRemaining);
+            if (!Settings.isDebugActive()) {
+                DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, maxShipsOnIntel, true, true, showShipsRemaining);
+            }
+            else {
+                DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, false);
+                info.addPara("FLEET QUALITY: " + fleetQuality, 0f);
+                info.addPara("TIER: " + getLevel(), 0f);
+                info.addPara("DIFFICULTY: %s",
+                        0f, difficulty.getColor(), difficulty.getShortDescription());
+            }
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:

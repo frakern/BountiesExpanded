@@ -13,6 +13,7 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.market.MarketUtils;
 import de.schafunschaf.bountiesexpanded.helper.mission.MissionTextUtils;
 import de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils;
@@ -198,6 +199,12 @@ public class WarCriminalEntity implements BountyEntity {
             info.addPara("Since this is an official military operation, %s has transmitted a complete intel report.",
                     opad, offeringFaction.getBaseUIColor(), offeringFaction.getDisplayNameWithArticle());
             DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, true);
+            if (Settings.isDebugActive()) {
+                info.addPara("FLEET QUALITY: " + fleetQuality, 0f);
+                info.addPara("TIER: " + getLevel(), 0f);
+                info.addPara("DIFFICULTY: %s",
+                        0f, difficulty.getColor(), difficulty.getShortDescription());
+            }
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:

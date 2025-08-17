@@ -138,34 +138,6 @@ public class WarCriminalManager extends BaseEventManager {
         log.info("Enemy-FP at creation: " + warCriminalEntity.getFleet().getFleetPoints());
         log.info("Difficulty: " + difficulty.getShortDescription());
 
-        upgradeShips(fleet);
-
         return warCriminalIntel;
-    }
-
-    public void upgradeShips(CampaignFleetAPI bountyFleet) {
-        if (isNull(bountyFleet))
-            return;
-
-        Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
-        WarCriminalEntity warCriminalEntity = (WarCriminalEntity) bountyFleet.getMemoryWithoutUpdate().get(WarCriminalManager.WAR_CRIMINAL_BOUNTY_FLEET_KEY);
-        boolean isRareShip = bountyFleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY);
-        int numSMods = isRareShip ? 3 : 2;
-        FleetMemberAPI flagship = bountyFleet.getFlagship();
-        if (isNull(flagship))
-            return;
-
-        if (warCriminalEntity.getMissionHandler().getMissionType().equals(MissionHandler.MissionType.RETRIEVAL))
-            HullModUtils.addRandomSMods(flagship, numSMods, random);
-
-        if (flagship.getVariant().getSMods().isEmpty())
-            ShipUtils.upgradeShip(flagship, numSMods, random);
-
-        ShipUtils.addMinorUpgrades(flagship, random);
-
-        flagship.updateStats();
-
-        numSMods = Math.min(0, warCriminalEntity.getDifficulty().getModifier());
-        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, numSMods, warCriminalEntity.getDifficulty().getMultiplier(), true, random);
     }
 }

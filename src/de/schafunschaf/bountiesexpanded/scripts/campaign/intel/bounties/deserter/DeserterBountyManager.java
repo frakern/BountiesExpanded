@@ -140,7 +140,7 @@ public class DeserterBountyManager extends BaseEventManager {
 
         Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
         DeserterBountyEntity deserterBountyEntity = (DeserterBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(DeserterBountyManager.DESERTER_BOUNTY_FLEET_KEY);
-        int numSMods = Math.min(0, deserterBountyEntity.getDifficulty().getModifier());
+        int numSMods = Math.max(0, deserterBountyEntity.getDifficulty().getModifier());
         FleetMemberAPI flagship = bountyFleet.getFlagship();
         if (isNull(flagship))
             return;

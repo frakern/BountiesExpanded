@@ -267,6 +267,10 @@ public class AssassinationBountyEntity implements BountyEntity {
 
             if (Settings.isDebugActive()) {
                 DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, false);
+                info.addPara("FLEET QUALITY: " + fleetQuality, 0f);
+                info.addPara("TIER: " + getLevel(), 0f);
+                info.addPara("DIFFICULTY: %s",
+                        0f, difficulty.getColor(), difficulty.getShortDescription());
                 info.addPara("ORIGIN: " + spawnLocation.getName(), 0f);
                 info.addPara("DESTINATION: " + travelDestination.getName(), 0f);
             }

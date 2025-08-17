@@ -9,6 +9,7 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.ids.HullMods;
+import com.fs.starfarer.api.loading.VariantSource;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.interactions.encounters.GuaranteedShipRecoveryFleetEncounterContext;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.interactions.encounters.NoShipRecoveryFleetEncounterContext;
 import org.jetbrains.annotations.NotNull;
@@ -117,7 +118,8 @@ public class ShipUtils {
         if (isNull(random))
             random = new Random();
 
-        ShipVariantAPI shipVariant = fleetMember.getVariant();
+        ShipVariantAPI shipVariant = fleetMember.getVariant().clone();
+        shipVariant.setSource(VariantSource.REFIT);
         for (int i = 0; i < numSMods; i++)
             HullModUtils.upgradeHullMod(shipVariant, random);
 
@@ -127,7 +129,8 @@ public class ShipUtils {
     public static void addMinorUpgrades(FleetMemberAPI fleetMember, Random random) {
         if (isNull(random))
             random = new Random();
-        ShipVariantAPI shipVariant = fleetMember.getVariant();
+        ShipVariantAPI shipVariant = fleetMember.getVariant().clone();
+        shipVariant.setSource(VariantSource.REFIT);
 
         boolean hasSafetyOverrides = false;
 

@@ -3,11 +3,13 @@ package de.schafunschaf.bountiesexpanded.helper.fleet;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.ShipRoles;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -59,27 +61,20 @@ public class FleetGenerator {
                                                        FactionAPI faction,
                                                        boolean priorityMode,
                                                        String fleetType) {
-        Random random = new Random();
         String factionID = faction.getId();
         String fleetName = fleetCaptain.getFaction().getRank(fleetCaptain.getRankId()) + " " + fleetCaptain.getName().getLast() + "'s Fleet";
-        float initialFP = fleetPoints * 0.7f;
-        float remainingFP = fleetPoints - initialFP;
 
-        var combat = fleetPoints * 0.8f;
-        var freighter = fleetPoints * 0.2f;
-        var tanker = fleetPoints * 0.2f;
-        var utility = fleetPoints * 0.1f;
-
-        var total = combat + freighter + tanker + utility;
+        float maxFp = faction.getApproximateMaxFPPerFleet(FactionAPI.ShipPickMode.PRIORITY_THEN_ALL) * 1.1f;
+        if (fleetPoints > maxFp) fleetPoints = maxFp;
 
         FleetParamsV3 fleetParams = new FleetParamsV3(fleetHomeMarket,
                 hideout.getLocationInHyperspace(),
                 factionID, // factionID
                 quality, // quality
                 fleetType, // fleetType
-                initialFP, // combatPts
-                0f, // freighterPts
-                0f, // tankerPts
+                fleetPoints, // combatPts
+                Math.round(fleetPoints * 0.1f), // freighterPts
+                Math.round(fleetPoints * 0.1f), // tankerPts
                 0f, // transportPts
                 0f, // linerPts
                 0f, // utilityPts
@@ -97,26 +92,28 @@ public class FleetGenerator {
         if (fleetPoints < 400)
             fleetParams.maxNumShips = 40;
 
-        FactionDoctrineAPI doctrine = faction.getDoctrine();
+        CampaignFleetAPI fleet = FleetFactoryV3.createFleet(fleetParams);
 
-        CampaignFleetAPI fleet = FleetFactoryV3.createEmptyFleet(factionID, fleetType, fleetHomeMarket);
-        CampaignFleetAPI mainForces = FleetFactoryV3.createFleet(fleetParams);
-        FleetDataAPI fleetData = fleet.getFleetData();
-        for (FleetMemberAPI fleetMember : mainForces.getFleetData().getMembersListCopy())
-            fleetData.addFleetMember(fleetMember);
+//        CampaignFleetAPI fleet = FleetFactoryV3.createEmptyFleet(factionID, fleetType, fleetHomeMarket);
+//        CampaignFleetAPI mainForces = FleetFactoryV3.createFleet(fleetParams);
+//        FleetDataAPI fleetData = fleet.getFleetData();
+//        for (FleetMemberAPI fleetMember : mainForces.getFleetData().getMembersListCopy())
+//            fleetData.addFleetMember(fleetMember);
 
         // Support Forces to avoid Capital bloat
-        FleetFactoryV3.addFleetPoints(fleet, random, remainingFP / 7 * doctrine.getWarships(), fleetParams, FleetFactoryV3.SizeFilterMode.NONE, ShipRoles.COMBAT_MEDIUM, ShipRoles.COMBAT_MEDIUM, ShipRoles.COMBAT_LARGE);
-        FleetFactoryV3.addFleetPoints(fleet, random, remainingFP / 7 * doctrine.getCarriers(), fleetParams, FleetFactoryV3.SizeFilterMode.NONE, ShipRoles.CARRIER_SMALL, ShipRoles.CARRIER_MEDIUM, ShipRoles.CARRIER_LARGE);
-        FleetFactoryV3.addFleetPoints(fleet, random, remainingFP / 7 * doctrine.getPhaseShips(), fleetParams, FleetFactoryV3.SizeFilterMode.NONE, ShipRoles.PHASE_MEDIUM, ShipRoles.PHASE_LARGE, ShipRoles.PHASE_CAPITAL);
+//        Random random = new Random();
+//        FactionDoctrineAPI doctrine = faction.getDoctrine();
+//        FleetFactoryV3.addFleetPoints(fleet, random, remainingFP / 7 * doctrine.getWarships(), fleetParams, FleetFactoryV3.SizeFilterMode.NONE, ShipRoles.COMBAT_MEDIUM, ShipRoles.COMBAT_MEDIUM, ShipRoles.COMBAT_LARGE);
+//        FleetFactoryV3.addFleetPoints(fleet, random, remainingFP / 7 * doctrine.getCarriers(), fleetParams, FleetFactoryV3.SizeFilterMode.NONE, ShipRoles.CARRIER_SMALL, ShipRoles.CARRIER_MEDIUM, ShipRoles.CARRIER_LARGE);
+//        FleetFactoryV3.addFleetPoints(fleet, random, remainingFP / 7 * doctrine.getPhaseShips(), fleetParams, FleetFactoryV3.SizeFilterMode.NONE, ShipRoles.PHASE_MEDIUM, ShipRoles.PHASE_LARGE, ShipRoles.PHASE_CAPITAL);
 
-        if (isNull(fleet.getFlagship())) {
-            FleetMemberAPI flagship = FleetUtils.getShipWithHighestFP(fleetData.getMembersListCopy());
-            if (isNull(flagship))
-                return null;
-
-            flagship.setFlagship(true);
-        }
+//        if (isNull(fleet.getFlagship())) {
+//            FleetMemberAPI flagship = FleetUtils.getShipWithHighestFP(fleetData.getMembersListCopy());
+//            if (isNull(flagship))
+//                return null;
+//
+//            flagship.setFlagship(true);
+//        }
 
         fleet.getFlagship().setCaptain(fleetCaptain);
         fleet.setCommander(fleetCaptain);
@@ -124,9 +121,9 @@ public class FleetGenerator {
         fleet.setName(fleetName);
         FleetFactoryV3.addCommanderSkills(fleetCaptain, fleet, null);
 
-        HullModUtils.addDMods(fleet, quality);
+        //HullModUtils.addDMods(fleet, quality);
 
-        fleetData.sort();
+        //fleetData.sort();
 
         return fleet;
     }
@@ -137,10 +134,6 @@ public class FleetGenerator {
         location.addEntity(fleet);
         fleet.setLocation(hideout.getLocation().x, hideout.getLocation().y);
         fleet.getAI().addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, hideout, 1000000f, null);
-    }
-
-    public static List<FleetMemberAPI> createCompleteCopyForIntel(CampaignFleetAPI fleet) {
-        return createCopyForIntel(fleet, fleet.getNumShips(), null);
     }
 
     public static List<FleetMemberAPI> createCopyForIntel(CampaignFleetAPI fleet, int numOfShips, Random random) {

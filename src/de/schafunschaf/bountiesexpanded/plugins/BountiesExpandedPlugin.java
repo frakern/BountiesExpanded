@@ -53,8 +53,6 @@ public class BountiesExpandedPlugin extends BaseModPlugin {
 
         ModInitHelper.initManagerAndPlugins();
 
-        reloadHullMods();
-
         if (Settings.debug) printDebugInfo();
 
         if (newGame)
@@ -68,98 +66,6 @@ public class BountiesExpandedPlugin extends BaseModPlugin {
                 return;
 
             pirateBountyManager.spawnInitialBounties();
-        }
-    }
-
-    private void reloadHullMods() {
-        reloadSkirmishMods();
-        reloadAssassinationMods();
-        reloadWarCriminalMods();
-        reloadPirateBountyMods();
-        reloadDeserterBountyMods();
-        reloadBountyHunterMods();
-    }
-
-    private void reloadSkirmishMods() {
-        SkirmishBountyManager bountyManager = SkirmishBountyManager.getInstance();
-        if (isNull(bountyManager))
-            return;
-
-        for (EveryFrameScript everyFrameScript : bountyManager.getActive()) {
-            SkirmishBountyIntel bountyIntel = (SkirmishBountyIntel) everyFrameScript;
-            CampaignFleetAPI fleet = bountyIntel.getFleet();
-            float fleetQuality = ((BountyEntity) fleet.getMemoryWithoutUpdate().get(SkirmishBountyManager.SKIRMISH_BOUNTY_FLEET_KEY)).getFleetQuality();
-            HullModUtils.addDMods(fleet, fleetQuality);
-            bountyManager.upgradeShips(fleet);
-        }
-    }
-
-    private void reloadAssassinationMods() {
-        AssassinationBountyManager bountyManager = AssassinationBountyManager.getInstance();
-        if (isNull(bountyManager))
-            return;
-
-        for (EveryFrameScript everyFrameScript : bountyManager.getActive()) {
-            AssassinationBountyIntel bountyIntel = (AssassinationBountyIntel) everyFrameScript;
-            CampaignFleetAPI fleet = bountyIntel.getFleet();
-            float fleetQuality = ((BountyEntity) fleet.getMemoryWithoutUpdate().get(AssassinationBountyManager.ASSASSINATION_BOUNTY_FLEET_KEY)).getFleetQuality();
-            HullModUtils.addDMods(fleet, fleetQuality);
-            bountyManager.upgradeShips(fleet);
-        }
-    }
-
-    private void reloadWarCriminalMods() {
-        WarCriminalManager bountyManager = WarCriminalManager.getInstance();
-        if (isNull(bountyManager))
-            return;
-
-        for (EveryFrameScript everyFrameScript : bountyManager.getActive()) {
-            WarCriminalIntel bountyIntel = (WarCriminalIntel) everyFrameScript;
-            CampaignFleetAPI fleet = bountyIntel.getFleet();
-            float fleetQuality = ((BountyEntity) fleet.getMemoryWithoutUpdate().get(WarCriminalManager.WAR_CRIMINAL_BOUNTY_FLEET_KEY)).getFleetQuality();
-            HullModUtils.addDMods(fleet, fleetQuality);
-            bountyManager.upgradeShips(fleet);
-        }
-    }
-
-    private void reloadPirateBountyMods() {
-        PirateBountyManager bountyManager = PirateBountyManager.getInstance();
-        if (isNull(bountyManager))
-            return;
-
-        for (EveryFrameScript everyFrameScript : bountyManager.getActive()) {
-            PirateBountyIntel bountyIntel = (PirateBountyIntel) everyFrameScript;
-            CampaignFleetAPI fleet = bountyIntel.getFleet();
-            float fleetQuality = ((BountyEntity) fleet.getMemoryWithoutUpdate().get(PirateBountyManager.PIRATE_BOUNTY_FLEET_KEY)).getFleetQuality();
-            HullModUtils.addDMods(fleet, fleetQuality);
-        }
-    }
-
-    private void reloadDeserterBountyMods() {
-        DeserterBountyManager bountyManager = DeserterBountyManager.getInstance();
-        if (isNull(bountyManager))
-            return;
-
-        for (EveryFrameScript everyFrameScript : bountyManager.getActive()) {
-            DeserterBountyIntel bountyIntel = (DeserterBountyIntel) everyFrameScript;
-            CampaignFleetAPI fleet = bountyIntel.getFleet();
-            float fleetQuality = ((BountyEntity) fleet.getMemoryWithoutUpdate().get(DeserterBountyManager.DESERTER_BOUNTY_FLEET_KEY)).getFleetQuality();
-            HullModUtils.addDMods(fleet, fleetQuality);
-            bountyManager.upgradeShips(fleet);
-        }
-    }
-
-    private void reloadBountyHunterMods() {
-        BountyHunterManager bountyManager = BountyHunterManager.getInstance();
-        if (isNull(bountyManager))
-            return;
-
-        for (EveryFrameScript everyFrameScript : bountyManager.getActive()) {
-            BountyHunterIntel bountyIntel = (BountyHunterIntel) everyFrameScript;
-            CampaignFleetAPI fleet = bountyIntel.getFleet();
-            float fleetQuality = ((BountyEntity) fleet.getMemoryWithoutUpdate().get(BountyHunterManager.BOUNTY_HUNTER_FLEET_KEY)).getFleetQuality();
-            HullModUtils.addDMods(fleet, fleetQuality);
-            bountyManager.upgradeShips(fleet);
         }
     }
 

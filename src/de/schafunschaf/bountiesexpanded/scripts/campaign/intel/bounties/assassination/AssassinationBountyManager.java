@@ -143,7 +143,7 @@ public class AssassinationBountyManager extends BaseEventManager {
 
         Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
         AssassinationBountyEntity assassinationBountyEntity = (AssassinationBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(AssassinationBountyManager.ASSASSINATION_BOUNTY_FLEET_KEY);
-        int numSMods = Math.min(0, assassinationBountyEntity.getDifficulty().getModifier());
+        int numSMods = Math.max(0, assassinationBountyEntity.getDifficulty().getModifier());
         FleetMemberAPI flagship = bountyFleet.getFlagship();
         if (isNull(flagship))
             return;

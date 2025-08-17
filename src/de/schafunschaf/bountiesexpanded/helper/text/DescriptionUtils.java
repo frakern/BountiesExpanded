@@ -3,11 +3,14 @@ package de.schafunschaf.bountiesexpanded.helper.text;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.ai.FleetAssignmentDataAPI;
+import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Skills;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BreadcrumbSpecial;
 import com.fs.starfarer.api.ui.Alignment;
@@ -26,6 +29,7 @@ import second_in_command.SCUtils;
 import second_in_command.specs.SCOfficer;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -35,31 +39,57 @@ public class DescriptionUtils {
     public static final float DEFAULT_IMAGE_HEIGHT = 100f;
 
     public static void generateFullShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, boolean showThreatDesc) {
-        generateShipListForIntel(info, width, padding, fleet, fleet.getNumShips(), showThreatDesc, 3, false);
+        generateShipListForIntel(info, width, padding, fleet, fleet.getNumShips(), showThreatDesc, false, false);
     }
 
-    public static void generateShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, int maxShipsToDisplay, boolean showThreatDesc, int maxRows, boolean showShipsRemaining) {
+    public static void generateShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, int maxShipsToDisplay, boolean showThreatDesc, boolean patrial, boolean showShipsRemaining) {
         Random random = new Random(fleet.getCommander().getNameString().hashCode() * 170000L);
-        List<FleetMemberAPI> fleetMemberList;
+
+        List<FleetMemberAPI> shipList = new ArrayList<FleetMemberAPI>();
+
+        boolean deflate = false;
+        if (!fleet.isInflated()) {
+            fleet.inflateIfNeeded();
+            deflate = true;
+        }
+
         if (Settings.isDebugActive()) {
-            fleetMemberList = FleetGenerator.createCompleteCopyForIntel(fleet);
-        } else
-            fleetMemberList = FleetGenerator.createCopyForIntel(fleet, maxShipsToDisplay, random);
+            patrial = false;
+            shipList = fleet.getMembersWithFightersCopy();
+        }
+        else {
+//				WeightedRandomPicker<FleetMemberAPI> picker = new WeightedRandomPicker<FleetMemberAPI>(random);
+//				picker.addAll(fleet.getFleetData().getMembersListCopy());
+//				int picks = (int) Math.round(picker.getItems().size() * 0.5f);
 
-        generateShipListForIntel(info, width, padding, fleetMemberList, maxShipsToDisplay, showThreatDesc, maxRows, showShipsRemaining, random);
-    }
+            List<FleetMemberAPI> members = fleet.getFleetData().getMembersListCopy();
 
-    public static void generateShipListForIntel(TooltipMakerAPI info, float width, float padding, List<FleetMemberAPI> shipList, int maxShipsToDisplay, boolean showThreatDesc, int maxRows, boolean showShipsRemaining, Random random) {
+            for (FleetMemberAPI member : members) {
+                if (shipList.size() >= maxShipsToDisplay) break;
+
+                if (member.isFighterWing()) continue;
+
+                float prob = (float) member.getFleetPointCost() / 20f;
+                prob += (float) maxShipsToDisplay / (float) members.size();
+                if (member.isFlagship()) prob = 1f;
+                //if (members.size() <= maxShipsToDisplay) prob = 1f;
+
+                if (random.nextFloat() > prob) continue;
+
+                FleetMemberAPI copy = Global.getFactory().createFleetMember(FleetMemberType.SHIP, member.getVariant());
+                if (member.isFlagship()) {
+                    copy.setCaptain(fleet.getCommander());
+                }
+                shipList.add(copy);
+            }
+        }
+
         if (isNullOrEmpty(shipList))
             return;
 
-        if (isNull(random))
-            random = new Random(shipList.get(0).getId().hashCode());
-
-        if (Settings.isDebugActive())
-            maxRows = 0;
-
-        CampaignFleetAPI fleet = shipList.get(0).getFleetData().getFleet();
+        int maxRows = 10;
+        if (patrial)
+            maxRows = 1;
 
         List<FleetMemberAPI> shipListDisplay;
         if (shipList.size() > maxShipsToDisplay) {
@@ -114,6 +144,10 @@ public class DescriptionUtils {
                 info.addPara(String.format("TARGET: %s", assign.getTarget().getName()), 0f);
             }
         }
+
+        if (deflate) {
+            fleet.deflate();
+        }
     }
 
 
@@ -128,6 +162,7 @@ public class DescriptionUtils {
         String levelDesc;
         String skillDesc;
 
+        // @todo check level here.
         int personLevel = person.getStats().getLevel();
         if (personLevel <= 4) levelDesc = "an unremarkable officer";
         else if (personLevel <= 7) levelDesc = "a capable officer";

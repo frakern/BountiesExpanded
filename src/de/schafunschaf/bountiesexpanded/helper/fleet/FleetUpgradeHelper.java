@@ -4,6 +4,7 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetDataAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.loading.VariantSource;
 import de.schafunschaf.bountiesexpanded.helper.ship.HullModUtils;
 import de.schafunschaf.bountiesexpanded.util.ComparisonTools;
 
@@ -24,11 +25,14 @@ public class FleetUpgradeHelper {
     }
 
     private static void upgradeShip(int numSMods, float probability, Random random, FleetMemberAPI fleetMember) {
-        ShipVariantAPI shipVariant = fleetMember.getVariant();
+        ShipVariantAPI shipVariant = fleetMember.getVariant().clone();
+        shipVariant.setSource(VariantSource.REFIT);
         for (int i = 0; i < numSMods; i++)
             if (random.nextFloat() <= probability)
                 shipVariant.addPermaMod(HullModUtils.getRandomFreeSMod(shipVariant, random), true);
 
         fleetMember.setVariant(shipVariant, true, true);
+
+        fleetMember.updateStats();
     }
 }

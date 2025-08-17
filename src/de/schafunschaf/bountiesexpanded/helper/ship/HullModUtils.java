@@ -9,6 +9,7 @@ import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflater;
 import com.fs.starfarer.api.impl.campaign.ids.HullMods;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
+import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.util.Misc;
 import de.schafunschaf.bountiesexpanded.util.ComparisonTools;
 
@@ -70,7 +71,8 @@ public class HullModUtils {
     public static void addRandomSMods(FleetMemberAPI fleetMember, int numSMods, Random random) {
         if (ComparisonTools.isNull(random))
             random = new Random();
-        ShipVariantAPI shipVariant = fleetMember.getVariant();
+        ShipVariantAPI shipVariant = fleetMember.getVariant().clone();
+        shipVariant.setSource(VariantSource.REFIT);
         int preUpgradeSModsAmount = shipVariant.getSMods().size();
 
         do

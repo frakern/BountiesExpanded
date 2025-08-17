@@ -55,6 +55,7 @@ public class OfficerGenerator {
             generatedOfficer.setPersonality(personality);
         }
 
+        // @todo check level here
         if (personLevel <= 2) {
             generatedOfficer.setRankId(Ranks.SPACE_ENSIGN);
         } else if (personLevel <= 4) {

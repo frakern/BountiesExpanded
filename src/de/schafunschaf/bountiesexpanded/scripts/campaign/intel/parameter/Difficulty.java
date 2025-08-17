@@ -13,13 +13,13 @@ public final class Difficulty {
             "easy", "an", 0f, -1, Color.GREEN
     );
     public static final Difficulty MEDIUM = new Difficulty(
-            "fair", "a", 0.1f, 0, Color.CYAN
+            "medium", "a", 0.1f, 0, Color.CYAN
     );
     public static final Difficulty CHALLENGING = new Difficulty(
             "challenging", "a", 0.2f, 1, Color.ORANGE
     );
     public static final Difficulty HARD = new Difficulty(
-            "difficult", "a", 0.3f, 2, Color.RED
+            "hard", "a", 0.3f, 2, Color.RED
     );
     public static final Difficulty BOSS = new Difficulty(
             "BOSS", "a", 0.4f, 3, Color.MAGENTA
