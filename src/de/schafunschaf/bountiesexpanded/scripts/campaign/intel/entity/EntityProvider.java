@@ -75,12 +75,6 @@ public class EntityProvider {
     }
 
     public static SkirmishBountyEntity skirmishBountyEntity() {
-        Difficulty difficulty = Difficulty.randomDifficulty();
-        int level = Math.max(LevelPicker.pickLevel(1) + difficulty.getModifier(), Settings.skirmishMinTier);
-        float fractionToKill = (50 - new Random().nextInt(26)) / 100f;
-        float fp = FleetPointCalculator.vanillaCalculation(level);
-        int bountyCredits = CreditCalculator.vanillaCalculation(level, difficulty.getMultiplier());
-
         FactionAPI offeringFaction = ParticipatingFactionPicker.pickFaction();
         if (!MiscFactionUtils.canFactionOfferBounties(offeringFaction)) return null;
 
@@ -90,32 +84,14 @@ public class EntityProvider {
             return null;
         }
 
-        PersonAPI fleetCommander = OfficerGenerator.generateOfficer(targetedFaction, level);
-        if (isNull(fleetCommander)) {
-            log.warn(String.format(NO_COMMANDER, targetedFaction.getDisplayName()));
-            return null;
-        }
-
-        fleetCommander.setPersonality(Personalities.AGGRESSIVE);
-
+        // @todo check if there's a nex raid happening and use that system.
         SectorEntityToken hideout = CoreWorldPicker.pickFactionHideout(targetedFaction);
         if (isNull(hideout)) {
             log.warn(NO_HIDEOUT);
             return null;
         }
 
-        MarketAPI homeMarket = MarketUtils.getBestMarketForQuality(targetedFaction);
-        if (isNull(homeMarket))
-            homeMarket = MarketUtils.createFakeMarket(targetedFaction);
-        float fleetQuality = Math.max(homeMarket.getShipQualityFactor() - 0.1f + difficulty.getMultiplier(), 0.2f);
-
-        CampaignFleetAPI bountyFleet = FleetGenerator.createBountyFleetV2(fp, fleetQuality, homeMarket, hideout, fleetCommander);
-        if (isNull(bountyFleet)) {
-            log.warn(NO_FLEET);
-            return null;
-        }
-
-        return new SkirmishBountyEntity(bountyCredits, offeringFaction, targetedFaction, bountyFleet, fleetCommander, hideout, fractionToKill, difficulty, level, fleetQuality);
+        return new SkirmishBountyEntity(offeringFaction, targetedFaction, hideout.getMarket());
     }
 
     public static AssassinationBountyEntity assassinationBountyEntity() {
