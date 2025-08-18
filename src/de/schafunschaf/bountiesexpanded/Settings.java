@@ -21,7 +21,6 @@ public class Settings implements LunaSettingsListener {
     public static int skirmishMinDuration = LunaSettings.getInt(modId, "skirmishMinDuration");
     public static int skirmishMaxDuration = LunaSettings.getInt(modId, "skirmishMaxDuration");
     public static int skirmishBaseShipBounty = LunaSettings.getInt(modId, "skirmishBaseShipBounty");
-    public static int skirmishMinTier = LunaSettings.getInt(modId, "skirmishMinTier");
 
     public static boolean assassinationActive = LunaSettings.getBoolean(modId, "assassinationActive");
     public static double assassinationSpawnChance = LunaSettings.getDouble(modId, "assassinationSpawnChance");
@@ -87,7 +86,6 @@ public class Settings implements LunaSettingsListener {
         skirmishMinDuration = LunaSettings.getInt(modId, "skirmishMinDuration");
         skirmishMaxDuration = LunaSettings.getInt(modId, "skirmishMaxDuration");
         skirmishBaseShipBounty = LunaSettings.getInt(modId, "skirmishBaseShipBounty");
-        skirmishMinTier = LunaSettings.getInt(modId, "skirmishMinTier");
 
         assassinationActive = LunaSettings.getBoolean(modId, "assassinationActive");
         assassinationSpawnChance = LunaSettings.getDouble(modId, "assassinationSpawnChance");

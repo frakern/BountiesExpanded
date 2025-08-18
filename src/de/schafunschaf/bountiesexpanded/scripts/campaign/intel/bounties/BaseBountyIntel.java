@@ -59,7 +59,9 @@ public abstract class BaseBountyIntel extends BaseIntelPlugin implements FleetEv
         this.duration = 100f;
         this.difficulty = bountyEntity.getDifficulty();
 
-        fleet.addEventListener(this);
+        if (isNotNull(fleet)) {
+            fleet.addEventListener(this);
+        }
         Global.getSector().getIntelManager().queueIntel(this);
     }
 
@@ -90,7 +92,9 @@ public abstract class BaseBountyIntel extends BaseIntelPlugin implements FleetEv
     public Set<String> getIntelTags(SectorMapAPI map) {
         Set<String> tags = super.getIntelTags(map);
         tags.add(Tags.INTEL_BOUNTY);
-        tags.add(fleet.getFaction().getId());
+        if (isNotNull(fleet)) {
+            tags.add(fleet.getFaction().getId());
+        }
 
         return tags;
     }

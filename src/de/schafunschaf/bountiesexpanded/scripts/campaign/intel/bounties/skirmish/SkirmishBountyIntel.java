@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.CoreReputationPlugin;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.shared.SharedData;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -31,11 +32,9 @@ public class SkirmishBountyIntel extends BaseBountyIntel {
     private final FactionAPI offeringFaction;
     private final FactionAPI targetedFaction;
     private final int baseShipBounty;
-    private int numBattles = 0;
-    private float playerInvolvement = 0f;
-    private Map<HullSize, int[]> destroyedShips;
     protected SkirmishBountyResult latestResult;
     protected boolean commerceMode = false; // due to Commerce industry in player system
+    protected boolean nex;
 
     public SkirmishBountyIntel(SkirmishBountyEntity skirmishBountyEntity, MarketAPI market) {
         super(BountyType.SKIRMISH, skirmishBountyEntity, skirmishBountyEntity.getMissionHandler(), null, null, null, null);
@@ -43,11 +42,12 @@ public class SkirmishBountyIntel extends BaseBountyIntel {
         this.location = market.getContainingLocation();
         this.offeringFaction = skirmishBountyEntity.getOfferingFaction();
         this.targetedFaction = skirmishBountyEntity.getTargetedFaction();
-        this.duration = new Random().nextInt(Settings.skirmishMaxDuration - Settings.skirmishMinDuration) + Settings.skirmishMinDuration;
+        this.nex = skirmishBountyEntity.isNex();
+        this.duration = (float) (new Random().nextInt(Settings.skirmishMaxDuration - Settings.skirmishMinDuration) + Settings.skirmishMinDuration * (this.nex ? 1.25 : 1));
         this.skirmishBountyEntity = skirmishBountyEntity;
         this.baseShipBounty = skirmishBountyEntity.getBaseShipBounty();
         skirmishBountyEntity.setBountyIntel(this);
-        Misc.makeImportant(fleet, "pbe");
+        Global.getSector().getListenerManager().addListener(this);
     }
 
     @Override
@@ -93,12 +93,14 @@ public class SkirmishBountyIntel extends BaseBountyIntel {
 
         if (elapsedDays >= duration && !isDone() && !commerceMode) {
             endAfterDelay();
+            SkirmishBountyManager.getInstance().unregisterBounty(skirmishBountyEntity);
             boolean current = location == Global.getSector().getCurrentLocation();
             sendUpdateIfPlayerHasIntel(new Object(), !current);
             return;
         }
         if (targetedFaction != market.getFaction() || !market.isInEconomy()) {
             endAfterDelay();
+            SkirmishBountyManager.getInstance().unregisterBounty(skirmishBountyEntity);
             boolean current = location == Global.getSector().getCurrentLocation();
             sendUpdateIfPlayerHasIntel(new Object(), !current);
             return;
@@ -121,6 +123,7 @@ public class SkirmishBountyIntel extends BaseBountyIntel {
     public Set<String> getIntelTags(SectorMapAPI map) {
         Set<String> intelTags = super.getIntelTags(map);
         intelTags.add(offeringFaction.getId());
+        intelTags.add(targetedFaction.getId());
         return intelTags;
     }
 

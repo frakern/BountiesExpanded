@@ -5,10 +5,13 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
+import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.*;
+import com.fs.starfarer.api.impl.campaign.intel.raid.RaidIntel;
+import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import de.schafunschaf.bountiesexpanded.Blacklists;
 import de.schafunschaf.bountiesexpanded.Settings;
@@ -35,9 +38,14 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.bountyhu
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.deserter.DeserterBountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.pirate.PirateBountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.skirmish.SkirmishBountyEntity;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.skirmish.SkirmishBountyManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.warcriminal.WarCriminalEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler;
+import exerelin.campaign.fleets.InvasionFleetManager;
+import exerelin.campaign.intel.colony.ColonyExpeditionIntel;
+import exerelin.campaign.intel.defensefleet.DefenseFleetIntel;
+import exerelin.campaign.intel.fleets.OffensiveFleetIntel;
 import lombok.extern.log4j.Log4j;
 import org.lazywizard.lazylib.MathUtils;
 
@@ -56,9 +64,9 @@ import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 public class EntityProvider {
     public static final String FLEET_IDENTIFIER_KEY = "$bountiesExpanded_fleetIdentifier";
     public static final String RECENTLY_USED_FOR_BOUNTY = "$bountiesExpanded_recentlyUsedForBounty";
-    private static final String NO_TARGETED_FACTION = "BountiesExpanded: failed to pick valid targeted faction";
+    public static final String NO_TARGETED_FACTION = "BountiesExpanded: failed to pick valid targeted faction";
     private static final String NO_COMMANDER = "BountiesExpanded: failed to generate fleet commander for faction '%s'";
-    private static final String NO_HIDEOUT = "BountiesExpanded: failed to pick hideout";
+    public static final String NO_HIDEOUT = "BountiesExpanded: failed to pick hideout";
     private static final String NO_DESTINATION = "BountiesExpanded: failed to pick destination";
     private static final String NO_FLEET = "BountiesExpanded: failed to create bounty fleet";
     private static final String NOT_IN_RANGE = "BountiesExpanded: player fleet not in range to create bounty";
@@ -72,26 +80,6 @@ public class EntityProvider {
         if (system != null && system.getCenter() != null) {
             system.getCenter().getMemoryWithoutUpdate().set(RECENTLY_USED_FOR_BOUNTY, true, genBountyUseTimeout());
         }
-    }
-
-    public static SkirmishBountyEntity skirmishBountyEntity() {
-        FactionAPI offeringFaction = ParticipatingFactionPicker.pickFaction();
-        if (!MiscFactionUtils.canFactionOfferBounties(offeringFaction)) return null;
-
-        FactionAPI targetedFaction = HostileFactionPicker.pickParticipatingFaction(offeringFaction, Blacklists.getSkirmishBountyBlacklist(), true);
-        if (isNull(targetedFaction)) {
-            log.warn(NO_TARGETED_FACTION);
-            return null;
-        }
-
-        // @todo check if there's a nex raid happening and use that system.
-        SectorEntityToken hideout = CoreWorldPicker.pickFactionHideout(targetedFaction);
-        if (isNull(hideout)) {
-            log.warn(NO_HIDEOUT);
-            return null;
-        }
-
-        return new SkirmishBountyEntity(offeringFaction, targetedFaction, hideout.getMarket());
     }
 
     public static AssassinationBountyEntity assassinationBountyEntity() {

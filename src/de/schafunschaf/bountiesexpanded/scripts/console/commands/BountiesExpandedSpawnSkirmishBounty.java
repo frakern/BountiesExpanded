@@ -27,7 +27,7 @@ public class BountiesExpandedSpawnSkirmishBounty implements BaseCommand {
         if (isNotNull(skirmishBountyEvent)) {
             manager.addActive(skirmishBountyEvent);
             Console.showMessage("it worked!");
-            Console.showMessage("Spawned SkirmishBounty at " + skirmishBountyEvent.getSpawnLocation().getName());
+            Console.showMessage("Spawned SkirmishBounty at " + skirmishBountyEvent.getMarket().getName());
             return CommandResult.SUCCESS;
         }
 

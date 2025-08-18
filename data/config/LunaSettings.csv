@@ -14,8 +14,7 @@ skirmishMinBounties,Min Bounties,Int,0,,Minimum currently active bounties.,0,10,
 skirmishMaxBounties,Max Bounties,Int,2,,Maximum currently active bounties.,1,10,Skirmish
 skirmishMinDuration,Min Duration,Int,30,,Minimum bounty duration (in days).,1,360,Skirmish
 skirmishMaxDuration,Max Duration,Int,60,,Maximum bounty duration (in days).,1,360,Skirmish
-skirmishBaseShipBounty,Base Ship Bounty,Int,3000,,Base amount for ship bounty calculation. Modified by hull size.,0,15000,Skirmish
-skirmishMinTier,Min Difficulty Tier,Int,4,,Minimum difficulty tier. Spawned fleet will otherwise be based on player fleet size.,0,10,Skirmish
+skirmishBaseShipBounty,Base Ship Bounty,Int,1000,,Base amount for ship bounty calculation. Modified by hull size.,0,5000,Skirmish
 
 assassination,Assassination-Bounty-Settings,Header,Assassination-Bounty-Settings,,,,,Assassination
 assassinationActive,Enable Assassination Bounties,Boolean,true,,,,,Assassination
@@ -23,8 +22,8 @@ assassinationSpawnChance,Spawn Chance,Double,0.1,,Chance for bounty to spawn. 1 
 assassinationMinBounties,Min Bounties,Int,0,,Minimum currently active bounties.,0,10,Assassination
 assassinationMaxBounties,Max Bounties,Int,2,,Maximum currently active bounties.,1,10,Assassination
 assassinationMinTravelDistance,Min Travel Distance,Double,5.0,,Minimum travel distance in light-years.,1,10,Assassination
-assassinationBaseRewardMultiplier,Base Reward Multi,Double,1.0,,Base reward multiplier for killing the target.,0,4,Assassination
-assassinationBonusRewardMultiplier,Bonus Reward Multi,Double,4.0,,Bonus reward multiplier for killing the target in hyperspace.,0,10,Assassination
+assassinationBaseRewardMultiplier,Base Reward,Double,0.5,,Base reward for killing the target (as percent of standard bounty reward).,0,2,Assassination
+assassinationBonusRewardMultiplier,Bonus Reward,Double,1.0,,Bonus reward for killing the target in hyperspace (as percent of standard bounty reward).,0,5,Assassination
 assassinationMinTier,Min Difficulty Tier,Int,3,,Minimum difficulty tier. Spawned fleet will otherwise be based on player fleet size.,0,10,Assassination
 
 warCriminal,War-Criminal-Bounty-Settings,Header,War-Criminal-Bounty-Settings,,,,,War Criminal

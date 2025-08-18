@@ -378,7 +378,6 @@ public class DescriptionUtils {
         String aOrAn = FormattingTools.aOrAn(shipClass);
         String rareString = isRareShip ? "a rare" : aOrAn;
         String shipDesignation = flagship.getHullSpec().getDesignation().toLowerCase();
-        String hisOrHer = person.getHisOrHer();
         String fleetDesc;
         String outputText;
 
@@ -398,14 +397,14 @@ public class DescriptionUtils {
                 Misc.getHighlightColor()
         };
         String[] highlights = new String[]{
-                commander.getFaction().getRank(commander.getRankId()) + " " + person.getName().getFullName(),
+                commander.getFaction().getRank(commander.getRankId()) + " " + person.getName().getLast(),
                 fleetDesc,
                 shipName,
                 shipClass,
                 shipDesignation
         };
 
-        outputText = String.format("%s is rumored to be accompanied by a %s and is known to personally command the %s, " + rareString + " %s %s, as " + hisOrHer + " flagship.", (Object[]) highlights);
+        outputText = String.format("%s is rumored to be accompanied by a %s and is known to personally command the %s, " + rareString + " %s %s, as " + person.getHisOrHer() + " flagship.", (Object[]) highlights);
 
         info.addPara(outputText, padding, highlightColors, highlights);
     }
