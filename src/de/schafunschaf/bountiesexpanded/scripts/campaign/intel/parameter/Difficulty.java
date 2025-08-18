@@ -1,6 +1,7 @@
 package de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter;
 
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import de.schafunschaf.bountiesexpanded.Settings;
 import lombok.Getter;
 
 import java.awt.*;
@@ -9,34 +10,34 @@ import java.awt.*;
 public final class Difficulty {
 
     public static final Difficulty EASY = new Difficulty(
-            "easy", "an", 1f, 0, Color.GREEN
+            "easy", "an", 0f, -1, Color.GREEN
     );
     public static final Difficulty MEDIUM = new Difficulty(
-            "fair", "a", 1.1f, 1, Color.CYAN
+            "medium", "a", 0.1f, 0, Color.CYAN
     );
     public static final Difficulty CHALLENGING = new Difficulty(
-            "challenging", "a", 1.2f, 2, Color.ORANGE
+            "challenging", "a", 0.2f, 1, Color.ORANGE
     );
     public static final Difficulty HARD = new Difficulty(
-            "difficult", "a", 1.3f, 3, Color.RED
+            "hard", "a", 0.3f, 2, Color.RED
     );
     public static final Difficulty BOSS = new Difficulty(
-            "BOSS", "a", 1.5f, 4, Color.MAGENTA
+            "BOSS", "a", 0.4f, 3, Color.MAGENTA
     );
     private static final Difficulty[] VALUES = {
             EASY, MEDIUM, HARD, CHALLENGING, BOSS
     };
     private final String shortDescription;
     private final String shortDescriptionAnOrA;
-    private final float modifier;
-    private final int flatModifier;
+    private final float multiplier;
+    private final int modifier;
     private final Color color;
 
-    private Difficulty(String shortDescription, String shortDescriptionAnOrA, float modifier, int flatModifier, Color color) {
+    private Difficulty(String shortDescription, String shortDescriptionAnOrA, float multiplier, int modifier, Color color) {
         this.shortDescriptionAnOrA = shortDescriptionAnOrA;
         this.shortDescription = shortDescription;
+        this.multiplier = multiplier;
         this.modifier = modifier;
-        this.flatModifier = flatModifier;
         this.color = color;
     }
 
@@ -46,10 +47,10 @@ public final class Difficulty {
 
     public static Difficulty randomDifficulty() {
         WeightedRandomPicker<Difficulty> picker = new WeightedRandomPicker<>();
-        picker.add(EASY, 1);
-        picker.add(MEDIUM, 2);
-        picker.add(CHALLENGING, 2);
-        picker.add(HARD, 1);
+        picker.add(EASY, Settings.chanceEasy);
+        picker.add(MEDIUM, Settings.chanceMedium);
+        picker.add(CHALLENGING, Settings.chanceChallenging);
+        picker.add(HARD, Settings.chanceHard);
         return picker.pick();
     }
 }

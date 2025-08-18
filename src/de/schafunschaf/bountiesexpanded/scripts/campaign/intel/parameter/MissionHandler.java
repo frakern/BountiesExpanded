@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.missions.TriggeredMissionManager;
@@ -35,8 +36,6 @@ public class MissionHandler {
                 "Destruction", "destruction"),
         OBLITERATION(
                 "Obliteration", "obliteration"),
-        //        INTIMIDATION(
-//                "Intimidation", "intimidation", "force %s's fleet into retreat"),
         RETRIEVAL(
                 "Retrieval", "retrieval");
 
@@ -45,7 +44,12 @@ public class MissionHandler {
 
         public static MissionType getRandomMissionType() {
             MissionType[] types = MissionType.values();
-            return types[new Random().nextInt(types.length)];
+            if (Settings.retrievalEventActive) {
+                return types[new Random().nextInt(types.length)];
+            }
+            else {
+                return types[new Random().nextInt(types.length -1)];
+            }
         }
     }
 

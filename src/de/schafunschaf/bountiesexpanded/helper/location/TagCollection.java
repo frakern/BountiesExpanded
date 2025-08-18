@@ -1,44 +1,34 @@
 package de.schafunschaf.bountiesexpanded.helper.location;
 
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import de.schafunschaf.bountiesexpanded.util.ComparisonTools;
 
 import java.util.*;
 
 public class TagCollection {
-    private static final String[] vanillaBountySystemTagArray = {
-            Tags.THEME_MISC_SKIP,
-            Tags.THEME_MISC,
-            Tags.THEME_REMNANT_NO_FLEETS,
-            Tags.THEME_RUINS,
-            Tags.THEME_REMNANT_DESTROYED,
-            Tags.THEME_CORE_UNPOPULATED
-    };
-    public static final Set<String> VANILLA_BOUNTY_SYSTEM_TAGS = new HashSet<>(Arrays.asList(vanillaBountySystemTagArray));
-    private static final String[] remnantSystemTagArray = {
-            Tags.THEME_REMNANT,
-            Tags.THEME_REMNANT_MAIN,
-            Tags.THEME_REMNANT_SECONDARY,
-            Tags.THEME_REMNANT_RESURGENT
-    };
-    public static final Set<String> REMNANT_SYSTEM_TAGS = new HashSet<>(Arrays.asList(remnantSystemTagArray));
-    private static final String[] derelictSystemTagArray = {
-            Tags.THEME_DERELICT,
-            Tags.THEME_DERELICT_CRYOSLEEPER,
-            Tags.THEME_DERELICT_MOTHERSHIP,
-            Tags.THEME_DERELICT_SURVEY_SHIP,
-            Tags.THEME_DERELICT_PROBES
-    };
-    public static final Set<String> DERELICT_SYSTEM_TAGS = new HashSet<>(Arrays.asList(derelictSystemTagArray));
+    public static final Map<String, Integer> VANILLA_BOUNTY_SYSTEM_TAGS = new HashMap<>();
+    static {
+        VANILLA_BOUNTY_SYSTEM_TAGS.put(Tags.THEME_MISC_SKIP, 1);
+        VANILLA_BOUNTY_SYSTEM_TAGS.put(Tags.THEME_MISC, 3);
+        VANILLA_BOUNTY_SYSTEM_TAGS.put(Tags.THEME_REMNANT_NO_FLEETS, 3);
+        VANILLA_BOUNTY_SYSTEM_TAGS.put(Tags.THEME_RUINS, 5);
+        VANILLA_BOUNTY_SYSTEM_TAGS.put(Tags.THEME_REMNANT_DESTROYED, 3);
+        VANILLA_BOUNTY_SYSTEM_TAGS.put(Tags.THEME_CORE_UNPOPULATED, 1);
+    }
 
-    public static Map<String, Integer> getDefaultTagMap(Set<String> tagCollection) {
-        if (ComparisonTools.isNullOrEmpty(tagCollection))
-            return null;
+    public static final Map<String, Integer> REMNANT_SYSTEM_TAGS = new HashMap<>();
+    static {
+        REMNANT_SYSTEM_TAGS.put(Tags.THEME_REMNANT, 1);
+        REMNANT_SYSTEM_TAGS.put(Tags.THEME_REMNANT_MAIN, 2);
+        REMNANT_SYSTEM_TAGS.put(Tags.THEME_REMNANT_SECONDARY, 1);
+        REMNANT_SYSTEM_TAGS.put(Tags.THEME_REMNANT_RESURGENT, 2);
+    }
 
-        HashMap<String, Integer> tagMap = new HashMap<>();
-        for (String tagName : tagCollection)
-            tagMap.put(tagName, 1);
-
-        return tagMap;
+    public static final Map<String, Integer> DERELICT_SYSTEM_TAGS = new HashMap<>();
+    static {
+        DERELICT_SYSTEM_TAGS.put(Tags.THEME_DERELICT, 1);
+        DERELICT_SYSTEM_TAGS.put(Tags.THEME_DERELICT_CRYOSLEEPER, 2);
+        DERELICT_SYSTEM_TAGS.put(Tags.THEME_DERELICT_MOTHERSHIP, 2);
+        DERELICT_SYSTEM_TAGS.put(Tags.THEME_DERELICT_SURVEY_SHIP, 2);
+        DERELICT_SYSTEM_TAGS.put(Tags.THEME_DERELICT_PROBES, 1);
     }
 }

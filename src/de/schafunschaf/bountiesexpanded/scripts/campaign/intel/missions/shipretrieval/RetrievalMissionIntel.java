@@ -117,7 +117,7 @@ public class RetrievalMissionIntel extends BEBaseMissionIntel {
             return;
 
         TextPanelAPI textPanel = dialog.getTextPanel();
-        String personNameWithRank = contact.getRank() + " " + contact.getName().getLast();
+        String personNameWithRank = contact.getFaction().getRank(contact.getRankId()) + " " + contact.getName().getLast();
         String hisOrHer = contact.getHisOrHer();
         String dialogTextPartOne = String.format("\"Excellent. Thank you very much. Here's your payment and I'll make sure your service won't be forgotten.\"\n\n" +
                 "You can see a big grin on " + hisOrHer + " face right before the comm link gets cut. An hour later, the well-known and ear-soothing voice of a female KI sounds.", hisOrHer);
@@ -143,7 +143,7 @@ public class RetrievalMissionIntel extends BEBaseMissionIntel {
 
     protected void keepShip(InteractionDialogAPI dialog) {
         TextPanelAPI textPanel = dialog.getTextPanel();
-        String personNameWithRank = contact.getRank() + " " + contact.getName().getLast();
+        String personNameWithRank = contact.getFaction().getRank(contact.getRankId()) + " " + contact.getName().getLast();
         String heOrShe = contact.getHeOrShe();
         String playerName = Global.getSector().getPlayerPerson().getNameString();
         String dialogTextPartOne = String.format("\"You are doing WHAT?! I'll make sure that you will regret that decision, %s!\"", playerName);
@@ -180,17 +180,13 @@ public class RetrievalMissionIntel extends BEBaseMissionIntel {
     @Override
     protected ReputationAdjustmentResult generateMissionFailureRepAdjustment() {
         Random random = new Random(contact.getId().hashCode());
-        if (missionEntity.getChanceForConsequences() <= random.nextFloat()) {
-            CoreReputationPlugin.CustomRepImpact customRepImpact = new CoreReputationPlugin.CustomRepImpact();
-            float delta = (float) (random.nextInt(20) + 11) / 100;
-            customRepImpact.delta = -delta;
+        CoreReputationPlugin.CustomRepImpact customRepImpact = new CoreReputationPlugin.CustomRepImpact();
+        float delta = (float) (random.nextInt(20) + 11) / 100;
+        customRepImpact.delta = -delta;
 
-            return Global.getSector().adjustPlayerReputation(
-                    new CoreReputationPlugin.RepActionEnvelope(CoreReputationPlugin.RepActions.CUSTOM, customRepImpact,
-                            null, null, true, false),
-                    contact.getFaction().getId());
-        }
-
-        return null;
+        return Global.getSector().adjustPlayerReputation(
+                new CoreReputationPlugin.RepActionEnvelope(CoreReputationPlugin.RepActions.CUSTOM, customRepImpact,
+                        null, null, true, false),
+                contact.getFaction().getId());
     }
 }

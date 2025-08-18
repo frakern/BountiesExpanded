@@ -46,6 +46,28 @@ public class FleetUtils {
         return highestFP;
     }
 
+    public static List<FleetMemberAPI> generateShipList(@NotNull List<FleetMemberAPI> fleetMemberList, int max, Random random) {
+        List<FleetMemberAPI> list = new ArrayList<FleetMemberAPI>();
+
+        for (FleetMemberAPI member : fleetMemberList) {
+            if (list.size() >= max) break;
+
+            if (member.isFighterWing()) continue;
+
+            float prob = (float) member.getFleetPointCost() / 20f;
+            prob += (float) max / (float) fleetMemberList.size();
+            if (member.isFlagship()) prob = 1f;
+            //if (members.size() <= max) prob = 1f;
+
+            if (random.nextFloat() > prob) continue;
+
+            list.add(member);
+        }
+
+        return list;
+    }
+
+
     public static List<FleetMemberAPI> orderListBySize(@NotNull List<FleetMemberAPI> fleetMemberList) {
         if (isNullOrEmpty(fleetMemberList))
             return new ArrayList<>();

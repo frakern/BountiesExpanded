@@ -17,59 +17,6 @@ import static de.schafunschaf.bountiesexpanded.util.ParsingTools.parseJSONArray;
 
 @Log4j
 public class ExternalDataSupplier {
-    public static void loadSettings(String fileName) {
-        try {
-            JSONObject settings = Global.getSettings().loadJSON(fileName);
-            Settings.sheepDebug = settings.getBoolean("sheepDebug");
-            Settings.baseRewardPerFP = settings.getInt("baseRewardPerFP");
-
-            Settings.skirmishActive = settings.getBoolean("skirmishActive");
-            Settings.skirmishSpawnChance = settings.getDouble("skirmishSpawnChance");
-            Settings.skirmishMinBounties = settings.getInt("skirmishMinBounties");
-            Settings.skirmishMaxBounties = settings.getInt("skirmishMaxBounties");
-            Settings.skirmishMinDuration = settings.getInt("skirmishMinDuration");
-            Settings.skirmishMaxDuration = settings.getInt("skirmishMaxDuration");
-            Settings.skirmishBaseShipBounty = settings.getInt("skirmishBaseShipBounty");
-
-            Settings.assassinationActive = settings.getBoolean("assassinationActive");
-            Settings.assassinationSpawnChance = settings.getDouble("assassinationSpawnChance");
-            Settings.assassinationMinBounties = settings.getInt("assassinationMinBounties");
-            Settings.assassinationMaxBounties = settings.getInt("assassinationMaxBounties");
-            Settings.assassinationMinTravelDistance = settings.getDouble("assassinationMinTravelDistance");
-            Settings.assassinationBaseRewardMultiplier = settings.getInt("assassinationBaseRewardMultiplier");
-            Settings.assassinationBonusRewardMultiplier = settings.getInt("assassinationBonusRewardMultiplier");
-
-            Settings.warCriminalActive = settings.getBoolean("warCriminalActive");
-            Settings.warCriminalSpawnChance = settings.getDouble("warCriminalSpawnChance");
-            Settings.warCriminalMinBounties = settings.getInt("warCriminalMinBounties");
-            Settings.warCriminalMaxBounties = settings.getInt("warCriminalMaxBounties");
-            Settings.warCriminalMinDuration = settings.getInt("warCriminalMinDuration");
-            Settings.warCriminalMaxDuration = settings.getInt("warCriminalMaxDuration");
-
-            Settings.pirateBountyActive = settings.getBoolean("pirateBountyActive");
-            Settings.disableVanillaBounties = settings.getBoolean("disableVanillaBounties");
-            Settings.disableVayraBounties = settings.getBoolean("disableVayraBounties");
-            Settings.pirateBountySpawnChance = settings.getInt("pirateBountySpawnChance");
-            Settings.pirateBountyMinBounties = settings.getInt("pirateBountyMinBounties");
-            Settings.pirateBountyMaxBounties = settings.getInt("pirateBountyMaxBounties");
-            Settings.pirateBountyMinDuration = settings.getInt("pirateBountyMinDuration");
-            Settings.pirateBountyMaxDuration = settings.getInt("pirateBountyMaxDuration");
-
-            Settings.deserterBountyActive = settings.getBoolean("deserterBountyActive");
-            Settings.deserterBountySpawnChance = settings.getDouble("deserterBountySpawnChance");
-            Settings.deserterBountyMinBounties = settings.getInt("deserterBountyMinBounties");
-            Settings.deserterBountyMaxBounties = settings.getInt("deserterBountyMaxBounties");
-            Settings.deserterBountyMinDuration = settings.getInt("deserterBountyMinDuration");
-            Settings.deserterBountyMaxDuration = settings.getInt("deserterBountyMaxDuration");
-
-            Settings.triggeredEventsActive = settings.getBoolean("triggeredEventsActive");
-            Settings.retrievalEventActive = settings.getBoolean("retrievalEventActive");
-            Settings.retrievalEventDuration = settings.getInt("retrievalEventDuration");
-        } catch (IOException | JSONException exception) {
-            log.error("BountiesExpanded - Failed to load custom Settings! - " + exception.getMessage());
-        }
-    }
-
     public static void loadBlacklists(String fileName) {
         try {
             JSONObject blacklist = Global.getSettings().loadJSON(fileName);
@@ -89,6 +36,7 @@ public class ExternalDataSupplier {
             NameStringCollection.pirateTitles.addAll(parseJSONArray(fleetNames.getJSONArray("pirateTitles")));
             NameStringCollection.killWords.addAll(parseJSONArray(fleetNames.getJSONArray("killWords")));
             NameStringCollection.crimeReasons.addAll(parseJSONArray(fleetNames.getJSONArray("crimeReasons")));
+            NameStringCollection.deserterMisdeeds.addAll(parseJSONArray(fleetNames.getJSONArray("deserterMisdeeds")));
             NameStringCollection.crimeTypes.addAll(parseJSONArray(fleetNames.getJSONArray("crimeTypes")));
             NameStringCollection.crimeVictims.addAll(parseJSONArray(fleetNames.getJSONArray("crimeVictims")));
             NameStringCollection.pirateFleetNames.addAll(parseJSONArray(fleetNames.getJSONArray("pirateFleetNames")));
@@ -119,13 +67,24 @@ public class ExternalDataSupplier {
                         factionList.addAll(Arrays.asList(faction));
                     }
 
-                    RareFlagshipData flagshipData = new RareFlagshipData(flagshipID,
-                            row.getString("variant"),
-                            factionList,
-                            (float) row.getDouble("weight")
-                    );
-                    log.info("loaded rare flagship " + flagshipID);
-                    rareFlagshipDataMap.put(flagshipID, flagshipData);
+                    int fleetPoints;
+                    try {
+                        fleetPoints = Global.getSettings().getVariant(row.getString("variant")).getHullSpec().getFleetPoints();
+                    } catch (NullPointerException ex) {
+                        log.warn("couldn't get fleet points for rare flagship " + flagshipID + " - skipping");
+                        log.warn(ex);
+                        fleetPoints = 0;
+                    }
+                    if (fleetPoints > 0) {
+                        RareFlagshipData flagshipData = new RareFlagshipData(flagshipID,
+                                row.getString("variant"),
+                                factionList,
+                                (float) row.getDouble("weight"),
+                                fleetPoints
+                        );
+                        log.info("loaded rare flagship " + flagshipID);
+                        rareFlagshipDataMap.put(flagshipID, flagshipData);
+                    }
                 } else {
                     log.info("hit empty line, rare flagship loading ended");
                 }

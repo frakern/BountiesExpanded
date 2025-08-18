@@ -1,5 +1,6 @@
 package de.schafunschaf.bountiesexpanded.helper.level;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.intel.bases.PirateBaseManager;
 import de.schafunschaf.bountiesexpanded.helper.intel.BountyEventData;
 
@@ -12,11 +13,13 @@ public class LevelPicker {
     }
 
     public static int pickLevel(int variation) {
-        int level = BountyEventData.getSharedData().getLevel();
+        // @TODO add higher levels than 10.
+        float fleetPoints = Global.getSector().getPlayerFleet().getFleetPoints();
+        int level = (int) Math.max(0, Math.min(10, Math.floor(fleetPoints / 24)));
         float timeFactor = (PirateBaseManager.getInstance().getDaysSinceStart() - 180f) / (365f * 2f);
         timeFactor = Math.max(timeFactor, 0);
         timeFactor = Math.min(timeFactor, 1);
-        level += Math.round(3 * timeFactor);
+        level += Math.round(2 * timeFactor);
         level = Math.min(level, 10);
         level = (level - variation) + new Random().nextInt(variation * 2 + 1);
         return Math.max(level, 0);

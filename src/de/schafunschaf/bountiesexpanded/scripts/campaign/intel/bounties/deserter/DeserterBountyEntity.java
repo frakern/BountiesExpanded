@@ -7,24 +7,30 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.CoreReputationPlugin;
+import com.fs.starfarer.api.impl.campaign.ids.Ranks;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils;
 import de.schafunschaf.bountiesexpanded.helper.ui.TooltipAPIUtils;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.NameStringCollection;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BountyResult;
-import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.RareFlagshipManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.BountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler;
+import de.schafunschaf.bountiesexpanded.util.FormattingTools;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import static com.fs.starfarer.api.campaign.comm.IntelInfoPlugin.ListInfoMode;
+import static de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils.DEFAULT_IMAGE_HEIGHT;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 import static de.schafunschaf.bountiesexpanded.util.FormattingTools.singularOrPlural;
@@ -33,7 +39,6 @@ import static de.schafunschaf.bountiesexpanded.util.FormattingTools.singularOrPl
 @Setter
 public class DeserterBountyEntity implements BountyEntity {
     private String deserterBountyIcon;
-    private String deserterBountyFlag;
     private final int baseReward;
     private final int level;
     private final float fleetQuality;
@@ -48,6 +53,8 @@ public class DeserterBountyEntity implements BountyEntity {
     private final MissionHandler missionHandler;
     private float targetRepBeforeBattle;
     private DeserterBountyIntel bountyIntel;
+    private final String misdeed1;
+    private final String misdeed2;
 
     public DeserterBountyEntity(int baseReward, int level, float fleetQuality, Difficulty difficulty, FactionAPI offeringFaction, CampaignFleetAPI fleet, PersonAPI targetedPerson, SectorEntityToken spawnLocation, SectorEntityToken travelDestination, MissionHandler missionHandler) {
         this.baseReward = baseReward;
@@ -62,8 +69,11 @@ public class DeserterBountyEntity implements BountyEntity {
         this.spawnLocation = spawnLocation;
         this.travelDestination = travelDestination;
         this.missionHandler = missionHandler;
-        this.deserterBountyIcon = fleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY) ? "bountiesExpanded_deserter_crest_silly" : "bountiesExpanded_deserter_crest";
-        this.deserterBountyFlag = fleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY) ? "bountiesExpanded_deserter_flag_silly" : "bountiesExpanded_deserter_flag";
+        this.deserterBountyIcon = "bountiesExpanded_deserter_crest";
+        ArrayList<String> crimeReasonsCopy = new ArrayList<>(NameStringCollection.deserterMisdeeds);
+        Collections.shuffle(crimeReasonsCopy);
+        this.misdeed1 = buildMisdeedsString(crimeReasonsCopy.get(0));
+        this.misdeed2 = buildMisdeedsString(crimeReasonsCopy.get(1));
     }
 
     @Override
@@ -91,9 +101,9 @@ public class DeserterBountyEntity implements BountyEntity {
         baseBountyIntel.bullet(info);
 
         if (isNull(result)) {
-            info.addPara("Offered by: %s", initPad, bulletColor, offeringFaction.getBaseUIColor(), offeringFaction.getDisplayName());
+            info.addPara("Offered by: %s", initPad, bulletColor, offeringFaction.getBaseUIColor(), Misc.ucFirst(offeringFaction.getDisplayNameWithArticle()));
             info.addPara("Reward: %s", bulletPadding, bulletColor, highlightColor, Misc.getDGSCredits(baseReward));
-            info.addPara("Time left: %s", bulletPadding, bulletColor, highlightColor, days + singularOrPlural(days, " day"));
+            info.addPara("Time left: %s" + singularOrPlural(days, " day"), bulletPadding, bulletColor, highlightColor, String.valueOf(days));
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:
@@ -118,50 +128,61 @@ public class DeserterBountyEntity implements BountyEntity {
 
     @Override
     public void createSmallDescription(BaseBountyIntel baseBountyIntel, TooltipMakerAPI info, float width, float height) {
-        boolean isRetrievalMission = MissionHandler.MissionType.RETRIEVAL.equals(missionHandler.getMissionType());
+        boolean isRetrievalMission = false;
+        Color highlightColor = Misc.getHighlightColor();
         String hisOrHer = getTargetedPerson().getHisOrHer();
-        String briefingText = String.format("A large sum has been put on the head of %s, wanted dead for %s recent theft of military equipment and betrayal of %s.\n\n" +
+        String briefingText = String.format("A bounty has been put on the head of %s, wanted dead for %s, %s, and betrayal of %s.\n\n" +
                         "To claim this bounty, we need to end %s life by destroying the %s.",
-                targetedPerson.getNameString(), hisOrHer, offeringFaction.getDisplayNameWithArticle(), hisOrHer, flagship.getShipName());
+                targetedPerson.getNameString(), misdeed1, misdeed2, offeringFaction.getDisplayNameWithArticle(), hisOrHer, flagship.getShipName());
         Color factionColor = baseBountyIntel.getFactionForUIColors().getBaseUIColor();
         BountyResult result = baseBountyIntel.getResult();
         float opad = 10f;
-        int maxShipsOnIntel = 14;
-        boolean showShipsRemaining = fleet.getNumShips() > maxShipsOnIntel;
 
         if (isNull(result)) {
-            TooltipAPIUtils.addCustomImagesWithSingleRepBar(info, width, opad, 10f,
-                    targetedPerson.getPortraitSprite(),
-                    Global.getSettings().getSpriteName("intel", deserterBountyFlag), offeringFaction.getRelToPlayer().getRel());
+            info.addImages(width, DEFAULT_IMAGE_HEIGHT, opad, opad, targetedPerson.getPortraitSprite(), offeringFaction.getLogo());
+
+            Color[] highlightColors = new Color[]{factionColor, highlightColor, highlightColor, highlightColor, factionColor, factionColor};
             info.addSectionHeading("Briefing", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
-            info.addPara(briefingText, opad, factionColor, targetedPerson.getNameString(), offeringFaction.getDisplayNameWithArticle(), flagship.getShipName());
+            info.addPara(briefingText, opad, highlightColors, targetedPerson.getNameString(), misdeed1, misdeed2, "betrayal", offeringFaction.getDisplayNameWithArticle(), flagship.getShipName());
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
-            if (fleet.getContainingLocation() == travelDestination.getContainingLocation())
-                DescriptionUtils.generatePatrolDescription(info, baseBountyIntel, opad, false);
-            else
-                DescriptionUtils.generateFakeTravelDescription(info, baseBountyIntel, opad);
-
             DescriptionUtils.generateFancyFleetDescription(info, opad, fleet, targetedPerson);
+            DescriptionUtils.generateFancyCommanderDescription(info, opad, fleet, targetedPerson);
+
+            if (fleet.getContainingLocation() == travelDestination.getContainingLocation()) {
+                DescriptionUtils.generateDestinationFakeHideoutDescription(info, baseBountyIntel, opad);
+            } else {
+                DescriptionUtils.generateFakeTravelDescription(info, baseBountyIntel, opad);
+            }
 
             info.addSectionHeading("Fleet Intel", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, isRetrievalMission ? 0f : opad);
-            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, maxShipsOnIntel, 2, showShipsRemaining);
-            DescriptionUtils.generateThreatDescription(info, fleet, opad);
+            info.addPara("The bounty posting also contains partial intel on some of the ships under " + targetedPerson.getHisOrHer() + " command.", opad);
+            if (!Settings.isDebugActive()) {
+                DescriptionUtils.generatePartialShipListForIntel(info, width, opad, fleet, true);
+            }
+            else {
+                DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, false);
+                DescriptionUtils.addFleetDebugInfo(info, width, opad, fleet);
+                info.addPara("FLEET QUALITY: " + fleetQuality, 0f);
+                info.addPara("TIER: " + getLevel(), 0f);
+                info.addPara("DIFFICULTY: %s",
+                        0f, difficulty.getColor(), difficulty.getShortDescription());
+            }
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:
-                    String debriefingText = "Mission completed. You brought %s to justice.";
+                    String debriefingText = "Mission completed. %s has been eliminated.";
 
                     TooltipAPIUtils.addCustomImagesWithSingleRepBarAndChange(info, width, opad, 10f,
-                            offeringFaction.getLogo(),
-                            Global.getSettings().getSpriteName("intel", deserterBountyFlag), offeringFaction.getRelToPlayer().getRel(), result.rep.delta);
+                            targetedPerson.getPortraitSprite(),
+                            offeringFaction.getLogo(), offeringFaction.getRelToPlayer().getRel(), result.rep.delta);
                     info.addSectionHeading("Briefing", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
                     info.addPara(briefingText, Misc.getGrayColor(), opad);
 
-                    info.addPara(debriefingText, opad, factionColor, targetedPerson.getRank() + " " + targetedPerson.getNameString());
+                    info.addPara(debriefingText, opad, factionColor, targetedPerson.getFaction().getRank(targetedPerson.getRankId()) + " " + targetedPerson.getNameString());
                     baseBountyIntel.bullet(info);
-                    info.addPara("%s Credits received", opad, Misc.getHighlightColor(), Misc.getDGSCredits(result.payment));
+                    info.addPara("%s Credits received", opad, highlightColor, Misc.getDGSCredits(result.payment));
                     baseBountyIntel.unindent(info);
                     break;
                 case END_PLAYER_NO_BOUNTY:
@@ -170,7 +191,7 @@ public class DeserterBountyEntity implements BountyEntity {
                 case END_TIME:
                     TooltipAPIUtils.addCustomImagesWithSingleRepBar(info, width, opad, 10f,
                             targetedPerson.getPortraitSprite(),
-                            Global.getSettings().getSpriteName("intel", deserterBountyFlag), offeringFaction.getRelToPlayer().getRel());
+                            offeringFaction.getLogo(), offeringFaction.getRelToPlayer().getRel());
                     info.addSectionHeading("Briefing", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
                     info.addPara(briefingText, Misc.getGrayColor(), opad);
 
@@ -200,4 +221,17 @@ public class DeserterBountyEntity implements BountyEntity {
         }
         return String.format("Deserter Bounty - %s", targetedPerson.getNameString());
     }
+
+    private String buildMisdeedsString(String misdeed) {
+        String returnString = misdeed;
+
+        returnString = returnString.replace("$faction", offeringFaction.getDisplayName());
+        returnString = returnString.replace("$market", spawnLocation.getMarket().getName());
+        returnString = returnString.replace("$facLeader", offeringFaction.getPost(Ranks.FACTION_LEADER));
+        returnString = returnString.replace("$aOrAnFaction", FormattingTools.aOrAn(offeringFaction.getDisplayName()) + " " + offeringFaction.getDisplayName());
+
+        return returnString;
+    }
+
+
 }

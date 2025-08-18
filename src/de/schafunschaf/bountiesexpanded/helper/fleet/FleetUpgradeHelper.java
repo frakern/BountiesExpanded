@@ -4,13 +4,19 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FleetDataAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.loading.VariantSource;
 import de.schafunschaf.bountiesexpanded.helper.ship.HullModUtils;
+import de.schafunschaf.bountiesexpanded.helper.ship.ShipUtils;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.RareFlagshipManager;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import de.schafunschaf.bountiesexpanded.util.ComparisonTools;
 
 import java.util.Random;
 
 public class FleetUpgradeHelper {
     public static void upgradeRandomShips(CampaignFleetAPI fleet, int numSMods, float probability, boolean excludeFlagship, Random random) {
+        fleet.inflateIfNeeded();
+
         if (ComparisonTools.isNull(random))
             random = new Random();
 
@@ -19,16 +25,7 @@ public class FleetUpgradeHelper {
             if (excludeFlagship && fleetMember.isFlagship())
                 continue;
 
-            upgradeShip(numSMods, probability, random, fleetMember);
+            ShipUtils.upgradeShip(fleetMember, numSMods, random, probability);
         }
-    }
-
-    private static void upgradeShip(int numSMods, float probability, Random random, FleetMemberAPI fleetMember) {
-        ShipVariantAPI shipVariant = fleetMember.getVariant();
-        for (int i = 0; i < numSMods; i++)
-            if (random.nextFloat() <= probability)
-                shipVariant.addPermaMod(HullModUtils.getRandomFreeSMod(shipVariant, random), true);
-
-        fleetMember.setVariant(shipVariant, true, true);
     }
 }

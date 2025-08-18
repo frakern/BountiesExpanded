@@ -8,20 +8,21 @@ import de.schafunschaf.bountiesexpanded.util.FormattingTools;
 public class CreditCalculator {
     public static int vanillaCalculation(float multiplier) {
         int bountyLevel = LevelPicker.pickLevel(0);
-        return calculate(bountyLevel, multiplier);
+        return calculate(bountyLevel, multiplier + 1f);
     }
 
     public static int vanillaCalculation(int level, float multiplier) {
-        return calculate(level, multiplier);
+        return calculate(level, multiplier + 1f);
     }
 
-    public static int getRewardByFP(float fleetPoints, float multiplier) {
-        return FormattingTools.roundWholeNumber((int) (Settings.baseRewardPerFP * fleetPoints * multiplier), 3);
+    public static int getRewardByFP(int fleetPoints, float multiplier) {
+        int value = (int) (250 * fleetPoints * (1f + multiplier));
+        return FormattingTools.roundWholeNumber(value, 3);
     }
 
     private static int calculate(int level, float multiplier) {
-        float base = Global.getSettings().getFloat("basePersonBounty");
-        float perLevel = Global.getSettings().getFloat("personBountyPerLevel");
+        float base = Settings.baseReward;
+        float perLevel = Settings.rewardPerTier;
         float random = perLevel * (int) (Math.random() * 15) / 15f;
 
         return FormattingTools.roundWholeNumber((int) ((base + perLevel * level + random) * multiplier), 3);

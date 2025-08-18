@@ -4,13 +4,20 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.Script;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.CampaignEventListener.FleetDespawnReason;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
 import com.fs.starfarer.api.characters.PersonAPI;
+import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.combat.ShipVariantAPI;
+import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
+import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
+import com.fs.starfarer.api.impl.campaign.intel.misc.BreadcrumbIntel;
 import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
 import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.BountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
@@ -18,8 +25,11 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Mission
 import lombok.Getter;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Set;
 
+import static com.fs.starfarer.api.impl.campaign.procgen.themes.SalvageSpecialAssigner.BreadcrumbSpecialCreator.isLargeShipOrNonShip;
+import static com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BreadcrumbSpecial.getLocatedString;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 
@@ -49,7 +59,9 @@ public abstract class BaseBountyIntel extends BaseIntelPlugin implements FleetEv
         this.duration = 100f;
         this.difficulty = bountyEntity.getDifficulty();
 
-        fleet.addEventListener(this);
+        if (isNotNull(fleet)) {
+            fleet.addEventListener(this);
+        }
         Global.getSector().getIntelManager().queueIntel(this);
     }
 
@@ -80,13 +92,18 @@ public abstract class BaseBountyIntel extends BaseIntelPlugin implements FleetEv
     public Set<String> getIntelTags(SectorMapAPI map) {
         Set<String> tags = super.getIntelTags(map);
         tags.add(Tags.INTEL_BOUNTY);
-        tags.add(fleet.getFaction().getId());
+        if (isNotNull(fleet)) {
+            tags.add(fleet.getFaction().getId());
+        }
 
         return tags;
     }
 
     @Override
     public SectorEntityToken getMapLocation(SectorMapAPI map) {
+        if (Settings.isDebugActive())
+            return fleet.getContainingLocation().createToken(fleet.getLocation().x, fleet.getLocation().y);
+
         return spawnLocation;
     }
 
@@ -183,8 +200,12 @@ public abstract class BaseBountyIntel extends BaseIntelPlugin implements FleetEv
             Misc.makeUnimportant(fleet, "pbe");
             fleet.clearAssignments();
 
-            if (!Settings.prepareUpdate && isNotNull(spawnLocation)) {
+            if (!Settings.prepareUpdate && isNotNull(fleet.getContainingLocation())) {
                 SectorEntityToken despawnLocation = Misc.findNearestPlanetTo(fleet, false, false);
+                MarketAPI nearestMarket = Misc.findNearestLocalMarket(fleet, 1000000, market -> true);
+                if (isNotNull(nearestMarket)) {
+                    despawnLocation = nearestMarket.getPrimaryEntity();
+                }
                 fleet.getAI().addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, despawnLocation, 30f, new Script() {
                     @Override
                     public void run() {
@@ -210,4 +231,92 @@ public abstract class BaseBountyIntel extends BaseIntelPlugin implements FleetEv
     protected String getName() {
         return bountyType.name();
     }
+
+    public void giveBreadcrumb(CampaignFleetAPI playerFleet) {
+        WeightedRandomPicker<SectorEntityToken> picker = new WeightedRandomPicker<>();
+        List<StarSystemAPI> systems = Misc.getNearbyStarSystems(playerFleet, 10f);
+        for (StarSystemAPI system : systems) {
+
+            // bounties know about salvage
+            for (SectorEntityToken other : system.getEntitiesWithTag(Tags.SALVAGEABLE)) {
+                if (!other.hasSensorProfile() && !other.isDiscoverable()) continue;
+                if (other == playerFleet) continue;
+                if (!isLargeShipOrNonShip(other)) continue;
+                if (other.hasTag(Tags.EXPIRES)) continue;
+                if (other.hasTag(Tags.NOT_RANDOM_MISSION_TARGET)) continue;
+                if (other.getContainingLocation() != null && other.getContainingLocation().hasTag(Tags.THEME_HIDDEN)) continue;
+                if (other.getMemoryWithoutUpdate() != null && other.getMemoryWithoutUpdate().getBoolean("$ttWeaponsCache")) continue;
+                picker.add(other);
+            }
+
+            // bounties know about ruins and habitable worlds
+            for (PlanetAPI other : system.getPlanets()) {
+                MarketAPI market = other.getMarket();
+                if (market == null) {
+                    continue;
+                }
+                if (!market.getSurveyLevel().equals(MarketAPI.SurveyLevel.NONE)) {
+                    continue;
+                }
+                boolean hasRuins = market.hasCondition(Conditions.RUINS_EXTENSIVE)
+                        || market.hasCondition(Conditions.RUINS_WIDESPREAD)
+                        || market.hasCondition(Conditions.RUINS_VAST);
+                if (market.getHazardValue() > 1.25f && !hasRuins) {
+                    continue;
+                }
+
+                picker.add(other);
+            }
+        }
+
+        SectorEntityToken target = picker.pick();
+        if (target != null) {
+
+            String targetName = "a salvageable derelict";
+            if (target instanceof PlanetAPI) {
+                MarketAPI market = target.getMarket();
+                if (market != null) {
+                    boolean hasRuins = market.hasCondition(Conditions.RUINS_EXTENSIVE)
+                            || market.hasCondition(Conditions.RUINS_WIDESPREAD)
+                            || market.hasCondition(Conditions.RUINS_VAST);
+                    if (hasRuins) {
+                        targetName = "a world with extensive ruins";
+                    } else if (market.getHazardValue() <= 1.25f) {
+                        targetName = "a habitable world";
+                    }
+                }
+            }
+
+            String located = getLocatedString(target, true);
+            String nameForTitle = target instanceof PlanetAPI ? "Hideout" : "Salvage";
+            String subject = "Location: " + nameForTitle;
+
+            String intelText = "In the wreckage of " + person.getFaction().getRank(person.getRankId()) + " " + person.getName().getLast() + "'s flagship, your crews found a partially accessible memory bank containing information that indicates " + targetName + " is " + located + ".";
+
+            if (target.getCustomPlugin() instanceof DerelictShipEntityPlugin) {
+                DerelictShipEntityPlugin dsep = (DerelictShipEntityPlugin) target.getCustomPlugin();
+                ShipVariantAPI variant = dsep.getData().ship.variant;
+                if (variant == null && dsep.getData().ship.variantId != null) {
+                    variant = Global.getSettings().getVariant(dsep.getData().ship.variantId);
+                }
+                if (variant != null) {
+                    String size;
+                    if (variant.getHullSize() == ShipAPI.HullSize.FRIGATE
+                            || variant.getHullSize() == ShipAPI.HullSize.DESTROYER) {
+                        size = "Based on the information, it's likely the ship is small, a frigate or a destroyer at the largest.";
+                    } else {
+                        size = "The vessel is likely to be at least cruiser-sized.";
+                    }
+                    intelText += "\n\n" + size;
+                }
+            }
+
+            SectorEntityToken start = playerFleet.getContainingLocation().createToken(playerFleet.getLocation().x, playerFleet.getLocation().y);
+            BreadcrumbIntel intel = new BreadcrumbIntel(start, target);
+            intel.setTitle(subject);
+            intel.setText(intelText);
+            Global.getSector().getIntelManager().addIntel(intel, false);
+        }
+    }
+
 }

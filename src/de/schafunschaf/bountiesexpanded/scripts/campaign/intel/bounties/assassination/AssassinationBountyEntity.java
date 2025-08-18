@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils.DEFAULT_IMAGE_HEIGHT;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 import static de.schafunschaf.bountiesexpanded.util.FormattingTools.aOrAn;
@@ -146,11 +147,10 @@ public class AssassinationBountyEntity implements BountyEntity {
                 currentLocation = travelDestination.getStarSystem().getName();
             else {
                 if (getDifficulty() == Difficulty.EASY) {
+                    currentLocation = "Preparing to depart from " + spawnLocation.getName();
+                } else if (getDifficulty() == Difficulty.MEDIUM) {
                     String factionName = spawnLocation.getFaction().getDisplayNameWithArticleWithoutArticle();
                     currentLocation = "Near " + aOrAn(factionName) + " " + factionName + " controlled world";
-                } else if (getDifficulty() == Difficulty.MEDIUM) {
-                    String factionName = targetedPerson.getFaction().getDisplayNameWithArticle();
-                    currentLocation = "Near a world not at war with " + factionName;
                 } else
                     currentLocation = "Unknown";
             }
@@ -235,7 +235,7 @@ public class AssassinationBountyEntity implements BountyEntity {
         float opad = 10f;
 
         if (isNull(result))
-            TooltipAPIUtils.addPersonWithFactionRepBar(info, width, opad, opad, targetedPerson);
+            info.addImages(width, DEFAULT_IMAGE_HEIGHT, opad, opad, targetedPerson.getPortraitSprite(), targetedPerson.getFaction().getLogo());
         else {
             float targetRepChange = result.targetRepAfterBattle - targetRepBeforeBattle;
             TooltipAPIUtils.addPersonWithFactionRepBarAndChange(info, width, opad, opad, targetedPerson, targetRepChange);
@@ -251,23 +251,29 @@ public class AssassinationBountyEntity implements BountyEntity {
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
+            // TODO REPLACE DESCRIPTION BASED ON TYPE OF TARGET.
             DescriptionUtils.generateFancyFleetDescription(info, opad, fleet, targetedPerson);
 
+            // Fleet Intel.
             info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
 
             int cols = 1;
             int rows = 1;
             float iconSize = width / 3;
-            info.addPara("The message had an intel file containing the targets ship attached.", opad);
-            if (!Settings.isDebugActive())
-                info.addShipList(cols, rows, iconSize, Color.BLACK, flagshipCopy, opad);
+            info.addPara("The message had an intel file attached containing information on the target's ship.", opad);
+            info.addShipList(cols, rows, iconSize, Color.BLACK, flagshipCopy, opad);
             info.addPara("Intercepted communications suggest that " + targetedPerson.getHisOrHer() + " escort contains roughly %s additional " + singularOrPlural(obfuscatedFleetSize, "ship") + ".",
                     opad, highlightColor, String.valueOf(obfuscatedFleetSize));
             DescriptionUtils.generateThreatDescription(info, fleet, opad);
 
             if (Settings.isDebugActive()) {
-                DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, fleet.getNumShips(), 1, false);
-                info.addPara("SPAWN LOCATION: " + spawnLocation.getName(), 0f);
+                DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, false);
+                DescriptionUtils.addFleetDebugInfo(info, width, opad, fleet);
+                info.addPara("FLEET QUALITY: " + fleetQuality, 0f);
+                info.addPara("TIER: " + getLevel(), 0f);
+                info.addPara("DIFFICULTY: %s",
+                        0f, difficulty.getColor(), difficulty.getShortDescription());
+                info.addPara("ORIGIN: " + spawnLocation.getName(), 0f);
                 info.addPara("DESTINATION: " + travelDestination.getName(), 0f);
             }
         } else {

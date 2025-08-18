@@ -12,13 +12,13 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.market.MarketUtils;
 import de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils;
 import de.schafunschaf.bountiesexpanded.helper.ui.TooltipAPIUtils;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.NameStringCollection;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BaseBountyIntel;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.BountyResult;
-import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.RareFlagshipManager;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.BountyEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler;
@@ -29,6 +29,7 @@ import lombok.Setter;
 import java.awt.*;
 
 import static com.fs.starfarer.api.campaign.comm.IntelInfoPlugin.ListInfoMode;
+import static de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils.DEFAULT_IMAGE_HEIGHT;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 import static de.schafunschaf.bountiesexpanded.util.FormattingTools.singularOrPlural;
@@ -67,7 +68,7 @@ public class PirateBountyEntity implements BountyEntity {
         this.targetedPerson = targetedPerson;
         this.spawnLocation = spawnLocation;
         this.missionHandler = missionHandler;
-        this.pirateBountyIcon = fleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY) ? "bountiesExpanded_pirate_silly" : "bountiesExpanded_pirate";
+        this.pirateBountyIcon = "bountiesExpanded_pirate";
         String title = (String) CollectionUtils.getRandomEntry(NameStringCollection.pirateTitles);
         String market;
         MarketAPI factionMarket = MarketUtils.getRandomFactionMarket(offeringFaction);
@@ -107,9 +108,9 @@ public class PirateBountyEntity implements BountyEntity {
         baseBountyIntel.bullet(info);
 
         if (isNull(result)) {
-            info.addPara("Offered by: %s", initPad, bulletColor, offeringFaction.getBaseUIColor(), offeringFaction.getDisplayName());
+            info.addPara("Offered by: %s", initPad, bulletColor, offeringFaction.getBaseUIColor(), Misc.ucFirst(offeringFaction.getDisplayNameWithArticle()));
             info.addPara("Reward: %s", bulletPadding, bulletColor, highlightColor, Misc.getDGSCredits(baseReward));
-            info.addPara("Time left: %s", bulletPadding, bulletColor, highlightColor, days + singularOrPlural(days, " day"));
+            info.addPara("Time left: %s" + singularOrPlural(days, " day"), bulletPadding, bulletColor, highlightColor, String.valueOf(days));
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:
@@ -137,9 +138,9 @@ public class PirateBountyEntity implements BountyEntity {
         String targetName = targetedPerson.getNameString();
         String himOrHerself = targetedPerson.getHimOrHer() + "self";
         String offeringFactionName = offeringFaction.getDisplayNameWithArticle();
-        String briefingText = String.format("%s, also known as the %s, has proven %s as a big enough annoyance for %s which can't be ignored any longer.\n\n" +
-                        "A bounty was now offered for the %s of that %s %s.",
-                targetName, pirateTitle, himOrHerself, offeringFactionName,
+        String briefingText = String.format("%s, also known as the %s, has proven %s a big enough annoyance for %s that %s can be ignored no longer.\n\n" +
+                        "A bounty is now offered for the %s of that %s %s.",
+                targetName, pirateTitle, himOrHerself, offeringFactionName, targetedPerson.getHeOrShe(),
                 killWord, piratePersonality, pirateJob);
         Color highlightColor = Misc.getHighlightColor();
         Color offeringFactionColor = offeringFaction.getBaseUIColor();
@@ -149,24 +150,30 @@ public class PirateBountyEntity implements BountyEntity {
 
         BountyResult result = baseBountyIntel.getResult();
         float opad = 10f;
-        int maxShipsOnIntel = 14;
-        boolean showShipsRemaining = fleet.getNumShips() > maxShipsOnIntel;
 
         if (isNull(result)) {
-            TooltipAPIUtils.addCustomImagesWithSingleRepBar(info, width, opad, 10f,
-                    targetedPerson.getPortraitSprite(),
-                    targetedFaction.getLogo(), targetedFaction.getRelToPlayer().getRel());
+            info.addImages(width, DEFAULT_IMAGE_HEIGHT, opad, opad, targetedPerson.getPortraitSprite(), targetedFaction.getLogo());
             info.addSectionHeading("Briefing", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
             info.addPara(briefingText, opad, highlightColors, highlightStrings);
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
-            DescriptionUtils.generateFakeHideoutDescription(info, baseBountyIntel, opad);
             DescriptionUtils.generateFancyFleetDescription(info, opad, fleet, targetedPerson);
+            DescriptionUtils.generateFakeHideoutDescription(info, baseBountyIntel, opad);
 
             info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
-            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, maxShipsOnIntel, 2, showShipsRemaining);
-            DescriptionUtils.generateThreatDescription(info, fleet, opad);
+            info.addPara("The bounty posting also contains partial intel on some of the ships under " + targetedPerson.getHisOrHer() + " command.", opad);
+            if (!Settings.isDebugActive()) {
+                DescriptionUtils.generatePartialShipListForIntel(info, width, opad, fleet, true);
+            }
+            else {
+                DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, false);
+                DescriptionUtils.addFleetDebugInfo(info, width, opad, fleet);
+                info.addPara("FLEET QUALITY: " + fleetQuality, 0f);
+                info.addPara("TIER: " + getLevel(), 0f);
+                info.addPara("DIFFICULTY: %s",
+                        0f, difficulty.getColor(), difficulty.getShortDescription());
+            }
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:

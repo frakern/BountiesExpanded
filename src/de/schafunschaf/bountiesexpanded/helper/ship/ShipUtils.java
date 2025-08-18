@@ -9,6 +9,7 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.ids.HullMods;
+import com.fs.starfarer.api.loading.VariantSource;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.interactions.encounters.GuaranteedShipRecoveryFleetEncounterContext;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.interactions.encounters.NoShipRecoveryFleetEncounterContext;
 import org.jetbrains.annotations.NotNull;
@@ -108,6 +109,10 @@ public class ShipUtils {
     }
 
     public static void upgradeShip(FleetMemberAPI fleetMember, int numSMods, Random random) {
+        upgradeShip(fleetMember, numSMods, random, 1f);
+    }
+
+    public static void upgradeShip(FleetMemberAPI fleetMember, int numSMods, Random random, float probability) {
         if (!fleetMember.getVariant().getSMods().isEmpty())
             return;
 
@@ -117,36 +122,22 @@ public class ShipUtils {
         if (isNull(random))
             random = new Random();
 
-        ShipVariantAPI shipVariant = fleetMember.getVariant();
-        for (int i = 0; i < numSMods; i++)
-            HullModUtils.upgradeHullMod(shipVariant, random);
+        boolean refit = false;
 
-        fleetMember.setVariant(shipVariant, true, true);
-    }
-
-    public static void addMinorUpgrades(FleetMemberAPI fleetMember, Random random) {
-        if (isNull(random))
-            random = new Random();
-        ShipVariantAPI shipVariant = fleetMember.getVariant();
-
-        boolean hasSafetyOverrides = false;
-
-        for (String hullModId : shipVariant.getHullMods()) {
-            if (hullModId.equals(HullMods.SAFETYOVERRIDES)) {
-                hasSafetyOverrides = true;
-                break;
+        ShipVariantAPI shipVariant = fleetMember.getVariant().clone();
+        shipVariant.setSource(VariantSource.REFIT);
+        shipVariant.setOriginalVariant(null);
+        for (int i = 0; i < numSMods; i++) {
+            if (random.nextFloat() <= probability) {
+                refit = true;
+                HullModUtils.addSMod(shipVariant, random);
             }
         }
 
-        if (!HullModUtils.hasModBuiltIn(shipVariant, HullMods.REINFORCEDHULL))
-            shipVariant.addPermaMod(HullMods.REINFORCEDHULL, true);
-        else
-            shipVariant.addPermaMod(HullModUtils.getRandomFreeSMod(shipVariant, random), true);
-
-        if (hasSafetyOverrides && !shipVariant.hasHullMod(HullMods.HARDENED_SUBSYSTEMS))
-            shipVariant.addMod(HullMods.HARDENED_SUBSYSTEMS);
-
-        fleetMember.setVariant(shipVariant, true, true);
+        if (refit) {
+            fleetMember.setVariant(shipVariant, true, true);
+            fleetMember.updateStats();
+        }
     }
 
     public static float getFleetMemberStrength(FleetMemberAPI member, boolean withHull, boolean withQuality, boolean withCaptain) {

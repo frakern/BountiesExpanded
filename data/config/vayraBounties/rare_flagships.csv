@@ -1,4 +1,27 @@
 bounty,variant,factions,weight,source
+bountiesexpanded_lasher_luddic_path_Raider,lasher_luddic_path_Raider,"luddic_path",1,desperate flight in
+bountiesexpanded_hyperion_pirate,hyperion_Strike,"pirates",0.1,high-profile theft of
+bountiesexpanded_tempest_pirates,tempest_Starting,"pirates, independent",0.5,capture of
+bountiesexpanded_afflictor_d_pirates,afflictor_d_pirates_Strike,"pirates",0.5,capture of
+bountiesexpanded_lasher_d_pirates,lasher_d_CS,"pirates",0.3,capture of
+bountiesexpanded_medusa_piratesandindies,medusa_Attack,"pirates, independent",0.5,capture of
+bountiesexpanded_sunder_d_pirates,sunder_d_Assault,"pirates",1,capture of
+bountiesexpanded_hammerhead_d_pirates,hammerhead_d_CS,"pirates",0.8,capture of
+bountiesexpanded_eagle_d_pirates,eagle_d_Assault,"pirates",0.5,capture of
+bountiesexpanded_falcon_p_pirates,falcon_p_Strike,pirates,1,high-profile attacks in
+bountiesexpanded_paragon_Raider_pirates,paragon_Raider,"pirates",0.2,illicit acquisition of
+
+bountiesexpanded_scarab_tritach,scarab_Experimental,"tritachyon",0.5,series of suspected false-flag attacks in
+bountiesexpanded_hyperion_ttandindies,hyperion_Strike,"tritachyon, independent",0.3,private purchase of
+bountiesexpanded_anubis_Standard,anubis_Standard,"tritachyon",0.6,appointment to the Chief Executive Officer position of
+bountiesexpanded_astral_Elite,astral_Elite,"tritachyon, independent",0.6,appointment to the Chief Executive Officer position of
+
+bountiesexpanded_centurion_LG_Assault,centurion_LG_Assault,"sindrian_diktat",1,assumption of command of
+bountiesexpanded_hammerhead_LG_Elite,hammerhead_LG_Elite,"sindrian_diktat",0.5,assumption of command of
+bountiesexpanded_sunder_LG_Assault,sunder_LG_Assault,"sindrian_diktat",0.5,assumption of command of
+bountiesexpanded_eagle_LG_Assault,eagle_LG_Assault,"sindrian_diktat",1,assumption of command of
+bountiesexpanded_executor_Elite,executor_Elite,"sindrian_diktat",0.5,assumption of command of
+
 ,,,,
 # NOTES,,,,
 # bounty : line ID. Must be unique across all mods. I recommend a prefix,,,,

@@ -8,10 +8,12 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.CoreReputationPlugin;
+import com.fs.starfarer.api.impl.campaign.ids.Ranks;
 import com.fs.starfarer.api.impl.campaign.intel.BaseEventManager;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.market.MarketUtils;
 import de.schafunschaf.bountiesexpanded.helper.mission.MissionTextUtils;
 import de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils;
@@ -31,6 +33,7 @@ import lombok.Setter;
 import java.awt.*;
 
 import static com.fs.starfarer.api.campaign.comm.IntelInfoPlugin.ListInfoMode;
+import static de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils.DEFAULT_IMAGE_HEIGHT;
 import static de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler.MissionType;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
@@ -75,7 +78,7 @@ public class WarCriminalEntity implements BountyEntity {
         this.dropOffLocation = dropOffLocation;
         this.missionHandler = missionHandler;
         this.offeringPerson = offeringFaction.createRandomPerson();
-        this.warCriminalIcon = fleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY) ? "bountiesExpanded_warcriminal_silly" : "bountiesExpanded_warcriminal";
+        this.warCriminalIcon = "bountiesExpanded_warcriminal";
         MarketAPI randomFactionMarket = MarketUtils.getRandomFactionMarket(offeringFaction);
         if (isNotNull(randomFactionMarket))
             this.crimeMarketName = randomFactionMarket.getName();
@@ -122,7 +125,7 @@ public class WarCriminalEntity implements BountyEntity {
             }
 
             info.addPara("Reward: %s", bulletPadding, bulletColor, highlightColor, Misc.getDGSCredits(baseReward));
-            info.addPara("Time left: %s", bulletPadding, bulletColor, highlightColor, days + singularOrPlural(days, " day"));
+            info.addPara("Time left: %s" + singularOrPlural(days, " day"), bulletPadding, bulletColor, highlightColor, String.valueOf(days));
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:
@@ -149,7 +152,7 @@ public class WarCriminalEntity implements BountyEntity {
     public void createSmallDescription(BaseBountyIntel baseBountyIntel, TooltipMakerAPI info, float width, float height) {
         boolean isRetrievalMission = MissionType.RETRIEVAL.equals(missionHandler.getMissionType());
         boolean hasRareFlagship = fleet.getMemoryWithoutUpdate().contains(RareFlagshipManager.RARE_FLAGSHIP_KEY);
-        String targetRankAndName = targetedPerson.getRank() + " " + targetedPerson.getNameString();
+        String targetRankAndName = targetedPerson.getFaction().getRank(targetedPerson.getRankId()) + " " + targetedPerson.getNameString();
         String hisOrHerOffering = offeringPerson.getHisOrHer();
         String hisOrHerTargeted = targetedPerson.getHisOrHer();
         String heOrSheTargeted = targetedPerson.getHeOrShe();
@@ -163,28 +166,30 @@ public class WarCriminalEntity implements BountyEntity {
                 ? String.format("%s has posted a reward for the %s of %s. %s is accused for stealing %s from a private collector.\n\n" +
                         "The mission contractor, %s, requires you to be especially careful with the recovery of %s ship. Any lasting damage done will reduce the payout.",
                 offeringFactionUCFirst, killWord, targetRankAndName, Misc.ucFirst(heOrSheTargeted), shipClassAndDesignation, offeringPerson.getNameString(), hisOrHerOffering)
-                : String.format("%s has posted a bounty for the %s of %s after multiple crimes against military and civilian personnel.\n\n" +
-                        "The latest entry on the ever-growing list of misconducts was %s %s.",
-                offeringFactionUCFirst, killWord, targetRankAndName, hisOrHerTargeted, crimeReasonString);
+                : String.format("%s has posted a bounty for the %s of %s for their brazen assaults on %s personnel and infrastructure.\n\n" +
+                        "The latest entry in %s ever-growing list of crimes and misdeeds was %s.",
+                offeringFactionUCFirst, killWord, targetRankAndName, offeringFaction.getDisplayName(), hisOrHerTargeted, crimeReasonString);
         Color[] highlightColors = isRetrievalMission
-                ? new Color[]{offeringFactionColor, targetedFactionColor, highlightColor, offeringFactionColor}
-                : new Color[]{offeringFactionColor, targetedFactionColor, offeringFactionColor};
+                ? new Color[]{offeringFactionColor, targetedFactionColor, highlightColor, highlightColor}
+                : new Color[]{offeringFactionColor, targetedFactionColor, offeringFactionColor, offeringFactionColor};
         String[] highlightStrings = isRetrievalMission
                 ? new String[]{offeringFactionUCFirst, targetRankAndName, shipClassAndDesignation, offeringPerson.getNameString()}
-                : new String[]{offeringFactionUCFirst, targetRankAndName, crimeReasonString};
+                : new String[]{offeringFactionUCFirst, targetRankAndName, offeringFaction.getDisplayName(), crimeReasonString};
+
 
         BountyResult result = baseBountyIntel.getResult();
         float opad = 10f;
 
         if (isNull(result)) {
-            TooltipAPIUtils.addFactionFlagsWithRep(info, width, opad, opad, offeringFaction, targetedFaction);
+            info.addImages(width, DEFAULT_IMAGE_HEIGHT, opad, opad, targetedPerson.getPortraitSprite(), targetedFaction.getLogo());
             info.addSectionHeading("Briefing", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
             info.addPara(briefingText, opad, highlightColors, highlightStrings);
 
             addBulletPoints(baseBountyIntel, info, ListInfoMode.IN_DESC);
 
-            DescriptionUtils.generatePatrolDescription(info, baseBountyIntel, opad, true);
             DescriptionUtils.generateFancyFleetDescription(info, opad, fleet, targetedPerson);
+            DescriptionUtils.generateFancyCommanderDescription(info, opad, fleet, targetedPerson);
+            DescriptionUtils.generatePatrolDescription(info, baseBountyIntel, opad);
 
             if (isRetrievalMission) {
                 info.addSectionHeading("Target Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
@@ -192,8 +197,16 @@ public class WarCriminalEntity implements BountyEntity {
             }
 
             info.addSectionHeading("Fleet Intel", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, isRetrievalMission ? 0f : opad);
-            DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, fleet.getNumShips(), 3, false);
-            DescriptionUtils.generateThreatDescription(info, fleet, opad);
+            info.addPara("Since this is an official military operation, %s has transmitted a complete intel report.",
+                    opad, offeringFaction.getBaseUIColor(), offeringFaction.getDisplayNameWithArticle());
+            DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, true);
+            if (Settings.isDebugActive()) {
+                DescriptionUtils.addFleetDebugInfo(info, width, opad, fleet);
+                info.addPara("FLEET QUALITY: " + fleetQuality, 0f);
+                info.addPara("TIER: " + getLevel(), 0f);
+                info.addPara("DIFFICULTY: %s",
+                        0f, difficulty.getColor(), difficulty.getShortDescription());
+            }
         } else {
             switch (result.type) {
                 case END_PLAYER_BOUNTY:
@@ -270,6 +283,7 @@ public class WarCriminalEntity implements BountyEntity {
         returnString = returnString.replace("$market", crimeMarketName);
         returnString = returnString.replace("$crime", crimeType);
         returnString = returnString.replace("$victim", crimeVictim);
+        returnString = returnString.replace("$facLeader", offeringFaction.getPost(Ranks.FACTION_LEADER));
         returnString = returnString.replace("$aOrAnFaction", FormattingTools.aOrAn(offeringFaction.getDisplayName()) + " " + offeringFaction.getDisplayName());
 
         return returnString;

@@ -1,0 +1,67 @@
+fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
+baseReward,Base Bounty Reward,Int,40000,,Base bounty reward per fleet point.,10000,60000,
+rewardPerTier,Additional Bounty Reward Per Tier,Int,15000,,Additional bounty reward per difficulty tier.,1000,30000,
+chanceEasy,Chance (Easy),Double,1.0,,Chance that easy difficulty bounties will be picked.,0,10.0,
+chanceMedium,Chance (Medium),Double,2.0,,Chance that medium difficulty bounties will be picked.,0,10.0,
+chanceChallenging,Chance (Challenging),Double,2.0,,Chance that challenging difficulty bounties will be picked.,0,10.0,
+chanceHard,Chance (Hard),Double,1.0,,Chance that hard difficulty bounties will be picked.,0,10.0,
+smods,Add S-Mods,Boolean,true,,Add S-Mods to bounty fleets. Weighted so that flagships and larger fleets get more S-mods.,,,
+
+skirmish,Skirmish-Bounty-Settings,Header,Skirmish-Bounty-Settings,,,,,Skirmish
+skirmishActive,Enable Skirmish Bounties,Boolean,true,,,,,Skirmish
+skirmishSpawnChance,Spawn Chance,Double,0.3,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,Skirmish
+skirmishMinBounties,Min Bounties,Int,0,,Minimum currently active bounties.,0,10,Skirmish
+skirmishMaxBounties,Max Bounties,Int,2,,Maximum currently active bounties.,1,10,Skirmish
+skirmishMinDuration,Min Duration,Int,30,,Minimum bounty duration (in days).,1,360,Skirmish
+skirmishMaxDuration,Max Duration,Int,60,,Maximum bounty duration (in days).,1,360,Skirmish
+skirmishBaseShipBounty,Base Ship Bounty,Int,1000,,Base amount for ship bounty calculation. Modified by hull size.,0,5000,Skirmish
+
+assassination,Assassination-Bounty-Settings,Header,Assassination-Bounty-Settings,,,,,Assassination
+assassinationActive,Enable Assassination Bounties,Boolean,true,,,,,Assassination
+assassinationSpawnChance,Spawn Chance,Double,0.1,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,Assassination
+assassinationMinBounties,Min Bounties,Int,0,,Minimum currently active bounties.,0,10,Assassination
+assassinationMaxBounties,Max Bounties,Int,2,,Maximum currently active bounties.,1,10,Assassination
+assassinationMinTravelDistance,Min Travel Distance,Double,5.0,,Minimum travel distance in light-years.,1,10,Assassination
+assassinationBaseRewardMultiplier,Base Reward,Double,0.5,,Base reward for killing the target (as percent of standard bounty reward).,0,2,Assassination
+assassinationBonusRewardMultiplier,Bonus Reward,Double,1.0,,Bonus reward for killing the target in hyperspace (as percent of standard bounty reward).,0,5,Assassination
+assassinationMinTier,Min Difficulty Tier,Int,3,,Minimum difficulty tier. Spawned fleet will otherwise be based on player fleet size.,0,10,Assassination
+
+warCriminal,War-Criminal-Bounty-Settings,Header,War-Criminal-Bounty-Settings,,,,,War Criminal
+warCriminalActive,Enable War Criminal Bounties,Boolean,true,,,,,War Criminal
+warCriminalSpawnChance,Spawn Chance,Double,0.2,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,War Criminal
+warCriminalMinBounties,Min Bounties,Int,0,,Minimum currently active bounties.,0,10,War Criminal
+warCriminalMaxBounties,Max Bounties,Int,2,,Maximum currently active bounties.,1,10,War Criminal
+warCriminalMinDuration,Min Duration,Int,30,,Minimum bounty duration (in days).,1,360,War Criminal
+warCriminalMaxDuration,Max Duration,Int,60,,Maximum bounty duration (in days).,1,360,War Criminal
+warCriminalMinTier,Min Difficulty Tier,Int,5,,Minimum difficulty tier. Spawned fleet will otherwise be based on player fleet size.,0,10,War Criminal
+
+pirateBounty,Pirate-Bounty-Settings,Header,Pirate-Bounty-Settings,,,,,Pirate
+pirateBountyActive,Enable Pirate Bounties,Boolean,true,,,,,Pirate
+pirateBountySpawnChance,Spawn Chance,Double,0.8,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,Pirate
+pirateBountyMinBounties,Min Bounties,Int,3,,Minimum currently active bounties.,0,10,Pirate
+pirateBountyMaxBounties,Max Bounties,Int,5,,Maximum currently active bounties.,1,10,Pirate
+pirateBountyMinDuration,Min Duration,Int,30,,Minimum bounty duration (in days).,1,360,Pirate
+pirateBountyMaxDuration,Max Duration,Int,60,,Maximum bounty duration (in days).,1,360,Pirate
+pirateBountyMinTier,Min Difficulty Tier,Int,0,,Minimum difficulty tier. Spawned fleet will otherwise be based on player fleet size.,0,10,Pirate
+
+deserterBounty,Deserter-Bounty-Settings,Header,Deserter-Bounty-Settings,,,,,Deserter
+deserterBountyActive,Enable Deserter Bounties,Boolean,true,,,,,Deserter
+deserterBountySpawnChance,Spawn Chance,Double,0.3,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,Deserter
+deserterBountyMinBounties,Min Bounties,Int,0,,Minimum currently active bounties.,0,10,Deserter
+deserterBountyMaxBounties,Max Bounties,Int,2,,Maximum currently active bounties.,1,10,Deserter
+deserterBountyMinDuration,Min Duration,Int,30,,Minimum bounty duration (in days).,1,360,Deserter
+deserterBountyMaxDuration,Max Duration,Int,60,,Maximum bounty duration (in days).,1,360,Deserter
+deserterBountyMinTier,Min Difficulty Tier,Int,3,,Minimum difficulty tier. Spawned fleet will otherwise be based on player fleet size.,0,10,Deserter
+
+bountyHunter,Bounty-Hunter-Settings,Header,Bounty-Hunter-Settings,,,,,Bounty Hunter
+bountyHunterActive,Enable Bounty Hunters,Boolean,true,,,,,Bounty Hunter
+bountyHunterSpawnChance,Spawn Chance,Double,0.1,,Chance for bounty to spawn. 1 = always will spawn when valid bounty is generated.,0.1,1.0,Bounty Hunter
+bountyHunterMinBounties,Min Bounties,Int,0,,Minimum currently active bounty hunters.,0,10,Bounty Hunter
+bountyHunterMaxBounties,Max Bounties,Int,2,,Maximum currently active bounty hunters.,1,10,Bounty Hunter
+bountyHunterMinTier,Min Difficulty Tier,Int,1,,Minimum difficulty tier. Spawned fleet will otherwise be based on player fleet size.,0,10,Bounty Hunter
+
+debug,Debug-Settings,Header,Debug-Settings,,,,,Debug
+debug,Enable Debugging,Boolean,false,,,,,Debug
+disableVanillaBounties,Disable Vanilla Bounties,Boolean,true,,Disables Vanilla pirate/deserter person bounties. (Changing this setting requires quitting and restarting Starsector),,,Debug
+retrievalEventActive,Enable Retrieval Missions,Boolean,false,,(EXPERIMENTAL) May contain some bugs.,,,Debug
+retrievalEventDuration,Retrieval Missions Duration,Int,30,,Time given to return ship (in days).,10,60,Debug

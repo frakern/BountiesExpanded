@@ -44,8 +44,13 @@ public class DeserterBountyIntel extends BaseBountyIntel {
         if (isDone || isNotInvolved || isNotComplete)
             return;
 
+        if (Math.random() <= 0.25) {
+            giveBreadcrumb(Global.getSector().getPlayerFleet());
+        }
+
         float targetRepAfterBattle = getUpdatedRep(deserterBountyEntity.getTargetedFaction());
 
+        // @TODO Add check for offering faction rep and skip payment if too low.
         Global.getSector().getPlayerFleet().getCargo().getCredits().add(payment);
 
         ReputationActionResponsePlugin.ReputationAdjustmentResult rep = Global.getSector().adjustPlayerReputation(
@@ -65,19 +70,21 @@ public class DeserterBountyIntel extends BaseBountyIntel {
 
     @Override
     public SectorEntityToken getMapLocation(SectorMapAPI map) {
-        if (Settings.isDebugActive())
-            return fleet.getContainingLocation().createToken(fleet.getLocation().x, fleet.getLocation().y);
-
-        Constellation c = travelDestination.getConstellation();
-        SectorEntityToken entity = null;
-        if (c != null && map != null) {
-            entity = map.getConstellationLabelEntity(c);
+        if (Settings.isDebugActive()) {
+            return super.getMapLocation(map);
         }
+        else {
+            Constellation c = travelDestination.getConstellation();
+            SectorEntityToken entity = null;
+            if (c != null && map != null) {
+                entity = map.getConstellationLabelEntity(c);
+            }
 
-        if (entity == null) {
-            entity = travelDestination;
+            if (entity == null) {
+                entity = travelDestination;
+            }
+
+            return entity;
         }
-
-        return entity;
     }
 }

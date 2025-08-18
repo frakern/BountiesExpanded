@@ -15,7 +15,6 @@ import de.schafunschaf.bountiesexpanded.helper.text.TextUtils;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.NameStringCollection;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.EntityProvider;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
-import de.schafunschaf.bountiesexpanded.util.CollectionUtils;
 import lombok.extern.log4j.Log4j;
 
 import java.util.Random;
@@ -70,7 +69,7 @@ public class PirateBountyManager extends BaseEventManager {
         do {
             EveryFrameScript pirateBountyEvent = createPirateBountyEvent();
             addActive(pirateBountyEvent);
-        } while (getActiveCount() < 3);
+        } while (getActiveCount() < getMinConcurrent());
     }
 
     public PirateBountyIntel createPirateBountyEvent() {
@@ -87,7 +86,7 @@ public class PirateBountyManager extends BaseEventManager {
         String pirateFleetName;
 
         if (Math.random() < 0.666f)
-            pirateFleetName = String.format("%s %s's Fleet", person.getRankId(), person.getName().getLast());
+            pirateFleetName = String.format("%s %s's Fleet", person.getFaction().getRank(person.getRankId()), person.getName().getLast());
         else
             pirateFleetName = String.format("%s's %s",
                     person.getName().getFirst(),
@@ -97,16 +96,19 @@ public class PirateBountyManager extends BaseEventManager {
         fleet.setName(pirateFleetName);
         FleetGenerator.spawnFleet(fleet, spawnLocation);
         MemoryAPI fleetMemory = fleet.getMemoryWithoutUpdate();
-        fleet.getCurrentAssignment().setActionText((String) CollectionUtils.getRandomEntry(NameStringCollection.fleetActionTexts));
-        fleet.setTransponderOn(true);
+        //fleet.getCurrentAssignment().setActionText((String) CollectionUtils.getRandomEntry(NameStringCollection.fleetActionTexts));
+        fleet.setTransponderOn(false);
         fleetMemory.set(MemFlags.MEMORY_KEY_PIRATE, true);
+        fleetMemory.set(MemFlags.MEMORY_KEY_MAKE_HOSTILE, true);
         fleetMemory.set(EntityProvider.FLEET_IDENTIFIER_KEY, PIRATE_BOUNTY_FLEET_KEY);
         fleetMemory.set(PIRATE_BOUNTY_FLEET_KEY, pirateBountyEntity);
+
+        EntityProvider.markRecentlyUsedForBounty(spawnLocation.getStarSystem());
 
         log.info("BountiesExpanded - Spawning Pirate Bounty: By "
                 + pirateBountyEntity.getOfferingFaction().getDisplayName() + " | Against "
                 + pirateBountyEntity.getTargetedFaction().getDisplayName() + " | At "
-                + spawnLocation.getName());
+                + spawnLocation.getContainingLocation().getName());
         log.info("Player-FP at creation: " + Global.getSector().getPlayerFleet().getFleetPoints());
         log.info("Enemy-FP at creation: " + pirateBountyEntity.getFleet().getFleetPoints());
         log.info("Difficulty: " + difficulty.getShortDescription());

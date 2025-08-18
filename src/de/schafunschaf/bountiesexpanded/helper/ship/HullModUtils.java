@@ -9,13 +9,14 @@ import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflater;
 import com.fs.starfarer.api.impl.campaign.ids.HullMods;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.HullModSpecAPI;
+import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.util.Misc;
 import de.schafunschaf.bountiesexpanded.util.ComparisonTools;
 
 import java.util.*;
 
 public class HullModUtils {
-    public static void upgradeHullMod(ShipVariantAPI shipVariant, Random random) {
+    public static void addSMod(ShipVariantAPI shipVariant, Random random) {
         if (ComparisonTools.isNull(random))
             random = new Random();
         Map<String, Integer> hullModsWithOP = new HashMap<>();
@@ -57,27 +58,14 @@ public class HullModUtils {
         if (id.isEmpty())
             if (!hasSafetyOverrides && Misc.getSizeNum(shipVariant.getHullSize()) >= 3f && !hasModBuiltIn(shipVariant, HullMods.INTEGRATED_TARGETING_UNIT))
                 id = HullMods.INTEGRATED_TARGETING_UNIT;
+            else if (hasSafetyOverrides && !hasModBuiltIn(shipVariant, HullMods.HARDENED_SUBSYSTEMS))
+                id = HullMods.HARDENED_SUBSYSTEMS;
             else if (!hasModBuiltIn(shipVariant, HullMods.HARDENED_SHIELDS))
                 id = HullMods.HARDENED_SHIELDS;
-            else if (!hasModBuiltIn(shipVariant, HullMods.HEAVYARMOR))
-                id = HullMods.HEAVYARMOR;
             else
                 id = getRandomFreeSMod(shipVariant, random);
 
         shipVariant.addPermaMod(id, true);
-    }
-
-    public static void addRandomSMods(FleetMemberAPI fleetMember, int numSMods, Random random) {
-        if (ComparisonTools.isNull(random))
-            random = new Random();
-        ShipVariantAPI shipVariant = fleetMember.getVariant();
-        int preUpgradeSModsAmount = shipVariant.getSMods().size();
-
-        do
-            shipVariant.addPermaMod(getRandomFreeHullMod(shipVariant, random), true);
-        while ((shipVariant.getSMods().size() - preUpgradeSModsAmount) < numSMods);
-
-        fleetMember.setVariant(shipVariant, true, true);
     }
 
     public static boolean hasModBuiltIn(ShipVariantAPI shipVariant, String hullModId) {
@@ -102,7 +90,8 @@ public class HullModUtils {
     public static String getRandomFreeSMod(ShipVariantAPI shipVariant, Random random) {
         if (ComparisonTools.isNull(random))
             random = new Random();
-        List<String> hullMods = new ArrayList<>(Arrays.asList(HullMods.ARMOREDWEAPONS,
+        List<String> hullMods = new ArrayList<>(Arrays.asList(
+                HullMods.ARMOREDWEAPONS,
                 HullMods.ADVANCEDOPTICS,
                 HullMods.ACCELERATED_SHIELDS,
                 HullMods.ARMOREDWEAPONS,

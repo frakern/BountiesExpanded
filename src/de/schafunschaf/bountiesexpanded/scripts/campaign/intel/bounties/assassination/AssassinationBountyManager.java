@@ -14,9 +14,7 @@ import de.schafunschaf.bountiesexpanded.Settings;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetGenerator;
 import de.schafunschaf.bountiesexpanded.helper.fleet.FleetUpgradeHelper;
 import de.schafunschaf.bountiesexpanded.helper.ship.ShipUtils;
-import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.NameStringCollection;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.entity.EntityProvider;
-import de.schafunschaf.bountiesexpanded.util.CollectionUtils;
 import lombok.extern.log4j.Log4j;
 
 import java.util.Random;
@@ -75,7 +73,7 @@ public class AssassinationBountyManager extends BaseEventManager {
         }
         final CampaignFleetAPI bountyFleet = assassinationBountyEntity.getFleet();
         bountyFleet.setNoFactionInName(true);
-        bountyFleet.setName((String) CollectionUtils.getRandomEntry(NameStringCollection.suspiciousNames));
+        //bountyFleet.setName((String) CollectionUtils.getRandomEntry(NameStringCollection.suspiciousNames));
         FleetGenerator.spawnFleet(bountyFleet, assassinationBountyEntity.getSpawnLocation());
         bountyFleet.setTransponderOn(false);
         bountyFleet.getAI().clearAssignments();
@@ -134,26 +132,6 @@ public class AssassinationBountyManager extends BaseEventManager {
         log.info("Enemy-FP at creation: " + assassinationBountyEntity.getFleet().getFleetPoints());
         log.info("Difficulty: " + assassinationBountyEntity.getDifficulty().getShortDescription());
 
-        upgradeShips(bountyFleet);
-
         return new AssassinationBountyIntel(assassinationBountyEntity, assassinationBountyEntity.getFleet(), assassinationBountyEntity.getTargetedPerson(), assassinationBountyEntity.getSpawnLocation(), assassinationBountyEntity.getTravelDestination());
-    }
-
-    public void upgradeShips(CampaignFleetAPI bountyFleet) {
-        if (isNull(bountyFleet))
-            return;
-
-        Random random = new Random(bountyFleet.getId().hashCode() * 1337L);
-        int modValue = ((AssassinationBountyEntity) bountyFleet.getMemoryWithoutUpdate().get(AssassinationBountyManager.ASSASSINATION_BOUNTY_FLEET_KEY)).getDifficulty().getFlatModifier();
-        FleetMemberAPI flagship = bountyFleet.getFlagship();
-        if (isNull(flagship))
-            return;
-
-        if (flagship.getVariant().getSMods().isEmpty()) {
-            ShipUtils.upgradeShip(flagship, 2, random);
-            ShipUtils.addMinorUpgrades(flagship, random);
-        }
-
-        FleetUpgradeHelper.upgradeRandomShips(bountyFleet, modValue, modValue * 0.1f, true, random);
     }
 }

@@ -107,10 +107,12 @@ public class AssassinationBountyIntel extends BaseBountyIntel {
     @Override
     public SectorEntityToken getMapLocation(SectorMapAPI map) {
         if (fleet.isInHyperspace()) {
-            if (Settings.isDebugActive())
+            if (Settings.isDebugActive()) {
                 return Global.getSector().getHyperspace().createToken(fleet.getLocationInHyperspace().x, fleet.getLocationInHyperspace().y);
+            }
             return assassinationBountyEntity.getSpawnLocation().getStarSystem().getHyperspaceAnchor();
-        } else if (fleet.getContainingLocation() == assassinationBountyEntity.getTravelDestination().getContainingLocation()) {
+        }
+        else if (fleet.getContainingLocation() == assassinationBountyEntity.getTravelDestination().getContainingLocation()) {
             return assassinationBountyEntity.getTravelDestination().getStarSystem().getHyperspaceAnchor();
         }
         if (Settings.isDebugActive())

@@ -5,8 +5,8 @@ import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.missions.BEMissionResult;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.missions.BEBaseMissionIntel;
+import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.missions.BEMissionResult;
 
 
 
