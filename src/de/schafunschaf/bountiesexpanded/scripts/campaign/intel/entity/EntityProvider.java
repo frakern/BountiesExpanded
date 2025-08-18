@@ -42,10 +42,6 @@ import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.skirmish
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.bounties.warcriminal.WarCriminalEntity;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.Difficulty;
 import de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler;
-import exerelin.campaign.fleets.InvasionFleetManager;
-import exerelin.campaign.intel.colony.ColonyExpeditionIntel;
-import exerelin.campaign.intel.defensefleet.DefenseFleetIntel;
-import exerelin.campaign.intel.fleets.OffensiveFleetIntel;
 import lombok.extern.log4j.Log4j;
 import org.lazywizard.lazylib.MathUtils;
 

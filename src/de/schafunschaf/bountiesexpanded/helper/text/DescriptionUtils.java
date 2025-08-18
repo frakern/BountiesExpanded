@@ -29,7 +29,6 @@ import second_in_command.SCUtils;
 import second_in_command.specs.SCOfficer;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -37,59 +36,30 @@ import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.*;
 
 public class DescriptionUtils {
     public static final float DEFAULT_IMAGE_HEIGHT = 100f;
+    private static int shipsPerCol = 7;
 
     public static void generateFullShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, boolean showThreatDesc) {
-        generateShipListForIntel(info, width, padding, fleet, fleet.getNumShips(), showThreatDesc, false, false);
+        Random random = new Random(fleet.getCommander().getNameString().hashCode() * 170000L);
+        List<FleetMemberAPI> fleetMemberList = FleetGenerator.createCompleteCopyForIntel(fleet);
+        generateShipListForIntel(info, width, padding, fleet, fleetMemberList, fleet.getNumShips(), showThreatDesc, false, false, random);
     }
 
-    public static void generateShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, int maxShipsToDisplay, boolean showThreatDesc, boolean patrial, boolean showShipsRemaining) {
-        // @TODO Revert changes here? Adjust debug output
+    public static void generatePartialShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, boolean showThreatDesc) {
         Random random = new Random(fleet.getCommander().getNameString().hashCode() * 170000L);
+        List<FleetMemberAPI> fleetMemberList = FleetGenerator.createCopyForIntel(fleet, shipsPerCol, random);
+        boolean showShipsRemaining = fleet.getNumShips() > shipsPerCol;
+        generateShipListForIntel(info, width, padding, fleet, fleetMemberList, shipsPerCol, showThreatDesc, true, showShipsRemaining, random);
+    }
 
-        List<FleetMemberAPI> shipList = new ArrayList<FleetMemberAPI>();
-
-        boolean deflate = false;
-        if (!fleet.isInflated()) {
-            fleet.inflateIfNeeded();
-            deflate = true;
-        }
-
-        if (Settings.isDebugActive()) {
-            patrial = false;
-            shipList = fleet.getMembersWithFightersCopy();
-        }
-        else {
-//				WeightedRandomPicker<FleetMemberAPI> picker = new WeightedRandomPicker<FleetMemberAPI>(random);
-//				picker.addAll(fleet.getFleetData().getMembersListCopy());
-//				int picks = (int) Math.round(picker.getItems().size() * 0.5f);
-
-            List<FleetMemberAPI> members = fleet.getFleetData().getMembersListCopy();
-
-            for (FleetMemberAPI member : members) {
-                if (shipList.size() >= maxShipsToDisplay) break;
-
-                if (member.isFighterWing()) continue;
-
-                float prob = (float) member.getFleetPointCost() / 20f;
-                prob += (float) maxShipsToDisplay / (float) members.size();
-                if (member.isFlagship()) prob = 1f;
-                //if (members.size() <= maxShipsToDisplay) prob = 1f;
-
-                if (random.nextFloat() > prob) continue;
-
-                FleetMemberAPI copy = Global.getFactory().createFleetMember(FleetMemberType.SHIP, member.getVariant());
-                if (member.isFlagship()) {
-                    copy.setCaptain(fleet.getCommander());
-                }
-                shipList.add(copy);
-            }
-        }
-
+    public static void generateShipListForIntel(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet, List<FleetMemberAPI> shipList, int maxShipsToDisplay, boolean showThreatDesc, boolean partial, boolean showShipsRemaining, Random random) {
         if (isNullOrEmpty(shipList))
             return;
 
-        int maxRows = 10;
-        if (patrial)
+        if (isNull(random))
+            random = new Random(shipList.get(0).getId().hashCode());
+
+        int maxRows = 0;
+        if (partial)
             maxRows = 1;
 
         List<FleetMemberAPI> shipListDisplay;
@@ -100,14 +70,13 @@ public class DescriptionUtils {
             shipListDisplay = FleetUtils.orderListBySize(shipList);
         }
 
-        int cols = 7;
-        int rows = (int) Math.ceil(shipList.size() / (float) cols);
+        int rows = (int) Math.ceil(shipList.size() / (float) shipsPerCol);
         if (maxRows > 0 && rows > maxRows)
             rows = maxRows;
 
-        float iconSize = width / cols;
+        float iconSize = width / shipsPerCol;
 
-        info.addShipList(cols, rows, iconSize, fleet.getFaction().getBaseUIColor(), shipListDisplay, padding);
+        info.addShipList(shipsPerCol, rows, iconSize, fleet.getFaction().getBaseUIColor(), shipListDisplay, padding);
 
         if (showShipsRemaining && !Settings.isDebugActive()) {
             int num = shipList.size() - shipListDisplay.size();
@@ -129,25 +98,22 @@ public class DescriptionUtils {
 
         if (showThreatDesc) DescriptionUtils.generateThreatDescription(info, fleet, padding);
 
-        if (Settings.isDebugActive()) {
-            info.addSectionHeading("DEBUG INFO", Alignment.MID, padding);
-            info.setBulletedListMode("  - ");
-            //info.setTextWidthOverride(width);
-            int enemyFP = fleet.getFleetPoints();
-            int playerFP = Global.getSector().getPlayerFleet().getFleetPoints();
-            info.addPara("ENEMY FP: " + enemyFP, padding, fleet.getFaction().getBaseUIColor(), String.valueOf(enemyFP));
-            info.addPara("PLAYER FP: " + playerFP, 0f, Misc.getHighlightColor(), String.valueOf(playerFP));
-            info.addPara(String.format("LOCATION: %s", fleet.getContainingLocation()), 0f);
-            if (!fleet.getAssignmentsCopy().isEmpty()) {
-                FleetAssignmentDataAPI assign = fleet.getAssignmentsCopy().get(0);
-                info.addPara(String.format("ASSIGNMENT: %s, %s", assign.getAssignment(),
-                        assign.getActionText()), 0f);
-                info.addPara(String.format("TARGET: %s", assign.getTarget().getName()), 0f);
-            }
-        }
+    }
 
-        if (deflate) {
-            fleet.deflate();
+    public static void addFleetDebugInfo(TooltipMakerAPI info, float width, float padding, CampaignFleetAPI fleet) {
+        info.addSectionHeading("DEBUG INFO", Alignment.MID, padding);
+        info.setBulletedListMode("  - ");
+        //info.setTextWidthOverride(width);
+        int enemyFP = fleet.getFleetPoints();
+        int playerFP = Global.getSector().getPlayerFleet().getFleetPoints();
+        info.addPara("ENEMY FP: " + enemyFP, padding, fleet.getFaction().getBaseUIColor(), String.valueOf(enemyFP));
+        info.addPara("PLAYER FP: " + playerFP, 0f, Misc.getHighlightColor(), String.valueOf(playerFP));
+        info.addPara(String.format("LOCATION: %s", fleet.getContainingLocation()), 0f);
+        if (!fleet.getAssignmentsCopy().isEmpty()) {
+            FleetAssignmentDataAPI assign = fleet.getAssignmentsCopy().get(0);
+            info.addPara(String.format("ASSIGNMENT: %s, %s", assign.getAssignment(),
+                    assign.getActionText()), 0f);
+            info.addPara(String.format("TARGET: %s", assign.getTarget().getName()), 0f);
         }
     }
 

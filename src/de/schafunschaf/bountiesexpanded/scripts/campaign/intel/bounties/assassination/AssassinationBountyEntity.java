@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils.DEFAULT_IMAGE_HEIGHT;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 import static de.schafunschaf.bountiesexpanded.util.FormattingTools.aOrAn;
@@ -234,7 +235,7 @@ public class AssassinationBountyEntity implements BountyEntity {
         float opad = 10f;
 
         if (isNull(result))
-            TooltipAPIUtils.addPersonWithFactionRepBar(info, width, opad, opad, targetedPerson);
+            info.addImages(width, DEFAULT_IMAGE_HEIGHT, opad, opad, targetedPerson.getPortraitSprite(), targetedPerson.getFaction().getLogo());
         else {
             float targetRepChange = result.targetRepAfterBattle - targetRepBeforeBattle;
             TooltipAPIUtils.addPersonWithFactionRepBarAndChange(info, width, opad, opad, targetedPerson, targetRepChange);
@@ -267,6 +268,7 @@ public class AssassinationBountyEntity implements BountyEntity {
 
             if (Settings.isDebugActive()) {
                 DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, false);
+                DescriptionUtils.addFleetDebugInfo(info, width, opad, fleet);
                 info.addPara("FLEET QUALITY: " + fleetQuality, 0f);
                 info.addPara("TIER: " + getLevel(), 0f);
                 info.addPara("DIFFICULTY: %s",

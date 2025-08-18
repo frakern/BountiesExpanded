@@ -33,6 +33,7 @@ import lombok.Setter;
 import java.awt.*;
 
 import static com.fs.starfarer.api.campaign.comm.IntelInfoPlugin.ListInfoMode;
+import static de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils.DEFAULT_IMAGE_HEIGHT;
 import static de.schafunschaf.bountiesexpanded.scripts.campaign.intel.parameter.MissionHandler.MissionType;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
@@ -180,7 +181,7 @@ public class WarCriminalEntity implements BountyEntity {
         float opad = 10f;
 
         if (isNull(result)) {
-            TooltipAPIUtils.addFactionFlagsWithRep(info, width, opad, opad, offeringFaction, targetedFaction);
+            info.addImages(width, DEFAULT_IMAGE_HEIGHT, opad, opad, targetedPerson.getPortraitSprite(), targetedFaction.getLogo());
             info.addSectionHeading("Briefing", baseBountyIntel.getFactionForUIColors().getBaseUIColor(), baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
             info.addPara(briefingText, opad, highlightColors, highlightStrings);
 
@@ -200,6 +201,7 @@ public class WarCriminalEntity implements BountyEntity {
                     opad, offeringFaction.getBaseUIColor(), offeringFaction.getDisplayNameWithArticle());
             DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, true);
             if (Settings.isDebugActive()) {
+                DescriptionUtils.addFleetDebugInfo(info, width, opad, fleet);
                 info.addPara("FLEET QUALITY: " + fleetQuality, 0f);
                 info.addPara("TIER: " + getLevel(), 0f);
                 info.addPara("DIFFICULTY: %s",

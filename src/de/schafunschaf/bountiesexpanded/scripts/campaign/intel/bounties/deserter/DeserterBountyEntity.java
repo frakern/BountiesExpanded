@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static com.fs.starfarer.api.campaign.comm.IntelInfoPlugin.ListInfoMode;
+import static de.schafunschaf.bountiesexpanded.helper.text.DescriptionUtils.DEFAULT_IMAGE_HEIGHT;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNotNull;
 import static de.schafunschaf.bountiesexpanded.util.ComparisonTools.isNull;
 import static de.schafunschaf.bountiesexpanded.util.FormattingTools.singularOrPlural;
@@ -136,13 +137,10 @@ public class DeserterBountyEntity implements BountyEntity {
         Color factionColor = baseBountyIntel.getFactionForUIColors().getBaseUIColor();
         BountyResult result = baseBountyIntel.getResult();
         float opad = 10f;
-        int maxShipsOnIntel = 7;
-        boolean showShipsRemaining = fleet.getNumShips() > maxShipsOnIntel;
 
         if (isNull(result)) {
-            TooltipAPIUtils.addCustomImagesWithSingleRepBar(info, width, opad, 10f,
-                    targetedPerson.getPortraitSprite(),
-                    offeringFaction.getLogo(), offeringFaction.getRelToPlayer().getRel());
+            info.addImages(width, DEFAULT_IMAGE_HEIGHT, opad, opad, targetedPerson.getPortraitSprite(), offeringFaction.getLogo());
+
             Color[] highlightColors = new Color[]{factionColor, highlightColor, highlightColor, highlightColor, factionColor, factionColor};
             info.addSectionHeading("Briefing", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, opad);
             info.addPara(briefingText, opad, highlightColors, targetedPerson.getNameString(), misdeed1, misdeed2, "betrayal", offeringFaction.getDisplayNameWithArticle(), flagship.getShipName());
@@ -161,10 +159,11 @@ public class DeserterBountyEntity implements BountyEntity {
             info.addSectionHeading("Fleet Intel", factionColor, baseBountyIntel.getFactionForUIColors().getDarkUIColor(), Alignment.MID, isRetrievalMission ? 0f : opad);
             info.addPara("The bounty posting also contains partial intel on some of the ships under " + targetedPerson.getHisOrHer() + " command.", opad);
             if (!Settings.isDebugActive()) {
-                DescriptionUtils.generateShipListForIntel(info, width, opad, fleet, maxShipsOnIntel, true, true, showShipsRemaining);
+                DescriptionUtils.generatePartialShipListForIntel(info, width, opad, fleet, true);
             }
             else {
                 DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, false);
+                DescriptionUtils.addFleetDebugInfo(info, width, opad, fleet);
                 info.addPara("FLEET QUALITY: " + fleetQuality, 0f);
                 info.addPara("TIER: " + getLevel(), 0f);
                 info.addPara("DIFFICULTY: %s",

@@ -242,6 +242,7 @@ public class BountyHunterEntity implements BountyEntity {
 
             if (Settings.isDebugActive()) {
                 DescriptionUtils.generateFullShipListForIntel(info, width, opad, fleet, false);
+                DescriptionUtils.addFleetDebugInfo(info, width, opad, fleet);
                 info.addPara("FLEET QUALITY: " + fleetQuality, 0f);
                 info.addPara("TIER: " + getLevel(), 0f);
                 info.addPara("DIFFICULTY: %s",

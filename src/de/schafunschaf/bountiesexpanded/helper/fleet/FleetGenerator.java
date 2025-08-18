@@ -136,6 +136,10 @@ public class FleetGenerator {
         fleet.getAI().addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, hideout, 1000000f, null);
     }
 
+    public static List<FleetMemberAPI> createCompleteCopyForIntel(CampaignFleetAPI fleet) {
+        return createCopyForIntel(fleet, fleet.getNumShips(), null);
+    }
+
     public static List<FleetMemberAPI> createCopyForIntel(CampaignFleetAPI fleet, int numOfShips, Random random) {
         List<FleetMemberAPI> copyList = new ArrayList<>();
         if (isNull(random)) {
